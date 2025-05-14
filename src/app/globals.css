@@ -2,21 +2,21 @@
 
 @font-face {
   font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Regular.ttf");
+  src: url("/fonts/NotoSansKR-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Bold.ttf");
+  src: url("/fonts/NotoSansKR-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Light.ttf");
+  src: url("/fonts/NotoSansKR-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -48,6 +48,7 @@
 }
 
 @theme inline {
+  /* 색상 */
   --color-black: var(--black);
   --color-gray500: var(--gray500);
   --color-gray400: var(--gray400);
@@ -61,8 +62,14 @@
   --color-pink: var(--pink);
   --color-main: var(--main);
 
+  /* 폰트 */
   --font-baskin: var(--baskin);
   --font-noto: var(--noto);
+
+  /* 반응형 */
+  --breakpoint-mobile: 375px;
+  --breakpoint-tablet: 744px;
+  --breakpoint-pc: 1200px;
 }
 
 .font-noto {
