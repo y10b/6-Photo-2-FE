@@ -14,7 +14,7 @@ const Button = ({
   onClick,
   fullWidth = false,
   className = "",
-  type = "button", // HTML 버튼 타입: "button" | "submit"
+  type = "button", 
 }) => {
   const baseStyle =
     "font-noto font-bold rounded-[2px] transition-colors duration-200 text-center";
@@ -22,13 +22,14 @@ const Button = ({
   // ✅ 폰트 크기 분리
   const fontMap = {
     default: "text-[16px]",
+    bigger: "text-[18px]",
     strong: "text-[20px]",
     small: "text-[14px]",
     tiny: "text-[12px]",
   };
   const fontSize = fontMap[font] || fontMap.default;
 
-  // ✅ 박스 크기 역할 정의 (role별 width/height)
+  // ✅ 박스 크기 역할 정의 
   const sizeMap = {
     default: {
       lg: "w-[520px] h-[60px]",
@@ -106,24 +107,21 @@ const Button = ({
 
   const styles = {
     primary: disabled
-      ? classNames(
-          baseStyle,
-          "bg-[var(--gray500)] text-[var(--gray300)] cursor-not-allowed"
-        )
+      ? classNames(baseStyle, "bg-gray500 text-gray300 cursor-not-allowed")
       : classNames(
           baseStyle,
           fontSize,
-          "bg-[var(--main)] text-[var(--black)] hover:brightness-110 cursor-pointer"
+          "bg-main text-black hover:brightness-110 cursor-pointer"
         ),
     outline: disabled
       ? classNames(
           baseStyle,
-          "bg-transparent text-[var(--gray300)] border border-[var(--gray300)] cursor-not-allowed"
+          "bg-transparent text-gray300 border border-gray300 cursor-not-allowed"
         )
       : classNames(
           baseStyle,
           fontSize,
-          "bg-[var(--black)] text-[var(--white)] border border-[var(--white)] hover:opacity-80 cursor-pointer"
+          "bg-gray500 text-white border border-white hover:opacity-80 cursor-pointer"
         ),
   };
 
