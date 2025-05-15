@@ -89,6 +89,54 @@
   text-overflow: ellipsis;
 }
 
+/* 백그라운드 이미지 설정 */
+.bg-custom-landing1bg {
+  background-image: url("/images/landing/landing1bg.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing2 {
+  background-image: url("/images/landing/landing2s.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing3 {
+  background-image: url("/images/landing/landing3_sm.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing4 {
+  background-image: url("/images/landing/landing4_sm.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+@media (min-width: 744px) {
+  .bg-landing2 {
+    background-image: url("/images/landing/landing2md.svg");
+  }
+  .bg-landing3 {
+    background-image: url("/images/landing/landing3_md.png");
+  }
+  .bg-landing4 {
+    background-image: url("/images/landing/landing4_md.png");
+  }
+}
+@media (min-width: 1200px) {
+  .bg-landing2 {
+    background-image: url("/images/landing/landing2.svg");
+  }
+  .bg-landing3 {
+    background-image: url("/images/landing/landing3_lg.png");
+  }
+  .bg-landing4 {
+    background-image: url("/images/landing/landing4_lg.png");
+  }
+}
+
 body {
   background: var(--black);
   color: var(--white);
