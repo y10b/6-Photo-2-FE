@@ -1,5 +1,6 @@
 import { ModalProvider } from "@/context/ModalContext";
 import "./globals.css";
+import Header from "@/components/layout/Header";
 
 export const metadata = {
   title: "Create Next App",
@@ -8,9 +9,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ko" className="font-noto">
       <body>
-        <ModalProvider>{children}</ModalProvider>
+        <ModalProvider>
+          <Header />
+          {children}
+        </ModalProvider>
       </body>
     </html>
   );
