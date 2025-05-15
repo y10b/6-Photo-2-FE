@@ -80,6 +80,15 @@
   font-family: var(--font-baskin), cursive;
 }
 
+/* 줄바꿈 처리 설정 */
+.clamp-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 2줄까지만 보이도록 설정 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 body {
   background: var(--black);
   color: var(--white);
