@@ -4,7 +4,7 @@ import Link from "next/link";
 const Header = () => {
   return (
     <header>
-      <nav className="h-[60px] flex items-center justify-between max-w-[744px] m-auto px-[20px] tablet:max-w-[1200px] tablet:px-[40px]">
+      <nav className="h-[60px] flex items-center justify-between max-w-[744px] m-auto px-[20px] tablet:max-w-[1200px] tablet:px-[40px] pc:px-[0]">
         <Image
           className="tablet:hidden"
           src={"/icons/ic_menu.svg"}
