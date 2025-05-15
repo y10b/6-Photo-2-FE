@@ -39,6 +39,7 @@ export default function Home() {
           </figure>
         </section>
       </div>
+
       <section className="bg-landing2 w-full h-[440px] tablet:h-[707px] pc:h-[800px]" />
       <section className="bg-landing3 w-full h-[440px] tablet:h-[776px] pc:h-[800px]" />
       <section className="bg-landing4 w-full h-[440px] tablet:h-[667px] pc:h-[900px]" />
