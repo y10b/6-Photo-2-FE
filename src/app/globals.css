@@ -98,19 +98,19 @@
 }
 .bg-landing2 {
   background-image: url("/images/landing/landing2s.svg");
-  background-size: contain;
+  background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }
 .bg-landing3 {
   background-image: url("/images/landing/landing3_sm.png");
-  background-size: contain;
+  background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }
 .bg-landing4 {
   background-image: url("/images/landing/landing4_sm.png");
-  background-size: contain;
+  background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }

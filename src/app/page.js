@@ -1,3 +1,4 @@
+import Button from "@/components/common/Button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -43,6 +44,27 @@ export default function Home() {
       <section className="bg-landing2 w-full h-[440px] tablet:h-[707px] pc:h-[800px]" />
       <section className="bg-landing3 w-full h-[440px] tablet:h-[776px] pc:h-[800px]" />
       <section className="bg-landing4 w-full h-[440px] tablet:h-[667px] pc:h-[900px]" />
+      <section className="mt-[60px] mb-[116px] flex flex-col items-center justify-center gap-[23px] tablet:gap-[27px] tablet:mb-[190px] pc:mt-[114px] pc:mb-[161px]">
+        <figure className="relative w-[95px] h-[114px] tablet:w-[130px] tablet:h-[150px]">
+          <Image
+            src={"/images/landing/landing5.svg"}
+            fill
+            alt="landing5"
+            className="object-cover"
+          />
+        </figure>
+        <p className="text-[20px] font-bold tablet:text-[28px]">
+          나의 최애를 지금 찾아보세요!
+        </p>
+        <Link
+          href={"/product"}
+          className="text-[var(--color-black)] font-bold text-[12px] mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] tablet:text-[16px] pc:mt-[33px] pc:mb-[0]"
+        >
+          <p className="w-[150px] h-[40px] flex items-center justify-center bg-[var(--color-main)] tablet:w-[226px] tablet:h-[55px]">
+            최애 찾으러 가기
+          </p>
+        </Link>
+      </section>
     </div>
   );
 }
