@@ -8,7 +8,7 @@ export default function UploadInput({
   onChange,
   accept = "image/*", // 기본적으로 이미지 파일 허용
   multiple = false,
-  maxSize = 10 * 1024 * 1024, // 기본 5MB
+  maxSize = 10 * 1024 * 1024, // (기본값: 10MB)
   className = "",
   ...rest
 }) {
