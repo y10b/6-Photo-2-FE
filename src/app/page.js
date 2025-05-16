@@ -2,7 +2,10 @@ import Button from "@/components/common/Button";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Home() {
+export default function TestPage() {
+  const [count, setCount] = useState(2);
+  const [tokens, setTokens] = useState("");
+
   return (
     <div>
       <div className="max-w-[744px] mx-auto mt-[33px] px-[16px] overflow-x-hidden tablet:max-w-[1200px] tablet:mt-[23px] tablet:px-[33px] pc:max-w-full pc:mt-[13px] pc:px-[60 px]">
