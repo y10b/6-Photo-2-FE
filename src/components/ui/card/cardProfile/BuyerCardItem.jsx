@@ -1,4 +1,4 @@
-import Button from "../../Button";
+import Button from "@/components/common/Button";
 
 const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
   const totalPrice = card.price * (quantity || 0);
