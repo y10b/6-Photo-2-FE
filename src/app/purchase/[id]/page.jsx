@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import NoHeader from "@/components/layout/NoHeader";
 import CardProfile from "@/components/ui/card/cardProfile/CardProfile";
 import Image from "next/image";
@@ -16,20 +17,22 @@ async function fetchPurchase(id) {
   return result.data;
 }
 
-function PurchasePage({ params }) {
+function PurchasePage() {
+  const { id } = useParams();
   const [photoCard, setPhotoCard] = useState(null);
 
   useEffect(() => {
+    if (!id) return;
     const loadData = async () => {
       try {
-        const data = await fetchPurchase(params.id);
+        const data = await fetchPurchase(id);
         setPhotoCard(data);
       } catch (err) {
         console.error(err);
       }
     };
     loadData();
-  }, [params.id]);
+  }, [id]);
 
   if (!photoCard) {
     return <div className="text-white text-center mt-10">로딩 중...</div>;
@@ -37,7 +40,6 @@ function PurchasePage({ params }) {
 
   const { name, description, imageUrl, grade, genre, shops } = photoCard;
 
-  // shops 배열을 CardProfile에서 필요한 형식으로 변환
   const cards = shops.map((shop) => ({
     cardGrade: grade,
     CardGenre: genre,
@@ -49,17 +51,26 @@ function PurchasePage({ params }) {
   }));
 
   return (
-    <div className="w-[345px] mx-auto">
+    <div className="mobile:max-w-[345px] w-full mx-auto">
       <NoHeader title="마켓플레이스" />
       <div className="mt-5 mb-[26px]">
         <h3 className="mb-[10px] font-bold text-2xl text-white">{name}</h3>
         <hr />
       </div>
-      <div className="mb-[20.25px] relative w-[345px] h-[258.75px] object-cover">
-        <Image src={imageUrl} alt={name} fill />
-      </div>
-      <div>
-        <CardProfile type="buyer" cards={cards} />
+
+      {/* 반응형 레이아웃 */}
+      <div className="flex flex-col tablet:flex-row gap-6">
+        {/* 이미지 */}
+        <div className="relative w-full h-[258.75px] tablet:w-[342px] tablet:h-[256.5px]">
+          <div className="relative aspect-[4/3] w-full h-full">
+            <Image src={imageUrl} alt={name} fill className="object-cover" />
+          </div>
+        </div>
+
+        {/* 카드 컴포넌트 */}
+        <div className="w-full tablet:w-1/2">
+          <CardProfile type="buyer" cards={cards} />
+        </div>
       </div>
     </div>
   );
