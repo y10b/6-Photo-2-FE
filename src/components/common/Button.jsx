@@ -1,25 +1,31 @@
-// src/components/common/Button.jsx
 "use client";
 
 import React from "react";
 import classNames from "classnames";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Button = ({
   children,
-  variant = "primary", // "primary" | "outline"
-  size = "md", // "sm" | "md" | "lg"
-  role = "default", // 버튼 기능 역할
-  font = "default", // 폰트 크기: "default" | "strong" | "small" | "tiny"
+  variant = "primary",
+  size,
+  role = "default",
+  font = "default",
   disabled = false,
   onClick,
   fullWidth = false,
   className = "",
-  type = "button", 
+  type = "button",
 }) => {
+  const isMobile = useMediaQuery("(max-width: 743px)");
+  const isTablet = useMediaQuery("(min-width: 744px) and (max-width: 1199px)");
+  const isDesktop = useMediaQuery("(min-width: 1200px)");
+
+  const autoSize = isMobile ? "sm" : isTablet ? "md" : "lg";
+  const appliedSize = size || autoSize;
+
   const baseStyle =
     "font-noto font-bold rounded-[2px] transition-colors duration-200 text-center";
 
-  // ✅ 폰트 크기 분리
   const fontMap = {
     default: "text-[16px]",
     bigger: "text-[18px]",
@@ -29,7 +35,6 @@ const Button = ({
   };
   const fontSize = fontMap[font] || fontMap.default;
 
-  // ✅ 박스 크기 역할 정의 
   const sizeMap = {
     default: {
       lg: "w-[520px] h-[60px]",
@@ -103,7 +108,7 @@ const Button = ({
     },
   };
 
-  const sizeStyles = sizeMap[role]?.[size] || sizeMap["default"]["md"];
+  const sizeStyles = sizeMap[role]?.[appliedSize] || sizeMap["default"]["md"];
 
   const styles = {
     primary: disabled
