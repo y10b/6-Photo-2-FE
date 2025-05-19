@@ -20,8 +20,10 @@ const Button = ({
   const isTablet = useMediaQuery("(min-width: 744px) and (max-width: 1199px)");
   const isDesktop = useMediaQuery("(min-width: 1200px)");
 
-  const autoSize = isMobile ? "sm" : isTablet ? "md" : "lg";
-  const appliedSize = size || autoSize;
+  const currentSize = isMobile ? "sm" : isTablet ? "md" : "lg";
+  const appliedSize = size || currentSize;
+
+  if (appliedSize !== currentSize) return null;
 
   const baseStyle =
     "font-noto font-bold rounded-[2px] transition-colors duration-200 text-center";
@@ -33,7 +35,96 @@ const Button = ({
     small: "text-[14px]",
     tiny: "text-[12px]",
   };
-  const fontSize = fontMap[font] || fontMap.default;
+
+  const roleFontMap = {
+    navigate: {
+      lg: "default",
+      md: "default",
+      sm: "small",
+    },
+    default: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    product: {
+      lg: "strong",
+      md: "bigger",
+      sm: "bigger",
+    },
+    modal: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    sell: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    success: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    failed: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    "exchange-confirm": {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    exchange: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    "cancel-exchange": {
+      lg: "bigger",
+      md: "default",
+      sm: "small",
+    },
+    proposal: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    create: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    random: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    filter: {
+      lg: "default",
+      md: "default",
+      sm: "default",
+    },
+    "my-sell": {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    default: {
+      lg: "default",
+      md: "default",
+      sm: "default",
+    },
+  };
+
+  const fontSizeKey = appliedSize;
+  const appliedFont =
+    font !== "default"
+      ? font
+      : roleFontMap[role]?.[fontSizeKey] || roleFontMap["default"][fontSizeKey];
+  const fontSize = fontMap[appliedFont] || fontMap.default;
 
   const sizeMap = {
     default: {
@@ -105,6 +196,11 @@ const Button = ({
       lg: "w-[520px] h-[60px]",
       md: "w-[440px] h-[55px]",
       sm: "w-[300px] h-[55px]",
+    },
+    "my-sell": {
+      lg: "w-[440px] h-[60px]",
+      md: "w-[342px] h-[60px]",
+      sm: "w-[345px] h-[55px]",
     },
   };
 
