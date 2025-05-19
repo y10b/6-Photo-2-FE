@@ -51,24 +51,22 @@ function PurchasePage() {
   }));
 
   return (
-    <div className="mobile:max-w-[345px] w-full mx-auto">
+    <div className="w-full max-w-[744px] tablet:max-w-[1200px] pc:max-w-[1380px] mx-auto px-[20px] tablet:px-[40px] pc:px-0">
       <NoHeader title="마켓플레이스" />
-      <div className="mt-5 mb-[26px]">
+
+      <div className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
         <h3 className="mb-[10px] font-bold text-2xl text-white">{name}</h3>
         <hr />
       </div>
-
       {/* 반응형 레이아웃 */}
-      <div className="flex flex-col tablet:flex-row gap-6">
+      <div className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
         {/* 이미지 */}
-        <div className="relative w-full h-[258.75px] tablet:w-[342px] tablet:h-[256.5px]">
-          <div className="relative aspect-[4/3] w-full h-full">
-            <Image src={imageUrl} alt={name} fill className="object-cover" />
-          </div>
+        <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
+          <Image src={imageUrl} alt={name} fill className="object-cover" />
         </div>
 
         {/* 카드 컴포넌트 */}
-        <div className="w-full tablet:w-1/2">
+        <div className="w-full tablet:flex-1">
           <CardProfile type="buyer" cards={cards} />
         </div>
       </div>
