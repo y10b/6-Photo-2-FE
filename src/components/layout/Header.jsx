@@ -18,7 +18,7 @@ const Header = () => {
           </figure>
         </Link>
         {/* 비회원일 경우 */}
-        <ul className="flex items-center gap-[30px] text-[14px] font-[500] text-[var(--color-gray200)]">
+        <ul className="flex items-center gap-[30px] text-[14px] font-[500] text-gray200">
           <li className="">
             <Link href={"/login"}>로그인</Link>
           </li>
