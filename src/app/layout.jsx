@@ -1,5 +1,4 @@
 import { ModalProvider } from "@/context/ModalContext";
-import ReactQueryProvider from "../providers/ReactQueryProvider";
 import "./globals.css";
 import WrapperLayout from "@/components/layout/WrapperLayout";
 import AuthProvider from "@/providers/AuthProvider";

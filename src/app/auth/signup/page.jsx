@@ -34,7 +34,7 @@ export default function SignUpPage() {
 
   const validate = () => {
     const newErrors = {};
-
+    
     if (!form.email) {
       newErrors.email = '이메일을 입력해주세요.';
     } else if (!form.email.includes('@')) {
@@ -53,7 +53,7 @@ export default function SignUpPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-
+    
     if (!validate()) return;
 
     try {
@@ -76,8 +76,7 @@ export default function SignUpPage() {
     // 여기에 Google OAuth 처리 로직을 추가할 수 있습니다
   };
 
-  const isFormValid =
-    form.email && form.nickname && form.password && form.confirmPassword;
+  const isFormValid = form.email && form.nickname && form.password && form.confirmPassword;
 
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center">
