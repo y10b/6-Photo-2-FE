@@ -17,6 +17,7 @@ export default function MarketplacePage() {
   const [sort, setSort] = useState("latest");
   const [filter, setFilter] = useState({ type: "", value: "" });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [allCards, setAllCards] = useState([]);
   const [filterCounts, setFilterCounts] = useState(null);
 
   // 무한 스크롤 트리거용 ref
@@ -51,7 +52,7 @@ export default function MarketplacePage() {
 
   // 필터 값 카운트
   useEffect(() => {
-    if (!data) return;
+    if (!data || filter.type) return;
 
     const allCards = data.pages.flatMap((page) => page.result);
 
@@ -63,19 +64,14 @@ export default function MarketplacePage() {
     };
 
     allCards.forEach((card) => {
-      // 등급
       counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
-
-      // 장르
       counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
-
-      // 매진 여부
       const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
       counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
     });
 
     setFilterCounts(counts);
-  }, [data]);
+  }, [data, filter.type]);
 
   // 임시 이미지로 변경(삭제 예정)
   const cards =
@@ -248,6 +244,7 @@ export default function MarketplacePage() {
               onApply={(filter) => setFilter(filter)}
               filterCounts={filterCounts}
               tabs={["grade", "genre", "soldOut"]}
+              selectedFilter={filter}
             />
 
             <div className="fixed bottom-[15px] left-[15px] right-[15px] h-[55px] px-[18px] bg-main z-10 text-center rounded-xs">
