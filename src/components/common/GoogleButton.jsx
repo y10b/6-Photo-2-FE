@@ -12,6 +12,7 @@ const GoogleButton = ({ onClick, disabled = false }) => {
 
   const currentSize = isMobile ? "sm" : isTablet ? "md" : "lg";
 
+  //버튼 크기 + 폰트 사이즈
   const sizeMap = {
     lg: "w-[520px] h-[60px] text-[18px]",
     md: "w-[441px] h-[55px] text-[16px]",
