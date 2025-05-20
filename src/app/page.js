@@ -5,8 +5,8 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div>
-      <div className="max-w-[744px] mx-auto mt-[33px] px-[16px] overflow-x-hidden tablet:max-w-[1200px] tablet:mt-[23px] tablet:px-[33px] pc:max-w-full pc:mt-[13px] pc:px-[60 px]">
-        <section className="bg-custom-landing1bg w-full h-[412px] rounded-[24px] flex flex-col items-center tablet:h-[722px] pc:h-[1088px]">
+      <div className="max-w-[744px] mx-auto overflow-x-hidden tablet:max-w-[1200px] pc:max-w-full">
+        <section className="bg-custom-landing1bg max-w-[1798px] mx-auto h-[412px] rounded-[24px] flex flex-col items-center tablet:h-[722px] pc:h-[1088px]">
           <Image
             src={"/logo.svg"}
             width={138}
@@ -30,7 +30,7 @@ export default function Home() {
               최애 찾으러 가기
             </p>
           </Link>
-          <figure className="relative -px-[60px] w-[calc(100%+120px)] h-[199px] overflow-visible tablet:h-[352px] pc:h-[765px]">
+          <figure className="relative w-[calc(100%+120px)] h-[199px] overflow-visible tablet:h-[352px] pc:h-[765px]">
             <Image
               className="absolute object-contain"
               src={"/images/landing/landing1.svg"}
