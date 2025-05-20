@@ -24,9 +24,9 @@ export default function Home() {
           </div>
           <Link
             href={"/product"}
-            className="text-[var(--color-black)] font-bold text-[12px] mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] tablet:text-[16px] pc:mt-[33px] pc:mb-[0]"
+            className="text-black font-bold text-[12px] mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] tablet:text-[16px] pc:mt-[33px] pc:mb-[0]"
           >
-            <p className="w-[150px] h-[40px] flex items-center justify-center bg-[var(--color-main)] tablet:w-[226px] tablet:h-[55px]">
+            <p className="w-[150px] h-[40px] flex items-center justify-center bg-main tablet:w-[226px] tablet:h-[55px]">
               최애 찾으러 가기
             </p>
           </Link>
@@ -58,9 +58,9 @@ export default function Home() {
         </p>
         <Link
           href={"/product"}
-          className="text-[var(--color-black)] font-bold text-[12px] mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] tablet:text-[16px] pc:mt-[33px] pc:mb-[0]"
+          className="text-black font-bold text-[12px] mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] tablet:text-[16px] pc:mt-[33px] pc:mb-[0]"
         >
-          <p className="w-[150px] h-[40px] flex items-center justify-center bg-[var(--color-main)] tablet:w-[226px] tablet:h-[55px]">
+          <p className="w-[150px] h-[40px] flex items-center justify-center bg-main tablet:w-[226px] tablet:h-[55px]">
             최애 찾으러 가기
           </p>
         </Link>
