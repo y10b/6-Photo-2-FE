@@ -10,6 +10,7 @@ export default function CounterInput({
   width = "w-[176px]", // 기본 너비 조정
   height = "h-[50px]", // 기본 높이 조정
   className = "",
+  showMaxInfo = true, // 최대값 정보 표시 여부를 제어하는 prop 추가
 }) {
   const [value, setValue] = useState(initialValue);
 
@@ -31,7 +32,9 @@ export default function CounterInput({
 
   return (
     <div className="font-noto flex items-center">
-      <div className={`flex justify-between items-center border-[1px] border-white rounded-[2px] bg-gray500 ${width} ${height} ${className}`}>
+      <div
+        className={`flex justify-between items-center border-[1px] border-white rounded-[2px] bg-gray500 ${width} ${height} ${className}`}
+      >
         <button
           type="button"
           onClick={handleDecrease}
@@ -40,11 +43,11 @@ export default function CounterInput({
         >
           −
         </button>
-        
+
         <span className="text-white text-[20px] font-[400] flex-1 text-center">
           {value}
         </span>
-        
+
         <button
           type="button"
           onClick={handleIncrease}
@@ -54,8 +57,9 @@ export default function CounterInput({
           +
         </button>
       </div>
-      
-      {max && (
+
+      {/* showMaxInfo prop으로 최대값 정보 표시 여부를 제어 */}
+      {showMaxInfo && max && (
         <div className="ml-5 flex flex-col justify-start">
           <div className="flex items-center text-white">
             <span className="text-[20px] font-[700]">/ {max}</span>

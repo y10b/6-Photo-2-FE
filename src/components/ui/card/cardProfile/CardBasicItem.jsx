@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { formatCardGrade } from "@/utils/formatCardGrade"; // 경로는 프로젝트 구조에 맞게 조정
 
 const CardBasicItem = ({ card, gradeStyles }) => (
   <div className="text-white bg-transparent">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-[10px] font-bold text-[18px] pc:text-2xl">
-        <p className={gradeStyles[card.cardGrade]}>{card.cardGrade}</p>
+        <p className={gradeStyles[card.cardGrade]}>
+          {formatCardGrade(card.cardGrade)}
+        </p>
         <div className="text-gray400">|</div>
         <p>{card.CardGenre}</p>
       </div>

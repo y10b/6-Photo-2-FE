@@ -1,25 +1,33 @@
-// src/components/common/Button.jsx
 "use client";
 
 import React from "react";
 import classNames from "classnames";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Button = ({
   children,
-  variant = "primary", // "primary" | "outline"
-  size = "md", // "sm" | "md" | "lg"
-  role = "default", // 버튼 기능 역할
-  font = "default", // 폰트 크기: "default" | "strong" | "small" | "tiny"
+  variant = "primary",
+  size,
+  role = "default",
+  font = "default",
   disabled = false,
   onClick,
   fullWidth = false,
   className = "",
-  type = "button", 
+  type = "button",
 }) => {
+  const isMobile = useMediaQuery("(max-width: 743px)");
+  const isTablet = useMediaQuery("(min-width: 744px) and (max-width: 1199px)");
+  const isDesktop = useMediaQuery("(min-width: 1200px)");
+
+  const currentSize = isMobile ? "sm" : isTablet ? "md" : "lg";
+  const appliedSize = size || currentSize;
+
+  if (appliedSize !== currentSize) return null;
+
   const baseStyle =
     "font-noto font-bold rounded-[2px] transition-colors duration-200 text-center";
 
-  // ✅ 폰트 크기 분리
   const fontMap = {
     default: "text-[16px]",
     bigger: "text-[18px]",
@@ -27,9 +35,97 @@ const Button = ({
     small: "text-[14px]",
     tiny: "text-[12px]",
   };
-  const fontSize = fontMap[font] || fontMap.default;
 
-  // ✅ 박스 크기 역할 정의 
+  const roleFontMap = {
+    navigate: {
+      lg: "default",
+      md: "default",
+      sm: "small",
+    },
+    default: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    product: {
+      lg: "strong",
+      md: "bigger",
+      sm: "bigger",
+    },
+    modal: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    sell: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    success: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    failed: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    "exchange-confirm": {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    exchange: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    "cancel-exchange": {
+      lg: "bigger",
+      md: "default",
+      sm: "small",
+    },
+    proposal: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    create: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    random: {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    filter: {
+      lg: "default",
+      md: "default",
+      sm: "default",
+    },
+    "my-sell": {
+      lg: "bigger",
+      md: "default",
+      sm: "default",
+    },
+    default: {
+      lg: "default",
+      md: "default",
+      sm: "default",
+    },
+  };
+
+  const fontSizeKey = appliedSize;
+  const appliedFont =
+    font !== "default"
+      ? font
+      : roleFontMap[role]?.[fontSizeKey] || roleFontMap["default"][fontSizeKey];
+  const fontSize = fontMap[appliedFont] || fontMap.default;
+
   const sizeMap = {
     default: {
       lg: "w-[520px] h-[60px]",
@@ -101,9 +197,14 @@ const Button = ({
       md: "w-[440px] h-[55px]",
       sm: "w-[300px] h-[55px]",
     },
+    "my-sell": {
+      lg: "w-[440px] h-[60px]",
+      md: "w-[342px] h-[60px]",
+      sm: "w-[345px] h-[55px]",
+    },
   };
 
-  const sizeStyles = sizeMap[role]?.[size] || sizeMap["default"]["md"];
+  const sizeStyles = sizeMap[role]?.[appliedSize] || sizeMap["default"]["md"];
 
   const styles = {
     primary: disabled

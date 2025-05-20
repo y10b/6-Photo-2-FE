@@ -1,7 +1,7 @@
 import React from "react";
 import CardImage from "./CardImage";
 import CardInfo from "./CardInfo";
-import Button from "../../Button";
+import Button from "@/components/common/Button";
 
 export default function CardOverview({ card }) {
   const {
@@ -45,46 +45,24 @@ export default function CardOverview({ card }) {
       />
 
       {isExchange && (
-        /* 버튼 이후 수정 예정 */
         <div>
           <div className="block tablet:hidden pc:hidden ">
             <div className="flex gap-[5px] mb-[10px]">
-              <Button role="proposal" size="sm" font="tiny" variant="outline">
+              <Button role="proposal" variant="outline">
                 거절
               </Button>
-              <Button role="proposal" size="sm" font="tiny" variant="primary">
+              <Button role="proposal" variant="primary">
                 승인
-              </Button>
-            </div>
-          </div>
-
-          <div className="hidden tablet:block pc:hidden">
-            <div className="flex gap-5 ">
-              <Button
-                role="proposal"
-                size="md"
-                font="default"
-                variant="outline"
-              >
-                거절하기
-              </Button>
-              <Button
-                role="proposal"
-                size="md"
-                font="default"
-                variant="primary"
-              >
-                승인하기
               </Button>
             </div>
           </div>
 
           <div className="hidden tablet:hidden pc:block">
             <div className="flex gap-5">
-              <Button role="proposal" size="lg" font="bigger" variant="outline">
+              <Button role="proposal" variant="outline">
                 거절하기
               </Button>
-              <Button role="proposal" size="lg" font="bigger" variant="primary">
+              <Button role="proposal" variant="primary">
                 승인하기
               </Button>
             </div>

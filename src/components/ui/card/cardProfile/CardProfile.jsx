@@ -9,7 +9,7 @@ import CardDetailItem from "./CardDetailItem";
 const gradeStyles = {
   COMMON: "text-main",
   RARE: "text-blue",
-  "SUPER RARE": "text-purple",
+  SUPER_RARE: "text-purple",
   LEGENDARY: "text-pink",
 };
 
