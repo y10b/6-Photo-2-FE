@@ -1,4 +1,5 @@
 import { ModalProvider } from "@/context/ModalContext";
+import ReactQueryProvider from "../providers/ReactQueryProvider";
 import "./globals.css";
 import WrapperLayout from "@/components/layout/WrapperLayout";
 
@@ -11,9 +12,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko" className="font-noto">
       <body>
-        <ModalProvider>
-          <WrapperLayout>{children}</WrapperLayout>
-        </ModalProvider>
+        <ReactQueryProvider>
+          <ModalProvider>
+            <WrapperLayout>{children}</WrapperLayout>
+          </ModalProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
