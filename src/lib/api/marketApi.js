@@ -14,7 +14,7 @@ export async function fetchMarketCards({
     params.append("filterValue", filterValue);
   }
 
-  const response = await fetch(`${BASE_API}/cards?${params.toString()}`, {
+  const response = await fetch(`${BASE_API}/api/cards?${params.toString()}`, {
     headers: {
       "Content-Type": "application/json",
     },
