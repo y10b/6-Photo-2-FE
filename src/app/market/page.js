@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CardList from "@/components/ui/card/cardOverview/CardList";
 import Button from "@/components/common/Button";
+import MyCardsSellBottomSheet from "@/components/market/MyCardsSellBottomSheet";
 
 export default function MarketplacePage() {
   const [keyword, setKeyword] = useState("");
@@ -18,6 +19,9 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState({ type: "", value: "" });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
+
+  // '나의 포토카드 판매하기' 바텀시트의 열림/닫힘 상태
+  const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
 
   // 무한 스크롤 트리거용 ref
   const { ref: loaderRef, inView } = useInView({ threshold: 0.1 });
@@ -51,31 +55,36 @@ export default function MarketplacePage() {
 
   // 필터 값 카운트
   useEffect(() => {
-    if (!data) return;
+    fetchMarketCards({
+      pageParam: 1,
+      take: 1000,
+      keyword: "",
+      sort: "latest",
+    }).then((res) => {
+      const rawCards = res.result;
 
-    const allCards = data.pages.flatMap((page) => page.result);
+      const counts = {
+        grade: {},
+        genre: {},
+        method: {},
+        soldOut: {},
+      };
 
-    const counts = {
-      grade: {},
-      genre: {},
-      method: {},
-      soldOut: {},
-    };
+      rawCards.forEach((card) => {
+        // 등급
+        counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
 
-    allCards.forEach((card) => {
-      // 등급
-      counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
+        // 장르
+        counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
 
-      // 장르
-      counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
+        // 매진 여부
+        const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
+        counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
+      });
 
-      // 매진 여부
-      const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
-      counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
+      setFilterCounts(counts);
     });
-
-    setFilterCounts(counts);
-  }, [data]);
+  }, []);
 
   // 임시 이미지로 변경(삭제 예정)
   const cards =
@@ -92,6 +101,8 @@ export default function MarketplacePage() {
     { label: "오래된순", value: "oldest" },
   ];
 
+  console.log("총 카드 개수: ", cards);
+
   return (
     <>
       <div className="max-w-[744px] tablet:max-w-[1200px] mx-auto">
@@ -100,11 +111,14 @@ export default function MarketplacePage() {
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
             마켓플레이스
           </h1>
-          <Link href="/sell">
-            <Button role="sell" variant="primary" fullWidth={false}>
-              나의 포토카드 판매하기
-            </Button>
-          </Link>
+          <Button
+            role="sell"
+            variant="primary"
+            fullWidth={false}
+            onClick={() => setIsMyCardsSellOpen(true)}
+          >
+            나의 포토카드 판매하기
+          </Button>
         </div>
 
         <div className="space-y-[15px] pb-[80px]">
@@ -248,23 +262,29 @@ export default function MarketplacePage() {
               onApply={(filter) => setFilter(filter)}
               filterCounts={filterCounts}
               tabs={["grade", "genre", "soldOut"]}
+              selectedFilter={filter}
             />
 
             <div className="fixed bottom-[15px] left-[15px] right-[15px] h-[55px] px-[18px] bg-main z-10 text-center rounded-xs">
-              <Link href="/sell" className="block w-full h-full">
-                <Button
-                  role="sell"
-                  variant="primary"
-                  fullWidth
-                  className="w-full h-full"
-                >
-                  나의 포토카드 판매하기
-                </Button>
-              </Link>
+              <Button
+                role="sell"
+                variant="primary"
+                fullWidth
+                className="w-full h-full"
+                onClick={() => setIsMyCardsSellOpen(true)}
+              >
+                나의 포토카드 판매하기
+              </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* MyCardsSellBottomSheet 컴포넌트 */}
+      <MyCardsSellBottomSheet
+        isOpen={isMyCardsSellOpen}
+        onClose={() => setIsMyCardsSellOpen(false)}
+      />
     </>
   );
 }
