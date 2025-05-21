@@ -1,8 +1,8 @@
 import Card from "./CardOverview";
 
-export default function CardList({ cards }) {
+export default function CardList({ cards, className }) {
   return (
-    <div>
+    <div className={`${className}`}>
       {cards.map((card, index) => (
         <Card key={index} card={card} />
       ))}

@@ -12,6 +12,7 @@ import Link from "next/link";
 import CardList from "@/components/ui/card/cardOverview/CardList";
 import Button from "@/components/common/Button";
 import Pagination from "@/components/market/Pagination";
+import MyCardsSellBottomSheet from "@/components/market/MyCardsSellBottomSheet";
 
 export default function MarketplacePage() {
   const [keyword, setKeyword] = useState("");
@@ -82,6 +83,9 @@ export default function MarketplacePage() {
     enabled: isTabletOrMobile,
   });
 
+  // '나의 포토카드 판매하기' 바텀시트의 열림/닫힘 상태
+  const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
+
   // 무한 스크롤 트리거용 ref
   const { ref: loaderRef, inView } = useInView({ threshold: 0.8 });
 
@@ -141,11 +145,14 @@ export default function MarketplacePage() {
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
             마켓플레이스
           </h1>
-          <Link href="/sell">
-            <Button role="sell" variant="primary" fullWidth={false}>
-              나의 포토카드 판매하기
-            </Button>
-          </Link>
+          <Button
+            role="sell"
+            variant="primary"
+            fullWidth={false}
+            onClick={() => setIsMyCardsSellOpen(true)}
+          >
+            나의 포토카드 판매하기
+          </Button>
         </div>
 
         <div className="space-y-[15px] pb-[80px]">
@@ -300,20 +307,25 @@ export default function MarketplacePage() {
             />
 
             <div className="fixed bottom-[15px] left-[15px] right-[15px] h-[55px] px-[18px] bg-main z-10 text-center rounded-xs">
-              <Link href="/sell" className="block w-full h-full">
-                <Button
-                  role="sell"
-                  variant="primary"
-                  fullWidth
-                  className="w-full h-full"
-                >
-                  나의 포토카드 판매하기
-                </Button>
-              </Link>
+              <Button
+                role="sell"
+                variant="primary"
+                fullWidth
+                className="w-full h-full"
+                onClick={() => setIsMyCardsSellOpen(true)}
+              >
+                나의 포토카드 판매하기
+              </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* MyCardsSellBottomSheet 컴포넌트 */}
+      <MyCardsSellBottomSheet
+        isOpen={isMyCardsSellOpen}
+        onClose={() => setIsMyCardsSellOpen(false)}
+      />
     </>
   );
 }

@@ -6,6 +6,7 @@ import NoHeader from "@/components/layout/NoHeader";
 import CardProfile from "@/components/ui/card/cardProfile/CardProfile";
 import Image from "next/image";
 import { fetchPurchase } from "@/lib/api/purchase";
+
 function PurchasePage() {
   const { id } = useParams();
   const [photoCard, setPhotoCard] = useState(null);
@@ -27,20 +28,32 @@ function PurchasePage() {
     return <div className="text-white text-center mt-10">로딩 중...</div>;
   }
 
-  const { name, description, imageUrl, grade, genre, shops } = photoCard;
+  const {
+    name,
+    description,
+    imageUrl,
+    grade,
+    genre,
+    sellerNickname,
+    price,
+    initialQuantity,
+    remainingQuantity,
+  } = photoCard;
 
-  const cards = shops.map((shop) => ({
-    cardGrade: grade,
-    CardGenre: genre,
-    nickname: shop.sellerNickname,
-    photoDescription: description,
-    price: shop.price,
-    quantityLeft: shop.remainingQuantity,
-    quantityTotal: shop.initialQuantity,
-  }));
+  const cards = [
+    {
+      cardGrade: grade,
+      cardGrade: genre,
+      nickname: sellerNickname,
+      photoDescription: description,
+      price: price,
+      quantityLeft: remainingQuantity,
+      quantityTotal: initialQuantity,
+    },
+  ];
 
   return (
-    <div className="w-full max-w-[744px] tablet:max-w-[1200px] pc:max-w-[1380px] mx-auto px-[20px] tablet:px-[40px] pc:px-0">
+    <div className="max-w-[744px] m-auto px-5 tablet:max-w-300 tablet:px-10 pc:px-0">
       <NoHeader title="마켓플레이스" />
 
       <div className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
