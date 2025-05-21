@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../common/Button";
 
 const fullTabConfig = {
@@ -19,6 +19,7 @@ const fullTabConfig = {
   },
 };
 
+// filter value 매핑
 const labelMap = {
   COMMON: "COMMON",
   RARE: "RARE",
@@ -45,6 +46,7 @@ export default function FilterBottomSheet({
   onApply,
   filterCounts,
   tabs = ["grade", "genre", "soldOut"],
+  selectedFilter = { type: "", value: "" },
 }) {
   const resolvedTabs = tabs.map((type) => ({
     type,
@@ -53,16 +55,32 @@ export default function FilterBottomSheet({
 
   const [selectedTab, setSelectedTab] = useState(resolvedTabs[0]?.type || "");
   const [selectedValues, setSelectedValues] = useState([]);
-
   const currentTab = resolvedTabs.find((tab) => tab.type === selectedTab);
 
+  // 현재 필터링 중인 탭 보여주기
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (selectedFilter?.type && tabs.includes(selectedFilter.type)) {
+      setSelectedTab(selectedFilter.type);
+      const values = selectedFilter.value?.split(",") ?? [];
+      setSelectedValues(values);
+    } else {
+      setSelectedTab(resolvedTabs[0]?.type || "");
+      setSelectedValues([]);
+    }
+  }, [isOpen, selectedFilter, tabs]);
+
+  // 필터 적용 함수
   const handleApply = () => {
     if (selectedValues.length > 0) {
       onApply({ type: selectedTab, value: selectedValues.join(",") });
     }
+    setSelectedValues([]);
     onClose();
   };
 
+  // 필터 토글 함수
   const toggleValue = (value) => {
     setSelectedValues((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
