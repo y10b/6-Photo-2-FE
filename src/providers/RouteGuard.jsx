@@ -6,8 +6,6 @@ import { useAuth } from "./AuthProvider";
 
 // 로그인된 사용자만 접근 가능한 경로
 const protectedPaths = [
-  "/items/[itemId]",
-  "/items/[itemId]/edit",
   // 추가 보호 경로들...
 ];
 

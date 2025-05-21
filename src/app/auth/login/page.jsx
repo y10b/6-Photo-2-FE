@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import {useState} from 'react';
-import {Input} from '@/components/ui/input';
-import {useModal} from '@/components/modal/ModalContext';
-import Button from '@/components/common/Button';
+import Link from "next/link";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useModal } from "@/context/ModalContext";
+import Button from "@/components/common/Button";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -81,26 +82,32 @@ export default function LoginPage() {
   const isFormValid = form.email && form.password;
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-[400px]">
-        {/* 로고 */}
-        <div className="text-center mb-10">
-          <h1 className="font-baskin text-[48px] text-main mb-2">최애의포토</h1>
-          <p className="font-noto text-gray300 text-[16px]">
-            다시 만나서 반갑습니다
-          </p>
+    <main className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="w-full max-w-[345px] tablet:max-w-[440px] pc:max-w-[520px]">
+        {/* 로고 */}    
+        <div className="flex justify-center mb-20">
+          <Link href={"/"}>
+            <figure className="relative w-[189px] h-[35px] tablet:w-[331px] tablet:h-[60px]">
+              <Image
+                src={"/logo.svg"}
+                fill
+                className="object-cover fill"
+                alt="로고"
+              />
+            </figure>
+          </Link>
         </div>
 
         {/* 로그인 폼 */}
         <form onSubmit={handleSubmit}>
-          <div className="space-y-8">
+          <div className="space-y-8 w-full">
             <Input
               label="이메일"
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="이메일을 입력해주세요"
+              placeholder="이메일을 입력해 주세요"
               error={errors.email}
             />
 
@@ -110,40 +117,31 @@ export default function LoginPage() {
               type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="비밀번호를 입력해주세요"
+              placeholder="비밀번호를 입력해 주세요"
               error={errors.password}
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={!isFormValid || isLoading}
-            className="w-full h-[60px] bg-main text-black font-noto font-bold text-[18px] rounded-xs mt-10 disabled:bg-gray400 disabled:text-gray300 hover:opacity-90 transition-opacity"
+            role="default"
+            variant="primary"
+            fullWidth={true}
+            className="mt-11"
           >
-            {isLoading ? '로그인 중...' : '로그인'}
-          </button>
+            {isLoading ? "로그인 중..." : "로그인"}
+          </Button>
         </form>
 
         {/* 회원가입 링크 */}
-        <div className="mt-8 text-center">
-          <span className="font-noto text-gray300 text-[16px]">
-            아직 계정이 없으신가요?{' '}
-          </span>
+        <div className="mt-11 text-center text-[14px] font-[400] pc:text-[16px]">
+          <span className="text-white mr-3">최애의 포토가 처음이신가요?</span>
           <Link
             href="/auth/signup"
-            className="font-noto text-main text-[16px] underline hover:opacity-80"
+            className="text-main underline hover:opacity-80"
           >
-            회원가입
-          </Link>
-        </div>
-
-        {/* 비밀번호 찾기 (선택사항) */}
-        <div className="mt-6 text-center">
-          <Link
-            href="/auth/forgot-password"
-            className="font-noto text-gray400 text-[14px] hover:text-white transition-colors"
-          >
-            비밀번호를 잊으셨나요?
+            회원가입하기
           </Link>
         </div>
       </div>
