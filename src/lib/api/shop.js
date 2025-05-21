@@ -17,7 +17,7 @@ export const fetchMyCards = async (params = {}) => {
     queryParams.append("page", page);
     queryParams.append("take", take);
 
-    const url = `http://localhost:5005/mypage/idle-cards?${queryParams.toString()}`;
+    const url = `http://localhost:5005/api/mypage/idle-cards?${queryParams.toString()}`;
 
     const response = await fetch(url, {
       method: "GET",
