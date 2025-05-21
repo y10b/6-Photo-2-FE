@@ -17,7 +17,6 @@ export default function MarketplacePage() {
   const [sort, setSort] = useState("latest");
   const [filter, setFilter] = useState({ type: "", value: "" });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [allCards, setAllCards] = useState([]);
   const [filterCounts, setFilterCounts] = useState(null);
 
   // 무한 스크롤 트리거용 ref
@@ -52,26 +51,36 @@ export default function MarketplacePage() {
 
   // 필터 값 카운트
   useEffect(() => {
-    if (!data || filter.type) return;
+    fetchMarketCards({
+      pageParam: 1,
+      take: 1000,
+      keyword: "",
+      sort: "latest",
+    }).then((res) => {
+      const rawCards = res.result;
 
-    const allCards = data.pages.flatMap((page) => page.result);
+      const counts = {
+        grade: {},
+        genre: {},
+        method: {},
+        soldOut: {},
+      };
 
-    const counts = {
-      grade: {},
-      genre: {},
-      method: {},
-      soldOut: {},
-    };
+      rawCards.forEach((card) => {
+        // 등급
+        counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
 
-    allCards.forEach((card) => {
-      counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
-      counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
-      const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
-      counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
+        // 장르
+        counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
+
+        // 매진 여부
+        const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
+        counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
+      });
+
+      setFilterCounts(counts);
     });
-
-    setFilterCounts(counts);
-  }, [data, filter.type]);
+  }, []);
 
   // 임시 이미지로 변경(삭제 예정)
   const cards =
@@ -87,6 +96,8 @@ export default function MarketplacePage() {
     { label: "높은 가격순", value: "price-desc" },
     { label: "오래된순", value: "oldest" },
   ];
+
+  console.log("총 카드 개수: ", cards);
 
   return (
     <>
