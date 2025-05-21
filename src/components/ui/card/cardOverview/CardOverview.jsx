@@ -9,7 +9,7 @@ export default function CardOverview({ card }) {
     title,
     imageUrl,
     price,
-    CardGenre,
+    cardGenre,
     cardGrade,
     nickname,
     quantityLeft,
@@ -37,7 +37,7 @@ export default function CardOverview({ card }) {
         title={title}
         price={price}
         cardGrade={cardGrade}
-        CardGenre={CardGenre}
+        CardGenre={cardGenre}
         nickname={nickname}
         quantityLeft={quantityLeft}
         quantityTotal={quantityTotal}
