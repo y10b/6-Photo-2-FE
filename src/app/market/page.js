@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import FilterBottomSheet from "@/components/market/FilterBottomSheet";
 import { SearchInput } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CardList from "@/components/ui/card/cardOverview/CardList";
 import Button from "@/components/common/Button";
+import Pagination from "@/components/market/Pagination";
 import MyCardsSellBottomSheet from "@/components/market/MyCardsSellBottomSheet";
 
 export default function MarketplacePage() {
@@ -19,39 +20,80 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState({ type: "", value: "" });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
+
+  // 브레이크포인트 감지
+  useEffect(() => {
+    const getIsMobileOrTablet = () => {
+      const pcMinWidth = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          "--breakpoint-pc"
+        )
+      );
+      const currentWidth = window.innerWidth;
+      return currentWidth < pcMinWidth;
+    };
+
+    const handleResize = () => {
+      setIsTabletOrMobile(getIsMobileOrTablet());
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // 무한스크롤 적용
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["marketCards", keyword, sort, filter],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchMarketCards({
+        pageParam,
+        take: 12,
+        keyword,
+        sort,
+        filterType: filter.type,
+        filterValue: filter.value,
+      }),
+    enabled: !isTabletOrMobile,
+    getNextPageParam: (lastPage) =>
+      lastPage.currentPage < lastPage.totalPages
+        ? lastPage.currentPage + 1
+        : undefined,
+  });
+
+  // 페이지네이션 적용
+  const { data: pageData } = useQuery({
+    queryKey: ["marketCards-page", keyword, sort, filter, currentPage],
+    queryFn: () =>
+      fetchMarketCards({
+        pageParam: currentPage,
+        take: 4,
+        keyword,
+        sort,
+        filterType: filter.type,
+        filterValue: filter.value,
+      }),
+    enabled: isTabletOrMobile,
+  });
 
   // '나의 포토카드 판매하기' 바텀시트의 열림/닫힘 상태
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
 
   // 무한 스크롤 트리거용 ref
-  const { ref: loaderRef, inView } = useInView({ threshold: 0.1 });
-
-  // 무한 스크롤링
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["marketCards", keyword, sort, filter],
-      queryFn: ({ pageParam = 1 }) =>
-        fetchMarketCards({
-          pageParam,
-          take: 12,
-          keyword,
-          sort,
-          filterType: filter.type,
-          filterValue: filter.value,
-        }),
-      getNextPageParam: (lastPage) => {
-        if (lastPage.currentPage < lastPage.totalPages) {
-          return lastPage.currentPage + 1;
-        }
-        return undefined;
-      },
-    });
+  const { ref: loaderRef, inView } = useInView({ threshold: 0.8 });
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    if (!isTabletOrMobile && inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
 
   // 필터 값 카운트
   useEffect(() => {
@@ -86,12 +128,6 @@ export default function MarketplacePage() {
     });
   }, []);
 
-  // 임시 이미지로 변경(삭제 예정)
-  const cards =
-    data?.pages.flatMap((page) =>
-      page.result.map((card) => ({ ...card, imageUrl: "/images/image1.png" }))
-    ) ?? [];
-
   const handleSearch = (value) => setKeyword(value);
 
   const sortOptions = [
@@ -100,8 +136,6 @@ export default function MarketplacePage() {
     { label: "높은 가격순", value: "price-desc" },
     { label: "오래된순", value: "oldest" },
   ];
-
-  console.log("총 카드 개수: ", cards);
 
   return (
     <>
@@ -242,17 +276,24 @@ export default function MarketplacePage() {
           {/* 카드 목록 그리드 */}
           {/* TODO: 카드리스트 컴포넌트에서 그리드 처리하도록 수정해야 함. */}
           <div className="w-full">
-            <CardList
-              cards={cards}
-              className="grid grid-cols-2 gap-[5px] tablet:grid-cols-2 tablet:gap-[20px] pc:grid-cols-3 pc:gap-[80px] max-w-[360px] tablet:max-w-[704px] pc:max-w-[1440px] mx-auto"
-            />
+            {isTabletOrMobile ? (
+              <>
+                <CardList cards={pageData?.result ?? []} />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pageData?.totalPages ?? 1}
+                  onPageChange={setCurrentPage}
+                />
+              </>
+            ) : (
+              <>
+                <CardList
+                  cards={infiniteData?.pages.flatMap((p) => p.result) ?? []}
+                />
+                <div ref={loaderRef} className="h-10" />
+              </>
+            )}
           </div>
-
-          {/* 무한 스크롤 트리거(수정 예정)*/}
-          <div ref={loaderRef} className="h-10" />
-          {isFetchingNextPage && (
-            <div className="text-center text-white">불러오는 중...</div>
-          )}
 
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}
           <div className="tablet:hidden">

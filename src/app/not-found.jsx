@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "@/components/common/Button";
 import { useRouter } from "next/navigation";
 import React from "react";
