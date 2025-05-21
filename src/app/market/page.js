@@ -139,7 +139,7 @@ export default function MarketplacePage() {
 
   return (
     <>
-      <div className="max-w-[744px] tablet:max-w-[1200px] mx-auto">
+      <div className="max-w-[1480px] mx-auto">
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
@@ -278,7 +278,10 @@ export default function MarketplacePage() {
           <div className="w-full">
             {isTabletOrMobile ? (
               <>
-                <CardList cards={pageData?.result ?? []} />
+                <CardList
+                  cards={pageData?.result ?? []}
+                  className="grid gap-4 grid-cols-2"
+                />
                 <Pagination
                   currentPage={currentPage}
                   totalPages={pageData?.totalPages ?? 1}
@@ -289,6 +292,7 @@ export default function MarketplacePage() {
               <>
                 <CardList
                   cards={infiniteData?.pages.flatMap((p) => p.result) ?? []}
+                  className="grid gap-20 grid-cols-3 w-full"
                 />
                 <div ref={loaderRef} className="h-10" />
               </>
