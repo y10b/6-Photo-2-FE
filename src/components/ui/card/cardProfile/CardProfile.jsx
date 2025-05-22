@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-
 import CardBasicItem from "./CardBasicItem";
 import BuyerCardItem from "./BuyerCardItem";
 import CardDetailItem from "./CardDetailItem";
@@ -17,26 +16,19 @@ const CardProfile = ({ type, cards }) => {
   const isBuyer = type === "buyer";
   const isDetail = type === "card_detail";
 
-  // 카드별 수량 상태 관리
   const [quantities, setQuantities] = useState(() =>
     cards.reduce((acc, card) => {
-      acc[card.cardGrade] = 1;
+      acc[card.grade] = 1;
       return acc;
     }, {})
   );
 
-  const handleQuantityChange = (cardGrade, value) => {
+  const handleQuantityChange = (grade, value) => {
     const parsed = parseInt(value, 10);
     if (!isNaN(parsed) && parsed > 0) {
-      setQuantities((prev) => ({
-        ...prev,
-        [cardGrade]: parsed,
-      }));
+      setQuantities((prev) => ({ ...prev, [grade]: parsed }));
     } else if (value === "") {
-      setQuantities((prev) => ({
-        ...prev,
-        [cardGrade]: "",
-      }));
+      setQuantities((prev) => ({ ...prev, [grade]: "" }));
     }
   };
 
@@ -45,9 +37,9 @@ const CardProfile = ({ type, cards }) => {
       {isDetail ? (
         cards.map((card) => (
           <CardDetailItem
-            key={card.cardGrade}
+            key={card.grade}
             card={card}
-            quantity={quantities[card.cardGrade] || 1}
+            quantity={quantities[card.grade] || 1}
             onQuantityChange={handleQuantityChange}
           />
         ))
@@ -55,7 +47,7 @@ const CardProfile = ({ type, cards }) => {
         <>
           {cards.map((card) => (
             <CardBasicItem
-              key={card.cardGrade}
+              key={card.grade}
               card={card}
               gradeStyles={gradeStyles}
             />
@@ -63,9 +55,9 @@ const CardProfile = ({ type, cards }) => {
           {isBuyer &&
             cards.map((card) => (
               <BuyerCardItem
-                key={`buyer-${card.cardGrade}`}
+                key={`buyer-${card.grade}`}
                 card={card}
-                quantity={quantities[card.cardGrade] || 1}
+                quantity={quantities[card.grade] || 1}
                 onQuantityChange={handleQuantityChange}
               />
             ))}
