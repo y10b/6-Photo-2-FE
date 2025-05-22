@@ -1,6 +1,5 @@
 'use client';
 
-import Modal from '@/components/common/Modal';
 import {createContext, useCallback, useContext, useState} from 'react';
 
 const ModalContext = createContext();
@@ -24,7 +23,6 @@ export function ModalProvider({children}) {
       value={{isOpen, modalContent, openModal, closeModal}}
     >
       {children}
-      <Modal />
     </ModalContext.Provider>
   );
 }

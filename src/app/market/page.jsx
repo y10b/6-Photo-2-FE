@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
-import FilterBottomSheet from "@/components/market/FilterBottomSheet";
-import { SearchInput } from "@/components/ui/input";
-import { fetchMarketCards } from "@/lib/api/marketApi";
-import DropdownInput from "@/components/ui/input/DropdownInput";
-import Image from "next/image";
-import Link from "next/link";
-import CardList from "@/components/ui/card/cardOverview/CardList";
-import Button from "@/components/common/Button";
-import Pagination from "@/components/market/Pagination";
-import MyCardsSellBottomSheet from "@/components/market/MyCardsSellBottomSheet";
+import {useEffect, useState} from 'react';
+import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
+import {useInView} from 'react-intersection-observer';
+import FilterBottomSheet from '@/components/market/FilterBottomSheet';
+import {SearchInput} from '@/components/ui/input';
+import {fetchMarketCards} from '@/lib/api/marketApi';
+import DropdownInput from '@/components/ui/input/DropdownInput';
+import Image from 'next/image';
+import Link from 'next/link';
+import CardList from '@/components/ui/card/cardOverview/CardList';
+import Button from '@/components/common/Button';
+import Pagination from '@/components/market/Pagination';
+import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 
 export default function MarketplacePage() {
-  const [keyword, setKeyword] = useState("");
-  const [sort, setSort] = useState("latest");
-  const [filter, setFilter] = useState({ type: "", value: "" });
+  const [keyword, setKeyword] = useState('');
+  const [sort, setSort] = useState('latest');
+  const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,8 +28,8 @@ export default function MarketplacePage() {
     const getIsMobileOrTablet = () => {
       const pcMinWidth = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue(
-          "--breakpoint-pc"
-        )
+          '--breakpoint-pc',
+        ),
       );
       const currentWidth = window.innerWidth;
       return currentWidth < pcMinWidth;
@@ -40,8 +40,8 @@ export default function MarketplacePage() {
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // 무한스크롤 적용
@@ -51,8 +51,8 @@ export default function MarketplacePage() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["marketCards", keyword, sort, filter],
-    queryFn: ({ pageParam = 1 }) =>
+    queryKey: ['marketCards', keyword, sort, filter],
+    queryFn: ({pageParam = 1}) =>
       fetchMarketCards({
         pageParam,
         take: 12,
@@ -62,15 +62,15 @@ export default function MarketplacePage() {
         filterValue: filter.value,
       }),
     enabled: !isTabletOrMobile,
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: lastPage =>
       lastPage.currentPage < lastPage.totalPages
         ? lastPage.currentPage + 1
         : undefined,
   });
 
   // 페이지네이션 적용
-  const { data: pageData } = useQuery({
-    queryKey: ["marketCards-page", keyword, sort, filter, currentPage],
+  const {data: pageData} = useQuery({
+    queryKey: ['marketCards-page', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMarketCards({
         pageParam: currentPage,
@@ -87,7 +87,7 @@ export default function MarketplacePage() {
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
 
   // 무한 스크롤 트리거용 ref
-  const { ref: loaderRef, inView } = useInView({ threshold: 0.8 });
+  const {ref: loaderRef, inView} = useInView({threshold: 0.8});
 
   useEffect(() => {
     if (!isTabletOrMobile && inView && hasNextPage && !isFetchingNextPage) {
@@ -100,9 +100,9 @@ export default function MarketplacePage() {
     fetchMarketCards({
       pageParam: 1,
       take: 1000,
-      keyword: "",
-      sort: "latest",
-    }).then((res) => {
+      keyword: '',
+      sort: 'latest',
+    }).then(res => {
       const rawCards = res.result;
 
       const counts = {
@@ -112,7 +112,7 @@ export default function MarketplacePage() {
         soldOut: {},
       };
 
-      rawCards.forEach((card) => {
+      rawCards.forEach(card => {
         // 등급
         counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
 
@@ -120,7 +120,7 @@ export default function MarketplacePage() {
         counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
 
         // 매진 여부
-        const isSoldOut = card.quantityLeft === 0 ? "true" : "false";
+        const isSoldOut = card.quantityLeft === 0 ? 'true' : 'false';
         counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
       });
 
@@ -128,18 +128,18 @@ export default function MarketplacePage() {
     });
   }, []);
 
-  const handleSearch = (value) => setKeyword(value);
+  const handleSearch = value => setKeyword(value);
 
   const sortOptions = [
-    { label: "최신순", value: "latest" },
-    { label: "낮은 가격순", value: "price-asc" },
-    { label: "높은 가격순", value: "price-desc" },
-    { label: "오래된순", value: "oldest" },
+    {label: '최신순', value: 'latest'},
+    {label: '낮은 가격순', value: 'price-asc'},
+    {label: '높은 가격순', value: 'price-desc'},
+    {label: '오래된순', value: 'oldest'},
   ];
 
   return (
     <>
-      <div className="max-w-[744px] tablet:max-w-[1200px] mx-auto">
+      <div className="max-w-[1480px] mx-auto">
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
@@ -161,7 +161,7 @@ export default function MarketplacePage() {
             <SearchInput
               name="query"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={e => setKeyword(e.target.value)}
               onSearch={handleSearch}
               placeholder="검색"
             />
@@ -187,7 +187,7 @@ export default function MarketplacePage() {
                 className="!w-[130px] !h-[35px]"
                 name="sort"
                 value={sort}
-                onChange={({ target }) => setSort(target.value)}
+                onChange={({target}) => setSort(target.value)}
                 options={sortOptions}
               />
             </div>
@@ -201,7 +201,7 @@ export default function MarketplacePage() {
                 <SearchInput
                   name="query"
                   value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
+                  onChange={e => setKeyword(e.target.value)}
                   onSearch={handleSearch}
                   placeholder="검색"
                   className="!w-[160px] pc:!w-[320px]"
@@ -214,16 +214,16 @@ export default function MarketplacePage() {
                 <DropdownInput
                   className="border-none !px-0"
                   name="grade"
-                  value={filter.type === "grade" ? filter.value : ""}
-                  onChange={({ target }) =>
-                    setFilter({ type: "grade", value: target.value })
+                  value={filter.type === 'grade' ? filter.value : ''}
+                  onChange={({target}) =>
+                    setFilter({type: 'grade', value: target.value})
                   }
                   placeholder="등급"
                   options={[
-                    { label: "COMMON", value: "COMMON" },
-                    { label: "RARE", value: "RARE" },
-                    { label: "SUPER_RARE", value: "SUPER_RARE" },
-                    { label: "LEGENDARY", value: "LEGENDARY" },
+                    {label: 'COMMON', value: 'COMMON'},
+                    {label: 'RARE', value: 'RARE'},
+                    {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                    {label: 'LEGENDARY', value: 'LEGENDARY'},
                   ]}
                 />
               </div>
@@ -232,16 +232,16 @@ export default function MarketplacePage() {
                 <DropdownInput
                   className="border-none !px-0"
                   name="genre"
-                  value={filter.type === "genre" ? filter.value : ""}
-                  onChange={({ target }) =>
-                    setFilter({ type: "genre", value: target.value })
+                  value={filter.type === 'genre' ? filter.value : ''}
+                  onChange={({target}) =>
+                    setFilter({type: 'genre', value: target.value})
                   }
                   placeholder="장르"
                   options={[
-                    { label: "여행", value: "TRAVEL" },
-                    { label: "풍경", value: "LANDSCAPE" },
-                    { label: "인물", value: "PORTRAIT" },
-                    { label: "사물", value: "OBJECT" },
+                    {label: '여행', value: 'TRAVEL'},
+                    {label: '풍경', value: 'LANDSCAPE'},
+                    {label: '인물', value: 'PORTRAIT'},
+                    {label: '사물', value: 'OBJECT'},
                   ]}
                 />
               </div>
@@ -250,14 +250,14 @@ export default function MarketplacePage() {
                 <DropdownInput
                   className="border-none !px-0"
                   name="soldOut"
-                  value={filter.type === "soldOut" ? filter.value : ""}
-                  onChange={({ target }) =>
-                    setFilter({ type: "soldOut", value: target.value })
+                  value={filter.type === 'soldOut' ? filter.value : ''}
+                  onChange={({target}) =>
+                    setFilter({type: 'soldOut', value: target.value})
                   }
                   placeholder="매진여부"
                   options={[
-                    { label: "판매중", value: "false" },
-                    { label: "품절", value: "true" },
+                    {label: '판매중', value: 'false'},
+                    {label: '품절', value: 'true'},
                   ]}
                 />
               </div>
@@ -267,7 +267,7 @@ export default function MarketplacePage() {
                 className="!h-[45px] !w-[140px] pc:!w-[180px] pc:!h-[50px]"
                 name="sort"
                 value={sort}
-                onChange={({ target }) => setSort(target.value)}
+                onChange={({target}) => setSort(target.value)}
                 options={sortOptions}
               />
             </div>
@@ -278,7 +278,10 @@ export default function MarketplacePage() {
           <div className="w-full">
             {isTabletOrMobile ? (
               <>
-                <CardList cards={pageData?.result ?? []} />
+                <CardList
+                  cards={pageData?.result ?? []}
+                  className="grid gap-4 grid-cols-2"
+                />
                 <Pagination
                   currentPage={currentPage}
                   totalPages={pageData?.totalPages ?? 1}
@@ -288,7 +291,8 @@ export default function MarketplacePage() {
             ) : (
               <>
                 <CardList
-                  cards={infiniteData?.pages.flatMap((p) => p.result) ?? []}
+                  cards={infiniteData?.pages.flatMap(p => p.result) ?? []}
+                  className="grid gap-20 grid-cols-3 w-full"
                 />
                 <div ref={loaderRef} className="h-10" />
               </>
@@ -300,9 +304,9 @@ export default function MarketplacePage() {
             <FilterBottomSheet
               isOpen={isFilterOpen}
               onClose={() => setIsFilterOpen(false)}
-              onApply={(filter) => setFilter(filter)}
+              onApply={filter => setFilter(filter)}
               filterCounts={filterCounts}
-              tabs={["grade", "genre", "soldOut"]}
+              tabs={['grade', 'genre', 'soldOut']}
               selectedFilter={filter}
             />
 
