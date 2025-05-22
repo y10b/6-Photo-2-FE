@@ -5,7 +5,7 @@ const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
   const totalPrice = card.price * (quantity || 0);
 
   const handleQuantityChange = (newValue) => {
-    onQuantityChange(card.cardGrade, newValue);
+    onQuantityChange(card.grade, newValue);
   };
 
   return (
@@ -15,7 +15,7 @@ const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
         <span className="font-normal text-[18px] pc:text-xl">구매수량</span>
         <CounterInput
           initialValue={quantity || 1}
-          max={card.quantityLeft}
+          max={card.remainingQuantity}
           showMaxInfo={false}
           onChange={handleQuantityChange}
           width="w-[144px] pc:w-[150px]"
@@ -26,7 +26,7 @@ const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
         <span>총 가격</span>
         <div className="flex justify-between items-center">
           <span className="font-bold text-xl pc:text-2xl text-white mr-[10px]">
-            {totalPrice}P
+            {totalPrice.toLocaleString()}P
           </span>
           <span className="font-normal text-[18px] pc:text-xl text-gray300">
             ({quantity || 0}장)
