@@ -11,10 +11,11 @@ const Header = () => {
   // user 객체의 존재 여부로 로그인 상태 확인
   const isLoggedIn = !!user;
   // 디버깅용 로그
-  useEffect(() => {
-    console.log('Header - 로그인 상태:', isLoggedIn);
-    console.log('Header - 사용자 정보:', user);
-  }, [isLoggedIn, user]);
+  useEffect(() => {}, [isLoggedIn, user]);
+  // 바로 로그아웃
+  const handleLogout = () => {
+    logout(); // AuthProvider의 logout 함수 호출 (랜딩페이지로 이동)
+  };
 
   return (
     <header>
@@ -47,7 +48,7 @@ const Header = () => {
           <ul className="flex items-center gap-[30px]">
             <div className="flex items-center gap-[30px]">
               <li className="hidden tablet:block text-[14px] font-[700]">
-                {user?.points?.toLocaleString() || 0} P
+                {user?.pointBalance?.toLocaleString() || 0} P
               </li>
               <li>
                 <figure className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px]">
@@ -66,7 +67,7 @@ const Header = () => {
             <div className="hidden tablet:block w-[1px] h-[20px] bg-[var(--color-gray400)]" />
             <li
               className="hidden tablet:block text-[14px] text-[var(--color-gray400)]"
-              onClick={logout}
+              onClick={handleLogout}
             >
               로그아웃
             </li>

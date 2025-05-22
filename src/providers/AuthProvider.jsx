@@ -80,10 +80,22 @@ export default function AuthProvider({children}) {
     try {
       await signOut();
       setUser(null);
+
+      // 로컬 스토리지 정리
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+
+      // 랜딩페이지로 이동
+      window.location.href = '/';
     } catch (error) {
       console.error('로그아웃 실패:', error);
       // 로그아웃 실패해도 클라이언트 상태는 초기화
       setUser(null);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+
+      // 랜딩페이지로 이동
+      window.location.href = '/';
     }
   };
 

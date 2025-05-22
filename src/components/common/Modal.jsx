@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useModal } from "@/context/ModalContext";
+import Image from 'next/image';
+import {useModal} from '@/components/modal/ModalContext';
 
 export default function Modal() {
-  const { isOpen, modalContent, closeModal } = useModal();
+  const {isOpen, modalContent, closeModal} = useModal();
 
   if (!isOpen) return null;
 
@@ -41,10 +41,18 @@ export default function Modal() {
             {/* 확인 버튼 */}
             {modalContent?.button && (
               <button
-                onClick={modalContent.button.onClick || closeModal}
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (modalContent?.button?.onClick) {
+                    modalContent.button.onClick();
+                  } else {
+                    closeModal();
+                  }
+                }}
                 className="w-[170px] h-[60px] bg-main text-black text-lg font-bold rounded-xs"
               >
-                {modalContent.button.label || "확인"}
+                {modalContent.button.label || '확인'}
               </button>
             )}
           </div>

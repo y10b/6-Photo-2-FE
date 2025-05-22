@@ -1,9 +1,10 @@
-import { ModalProvider } from "@/context/ModalContext";
-import "./globals.css";
-import WrapperLayout from "@/components/layout/WrapperLayout";
-import AuthProvider from "@/providers/AuthProvider";
-import Modal from "@/components/common/Modal";
-import RouteGuard from "@/providers/RouteGuard";
+import {ModalProvider} from '@/components/modal/ModalContext';
+import './globals.css';
+import WrapperLayout from '@/components/layout/WrapperLayout';
+import AuthProvider from '@/providers/AuthProvider';
+import Modal from '@/components/common/Modal';
+import RouteGuard from '@/providers/RouteGuard';
+import ReactQueryProvider from "@/providers/ReactQueryProvider"; 
 
 export const metadata = {
   title: '최애의 포토',

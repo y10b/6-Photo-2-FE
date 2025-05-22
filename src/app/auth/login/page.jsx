@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import {useState} from 'react';
 import {Input} from '@/components/ui/input';
-import {useModal} from '@/context/ModalContext';
+import {useModal} from '@/components/modal/ModalContext';
 import Button from '@/components/common/Button';
 import Image from 'next/image';
 import GoogleButton from '@/components/common/GoogleButton';
@@ -14,25 +14,19 @@ export default function LoginPage() {
   const [form, setForm] = useState({
     email: '',
     password: '',
-    email: '',
-    password: '',
   });
 
   const [errors, setErrors] = useState({});
   const {openModal} = useModal();
-  const {login} = useAuth(); // AuthProvider에서 login 함수 가져오기
-  const router = useRouter(); // Next.js 라우터
+  const {login} = useAuth();
+  const router = useRouter();
 
-  const handleChange = e => {
-    const {name, value} = e.target;
-    setForm(prev => ({...prev, [name]: value}));
   const handleChange = e => {
     const {name, value} = e.target;
     setForm(prev => ({...prev, [name]: value}));
 
     // 입력 시 해당 필드의 에러 제거
     if (errors[name]) {
-      setErrors(prev => ({...prev, [name]: ''}));
       setErrors(prev => ({...prev, [name]: ''}));
     }
   };
@@ -44,13 +38,9 @@ export default function LoginPage() {
       newErrors.email = '이메일을 입력해주세요.';
     } else if (!form.email.includes('@')) {
       newErrors.email = '올바른 이메일 형식이 아닙니다.';
-      newErrors.email = '이메일을 입력해주세요.';
-    } else if (!form.email.includes('@')) {
-      newErrors.email = '올바른 이메일 형식이 아닙니다.';
     }
 
     if (!form.password) {
-      newErrors.password = '비밀번호를 입력해주세요.';
       newErrors.password = '비밀번호를 입력해주세요.';
     }
 
@@ -58,7 +48,6 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async e => {
   const handleSubmit = async e => {
     e.preventDefault();
 
@@ -72,11 +61,11 @@ export default function LoginPage() {
       if (success) {
         openModal({
           title: '로그인 성공',
-          description: '환영합니다!\n메인 페이지로 이동합니다.',
+          description: '환영합니다!\n마켓페이지로 이동합니다.',
           button: {
             label: '확인',
             onClick: () => {
-              router.push('/');
+              router.push('/market');
             },
           },
         });
@@ -85,10 +74,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('로그인 에러:', error);
-      console.error('로그인 에러:', error);
       openModal({
-        title: '로그인 실패',
-        description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
         title: '로그인 실패',
         description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
       });
@@ -96,7 +82,6 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // TODO: 해야함
     console.log('Google 로그인 시도');
   };
 
