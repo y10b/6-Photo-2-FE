@@ -1,13 +1,10 @@
-import Link from "next/link";
-import clsx from "clsx";
+'use client';
 
-const getGradeColor = (grade) =>
-  clsx("font-light", {
-    "text-main": grade === "COMMON",
-    "text-blue": grade === "RARE",
-    "text-purple": grade === "SUPER_RARE",
-    "text-pink": grade === "LEGENDARY",
-  });
+import Link from 'next/link';
+import clsx from 'clsx';
+import gradeStyles from '@/utils/gradeStyles';
+
+const getGradeColor = grade => clsx('font-light', gradeStyles[grade]);
 
 export default function CardInfo({
   type,
@@ -20,9 +17,9 @@ export default function CardInfo({
   quantityTotal,
   description,
 }) {
-  const isExchange = type === "exchange";
-  const myCard = type === "my_card";
-  const forSaleSoldOut = type === "for_sale_soldout";
+  const isExchange = type === 'exchange';
+  const myCard = type === 'my_card';
+  const forSaleSoldOut = type === 'for_sale_soldout';
 
   return (
     <div className="mb-[10px] tablet:mb-[25.5px]">
@@ -57,11 +54,11 @@ export default function CardInfo({
 
           <div className="flex justify-between">
             <span className="font-light text-gray300">
-              {myCard ? "수량" : "잔여"}
+              {myCard ? '수량' : '잔여'}
             </span>
             <p className="font-light text-gray300">
               <span className="font-normal text-white">{quantityLeft}</span>
-              {!myCard && type !== "for_sale" && !forSaleSoldOut && (
+              {!myCard && type !== 'for_sale' && !forSaleSoldOut && (
                 <>/{quantityTotal}</>
               )}
             </p>

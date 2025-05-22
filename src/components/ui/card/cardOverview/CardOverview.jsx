@@ -1,9 +1,9 @@
-import React from "react";
-import CardImage from "./CardImage";
-import CardInfo from "./CardInfo";
-import Button from "@/components/common/Button";
+import React from 'react';
+import CardImage from './CardImage';
+import CardInfo from './CardInfo';
+import Button from '@/components/common/Button';
 
-export default function CardOverview({ card }) {
+export default function CardOverview({card}) {
   const {
     type,
     title,
@@ -18,9 +18,9 @@ export default function CardOverview({ card }) {
     saleStatus,
   } = card;
 
-  const isSoldOut = type === "soldout" || type === "for_sale_soldout";
-  const isExchange = type === "exchange";
-  const isForSale = type === "for_sale";
+  const isSoldOut = type === 'soldout' || type === 'for_sale_soldout';
+  const isExchange = type === 'exchange';
+  const isForSale = type === 'for_sale';
 
   return (
     <div className="font-noto text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white">
@@ -45,9 +45,10 @@ export default function CardOverview({ card }) {
       />
 
       {isExchange && (
-        <div>
-          <div className="block tablet:hidden pc:hidden ">
-            <div className="flex gap-[5px] mb-[10px]">
+        <>
+          {/* 모바일, 태블릿: 버튼 간격 좁게 */}
+          <div className="block tablet:hidden pc:hidden mb-4">
+            <div className="flex gap-[5px]">
               <Button role="proposal" variant="outline">
                 거절
               </Button>
@@ -57,7 +58,8 @@ export default function CardOverview({ card }) {
             </div>
           </div>
 
-          <div className="hidden tablet:hidden pc:block">
+          {/* PC: 버튼 간격 넓게 */}
+          <div className="hidden tablet:block pc:block">
             <div className="flex gap-5">
               <Button role="proposal" variant="outline">
                 거절하기
@@ -67,7 +69,7 @@ export default function CardOverview({ card }) {
               </Button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
