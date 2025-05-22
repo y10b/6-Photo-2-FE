@@ -1,6 +1,6 @@
 import Button from '@/components/common/Button';
 import CounterInput from '@/components/ui/input/CounterInput';
-import {useModal} from '@/context/ModalContext';
+import {useModal} from '@/components/modal/ModalContext';
 
 const BuyerCardItem = ({card, quantity, onQuantityChange}) => {
   const {openModal} = useModal();
@@ -13,6 +13,7 @@ const BuyerCardItem = ({card, quantity, onQuantityChange}) => {
 
   const handlePurchaseCheck = () => {
     openModal({
+      type: 'alert', // 타입 추가
       title: '포토카드 구매',
       description: `[${card.grade} | ${card.name}] ${quantity}장을 구매하시겠습니까?`,
       button: {
