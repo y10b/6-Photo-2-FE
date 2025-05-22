@@ -1,6 +1,8 @@
 /* 임시 로컬로 */
+const BASE_URL = `http://localhost:5005/api`
+
 export async function fetchPurchase(id) {
-    const res = await fetch(`http://localhost:5005/api/purchase/${id}`, {
+    const res = await fetch(`${BASE_URL}/purchase/${id}`, {
         next: { revalidate: 0 },
     });
 
