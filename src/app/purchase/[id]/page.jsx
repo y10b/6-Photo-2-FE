@@ -1,13 +1,15 @@
 'use client';
+'use client';
 
 import {useEffect, useState} from 'react';
 import {useParams} from 'next/navigation';
-import Image from 'next/image';
 import NoHeader from '@/components/layout/NoHeader';
 import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
+import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
+import Image from 'next/image';
 import {fetchPurchase} from '@/lib/api/purchase';
 
-export default function PurchasePage() {
+function PurchasePage() {
   const {id} = useParams();
   const [photoCard, setPhotoCard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,13 +34,7 @@ export default function PurchasePage() {
     return <div className="text-white text-center mt-10">로딩 중...</div>;
   }
 
-  if (!photoCard) {
-    return (
-      <div className="text-red-500 text-center mt-10">
-        카드를 불러올 수 없습니다.
-      </div>
-    );
-  }
+  const {name, imageUrl, description, grade, genre} = photoCard;
 
   return (
     <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
@@ -67,6 +63,20 @@ export default function PurchasePage() {
           <CardProfile type="buyer" cards={[photoCard]} />
         </div>
       </section>
+
+      {/* 교환 희망 정보 */}
+      <ExchangeInfoSection
+        info={{
+          description:
+            '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
+          grade: grade || 'COMMON',
+          genre: genre || '장르 없음',
+          onClick: () => {
+            // 교환 제안 모달 열기 등
+            console.log('교환 제안하기 클릭');
+          },
+        }}
+      />
     </div>
   );
 }
