@@ -64,17 +64,34 @@ export default function SignUpPage() {
         form.password,
         form.confirmPassword,
       );
-      // 회원가입 성공 - AuthContext에서 처리
+
+      openModal({
+        type: 'alert', // 🔥 type 추가
+        title: '회원가입 완료',
+        description: '회원가입이 완료되었습니다!\n로그인 페이지로 이동합니다.',
+        button: {
+          label: '확인',
+          onClick: () => {
+            router.push('/auth/login');
+          },
+        },
+      });
     } catch (error) {
-      // 에러 처리 - AuthContext에서 처리
-      console.error('회원가입 에러:', error);
+      openModal({
+        type: 'alert', // 🔥 type 추가
+        title: '회원가입 실패',
+        description:
+          error.message ||
+          '회원가입 중 오류가 발생했습니다.\n다시 시도해주세요.',
+        button: {
+          label: '확인',
+        },
+      });
     }
   };
 
   const handleGoogleLogin = () => {
-    // Google 로그인 처리 로직
     console.log('Google 로그인 시도');
-    // 여기에 Google OAuth 처리 로직을 추가할 수 있습니다
   };
 
   const isFormValid =

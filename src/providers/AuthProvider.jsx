@@ -51,23 +51,16 @@ export default function AuthProvider({children}) {
 
   const login = async (email, password) => {
     try {
-      console.log('AuthProvider 로그인 시도:', {email});
-
       const response = await signIn({email, password});
-      console.log('AuthProvider 로그인 응답:', response);
-
       // 액세스 토큰 저장
       if (response.accessToken) {
         localStorage.setItem('accessToken', response.accessToken);
       }
-
       // 사용자 정보 저장 (임시)
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
-
       await getUser();
-
       console.log('AuthProvider 로그인 성공');
       return true;
     } catch (error) {

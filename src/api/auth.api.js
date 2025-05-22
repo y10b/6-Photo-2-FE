@@ -18,18 +18,10 @@ export const signUp = async ({email, nickname, password}) => {
 // 로그인
 export const signIn = async ({email, password}) => {
   try {
-    console.log('=== 로그인 요청 시작 ===');
-    console.log('요청 데이터:', {email, password});
-    console.log('baseURL:', axiosInstance.defaults.baseURL);
-
     const res = await axiosInstance.post('/auth/signin', {
       email,
       password,
     });
-
-    console.log('=== 로그인 응답 성공 ===');
-    console.log('응답 데이터:', res.data);
-
     // 응답에서 토큰 저장
     if (res.data.accessToken) {
       localStorage.setItem('accessToken', res.data.accessToken);
@@ -42,13 +34,6 @@ export const signIn = async ({email, password}) => {
 
     return res.data;
   } catch (error) {
-    console.error('로그인 실패:', error);
-    console.error('=== 로그인 실패 ===');
-    console.error('에러 메시지:', error.message);
-    console.error('에러 코드:', error.code);
-    console.error('응답 상태:', error.response?.status);
-    console.error('응답 데이터:', error.response?.data);
-    console.error('요청 URL:', error.config?.url);
     throw error;
   }
 };

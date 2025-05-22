@@ -39,11 +39,9 @@ export default function LoginPage() {
     } else if (!form.email.includes('@')) {
       newErrors.email = '올바른 이메일 형식이 아닙니다.';
     }
-
     if (!form.password) {
       newErrors.password = '비밀번호를 입력해주세요.';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,12 +52,12 @@ export default function LoginPage() {
     if (!validate()) return;
 
     try {
-      console.log('로그인 시도:', form);
-
       const success = await login(form.email, form.password);
 
       if (success) {
-        openModal({ //type, alert로 사용!
+        openModal({
+          //type, alert로 사용!
+          type: 'alert', // 🔥 type 추가
           title: '로그인 성공',
           description: '환영합니다!\n마켓페이지로 이동합니다.',
           button: {
@@ -73,10 +71,13 @@ export default function LoginPage() {
         throw new Error('로그인 실패');
       }
     } catch (error) {
-      console.error('로그인 에러:', error);
       openModal({
+        type: 'alert', // 🔥 type 추가
         title: '로그인 실패',
         description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
+        button: {
+          label: '확인',
+        },
       });
     }
   };
