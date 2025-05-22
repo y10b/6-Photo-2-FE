@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import NoHeader from "@/components/layout/NoHeader";
-import CardProfile from "@/components/ui/card/cardProfile/CardProfile";
-import Image from "next/image";
-import { fetchPurchase } from "@/lib/api/purchase";
+import {useEffect, useState} from 'react';
+import {useParams} from 'next/navigation';
+import NoHeader from '@/components/layout/NoHeader';
+import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
+import Image from 'next/image';
+import {fetchPurchase} from '@/lib/api/purchase';
 
 function PurchasePage() {
-  const { id } = useParams();
+  const {id} = useParams();
   const [photoCard, setPhotoCard] = useState(null);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function PurchasePage() {
     return <div className="text-white text-center mt-10">로딩 중...</div>;
   }
 
-  const { name, imageUrl } = photoCard;
+  const {name, imageUrl} = photoCard;
 
   return (
     <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
