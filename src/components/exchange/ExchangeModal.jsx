@@ -9,7 +9,7 @@ export default function ExchangeModal({myCards = [], onSelect}) {
   const {closeModal} = useModal();
   const [search, setSearch] = useState('');
 
-  // 검색된 카드 필터링
+  // 검색된 카드 필터링입니다
   const filteredCards = myCards.filter(card =>
     card.name.toLowerCase().includes(search.toLowerCase()),
   );
