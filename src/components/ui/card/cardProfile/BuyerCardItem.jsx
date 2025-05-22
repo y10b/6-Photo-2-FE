@@ -1,11 +1,27 @@
-import Button from "@/components/common/Button";
-import CounterInput from "@/components/ui/input/CounterInput";
+import Button from '@/components/common/Button';
+import CounterInput from '@/components/ui/input/CounterInput';
+import {useModal} from '@/context/ModalContext';
 
-const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
+const BuyerCardItem = ({card, quantity, onQuantityChange}) => {
+  const {openModal} = useModal();
+
   const totalPrice = card.price * (quantity || 0);
 
-  const handleQuantityChange = (newValue) => {
+  const handleQuantityChange = newValue => {
     onQuantityChange(card.grade, newValue);
+  };
+
+  const handlePurchaseCheck = () => {
+    openModal({
+      title: '포토카드 구매',
+      description: `[${card.grade} | ${card.name}] ${quantity}장을 구매하시겠습니까?`,
+      button: {
+        label: '구매하기',
+        onClick: () => {
+          /* api 호출 */
+        },
+      },
+    });
   };
 
   return (
@@ -34,12 +50,12 @@ const BuyerCardItem = ({ card, quantity, onQuantityChange }) => {
         </div>
       </div>
       <div className="block pc:hidden">
-        <Button role="product" onClick={() => {}}>
+        <Button role="product" onClick={handlePurchaseCheck}>
           포토카드 구매하기
         </Button>
       </div>
       <div className="hidden pc:block">
-        <Button role="product" onClick={() => {}}>
+        <Button role="product" onClick={handlePurchaseCheck}>
           포토카드 구매하기
         </Button>
       </div>

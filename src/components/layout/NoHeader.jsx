@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+import React from 'react';
+import {useRouter} from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
-export default function NoHeader({ title, fontSize = "text-xl" }) {
+export default function NoHeader({title, fontSize = 'text-xl'}) {
   const router = useRouter();
 
   return (
@@ -26,8 +26,7 @@ export default function NoHeader({ title, fontSize = "text-xl" }) {
       </div>
 
       <div className="hidden tablet:flex my-10 pc:my-15">
-        {/* 수정 예정 */}
-        <Link href="/marketPlace">
+        <Link href="/market">
           <h3
             className={`font-baskin font-normal text-gray300 text-left text-base pc:text-2xl`}
           >
