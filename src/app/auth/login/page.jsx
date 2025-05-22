@@ -1,28 +1,38 @@
 'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { useModal } from "@/context/ModalContext";
-import Button from "@/components/common/Button";
-import Image from "next/image";
+import Link from 'next/link';
+import {useState} from 'react';
+import {Input} from '@/components/ui/input';
+import {useModal} from '@/context/ModalContext';
+import Button from '@/components/common/Button';
+import Image from 'next/image';
+import GoogleButton from '@/components/common/GoogleButton';
+import {useAuth} from '@/providers/AuthProvider';
+import {useRouter} from 'next/navigation';
 
 export default function LoginPage() {
   const [form, setForm] = useState({
     email: '',
     password: '',
+    email: '',
+    password: '',
   });
 
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const {openModal} = useModal();
+  const {login} = useAuth(); // AuthProvider에서 login 함수 가져오기
+  const router = useRouter(); // Next.js 라우터
 
+  const handleChange = e => {
+    const {name, value} = e.target;
+    setForm(prev => ({...prev, [name]: value}));
   const handleChange = e => {
     const {name, value} = e.target;
     setForm(prev => ({...prev, [name]: value}));
 
     // 입력 시 해당 필드의 에러 제거
     if (errors[name]) {
+      setErrors(prev => ({...prev, [name]: ''}));
       setErrors(prev => ({...prev, [name]: ''}));
     }
   };
@@ -34,9 +44,13 @@ export default function LoginPage() {
       newErrors.email = '이메일을 입력해주세요.';
     } else if (!form.email.includes('@')) {
       newErrors.email = '올바른 이메일 형식이 아닙니다.';
+      newErrors.email = '이메일을 입력해주세요.';
+    } else if (!form.email.includes('@')) {
+      newErrors.email = '올바른 이메일 형식이 아닙니다.';
     }
 
     if (!form.password) {
+      newErrors.password = '비밀번호를 입력해주세요.';
       newErrors.password = '비밀번호를 입력해주세요.';
     }
 
@@ -45,38 +59,45 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async e => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    setIsLoading(true);
-
     try {
-      // TODO: API 연동
-      console.log('로그인 데이터:', form);
+      console.log('로그인 시도:', form);
 
-      // 임시 성공 처리
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 로딩 시뮬레이션
+      const success = await login(form.email, form.password);
 
-      openModal({
-        title: '로그인 성공',
-        description: '환영합니다!\n메인 페이지로 이동합니다.',
-        button: {
-          label: '확인',
-          onClick: () => {
-            window.location.href = '/';
+      if (success) {
+        openModal({
+          title: '로그인 성공',
+          description: '환영합니다!\n메인 페이지로 이동합니다.',
+          button: {
+            label: '확인',
+            onClick: () => {
+              router.push('/');
+            },
           },
-        },
-      });
+        });
+      } else {
+        throw new Error('로그인 실패');
+      }
     } catch (error) {
+      console.error('로그인 에러:', error);
       console.error('로그인 에러:', error);
       openModal({
         title: '로그인 실패',
         description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
+        title: '로그인 실패',
+        description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
       });
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    // TODO: 해야함
+    console.log('Google 로그인 시도');
   };
 
   const isFormValid = form.email && form.password;
@@ -84,12 +105,12 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center">
       <div className="w-full max-w-[345px] tablet:max-w-[440px] pc:max-w-[520px]">
-        {/* 로고 */}    
+        {/* 로고 */}
         <div className="flex justify-center mb-20">
-          <Link href={"/"}>
+          <Link href={'/'}>
             <figure className="relative w-[189px] h-[35px] tablet:w-[331px] tablet:h-[60px]">
               <Image
-                src={"/logo.svg"}
+                src={'/logo.svg'}
                 fill
                 className="object-cover fill"
                 alt="로고"
@@ -124,14 +145,16 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            disabled={!isFormValid || isLoading}
+            disabled={!isFormValid}
             role="default"
             variant="primary"
             fullWidth={true}
-            className="mt-11"
+            className="mt-11 mb-4"
           >
-            {isLoading ? "로그인 중..." : "로그인"}
+            로그인
           </Button>
+
+          <GoogleButton onClick={handleGoogleLogin} />
         </form>
 
         {/* 회원가입 링크 */}

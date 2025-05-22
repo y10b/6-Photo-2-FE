@@ -1,12 +1,13 @@
 'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { useModal } from "@/context/ModalContext";
-import Button from "@/components/common/Button";
-import { useAuth } from "@/providers/AuthProvider";
-import Image from "next/image";
+import Link from 'next/link';
+import {useState} from 'react';
+import {Input} from '@/components/ui/input';
+import {useModal} from '@/context/ModalContext';
+import Button from '@/components/common/Button';
+import {useAuth} from '@/providers/AuthProvider';
+import Image from 'next/image';
+import GoogleButton from '@/components/common/GoogleButton';
 
 export default function SignUpPage() {
   const [form, setForm] = useState({
@@ -18,13 +19,13 @@ export default function SignUpPage() {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
-  const { openModal } = useModal();
+  const {register} = useAuth();
+  const {openModal} = useModal();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    
+  const handleChange = e => {
+    const {name, value} = e.target;
+    setForm(prev => ({...prev, [name]: value}));
+
     // 입력 시 해당 필드의 에러 제거
     if (errors[name]) {
       setErrors(prev => ({...prev, [name]: ''}));
@@ -33,13 +34,13 @@ export default function SignUpPage() {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!form.email) {
       newErrors.email = '이메일을 입력해주세요.';
     } else if (!form.email.includes('@')) {
       newErrors.email = '올바른 이메일 형식이 아닙니다.';
     }
-    
+
     if (!form.confirmPassword) {
       newErrors.confirmPassword = '비밀번호 확인을 입력해주세요.';
     } else if (form.password !== form.confirmPassword) {
@@ -52,29 +53,41 @@ export default function SignUpPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     try {
-      await register(form.nickname, form.email, form.password, form.confirmPassword);
+      await register(
+        form.nickname,
+        form.email,
+        form.password,
+        form.confirmPassword,
+      );
       // 회원가입 성공 - AuthContext에서 처리
     } catch (error) {
       // 에러 처리 - AuthContext에서 처리
-      console.error("회원가입 에러:", error);
+      console.error('회원가입 에러:', error);
     }
   };
 
-  const isFormValid = form.email && form.nickname && form.password && form.confirmPassword;
+  const handleGoogleLogin = () => {
+    // Google 로그인 처리 로직
+    console.log('Google 로그인 시도');
+    // 여기에 Google OAuth 처리 로직을 추가할 수 있습니다
+  };
+
+  const isFormValid =
+    form.email && form.nickname && form.password && form.confirmPassword;
 
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center">
       <div className="w-full max-w-[345px] tablet:max-w-[440px] pc:max-w-[520px]">
         {/* 로고 */}
         <div className="flex justify-center mb-15">
-          <Link href={"/"}>
+          <Link href={'/'}>
             <figure className="relative w-[189px] h-[35px] tablet:w-[331px] tablet:h-[60px]">
               <Image
-                src={"/logo.svg"}
+                src={'/logo.svg'}
                 fill
                 className="object-cover fill"
                 alt="로고"
@@ -133,10 +146,12 @@ export default function SignUpPage() {
             role="default"
             variant="primary"
             fullWidth={true}
-            className="mt-11"
+            className="mt-11 mb-4"
           >
             {isLoading ? '가입 중...' : '가입하기'}
           </Button>
+
+          <GoogleButton onClick={handleGoogleLogin} />
         </form>
 
         {/* 로그인 링크 */}
