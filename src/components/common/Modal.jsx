@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useModal } from "@/context/ModalContext";
+import Image from 'next/image';
+import {useModal} from '@/context/ModalContext';
+import Button from './Button';
 
 export default function Modal() {
-  const { isOpen, modalContent, closeModal } = useModal();
+  const {isOpen, modalContent, closeModal} = useModal();
 
   if (!isOpen) return null;
 
@@ -16,11 +17,11 @@ export default function Modal() {
           {/* 닫기 버튼 */}
           <button
             onClick={closeModal}
-            className="absolute top-[30px] right-[30px]"
+            className="absolute top-[30px] right-[30px] cursor-pointer"
             aria-label="닫기"
           >
             <Image
-              src="/ic_close.svg"
+              src="/icons/ic_close.svg"
               width={32}
               height={32}
               alt="닫기 아이콘"
@@ -40,12 +41,12 @@ export default function Modal() {
 
             {/* 확인 버튼 */}
             {modalContent?.button && (
-              <button
+              <Button
+                role="modal"
                 onClick={modalContent.button.onClick || closeModal}
-                className="w-[170px] h-[60px] bg-main text-black text-lg font-bold rounded-xs"
               >
-                {modalContent.button.label || "확인"}
-              </button>
+                {modalContent.button.label || '확인'}
+              </Button>
             )}
           </div>
         </div>
