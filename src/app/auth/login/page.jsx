@@ -59,7 +59,7 @@ export default function LoginPage() {
       const success = await login(form.email, form.password);
 
       if (success) {
-        openModal({
+        openModal({ //type, alert로 사용!
           title: '로그인 성공',
           description: '환영합니다!\n마켓페이지로 이동합니다.',
           button: {
