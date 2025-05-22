@@ -4,7 +4,7 @@ const CardDetailItem = ({ card, quantity, onQuantityChange }) => {
   const gradeStyles = {
     COMMON: "text-main",
     RARE: "text-blue",
-    "SUPER RARE": "text-purple",
+    SUPER_RARE: "text-purple",
     LEGENDARY: "text-pink",
   };
 
@@ -12,19 +12,21 @@ const CardDetailItem = ({ card, quantity, onQuantityChange }) => {
     let val = parseInt(value, 10);
     if (isNaN(val) || val < 1) val = 1;
     if (val > card.initialQuantity) val = card.initialQuantity;
-    onQuantityChange(card.cardGrade, val);
+    onQuantityChange(card.grade, val);
   };
 
   return (
     <div className="text-white bg-transparent">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[10px] font-bold text-[18px] pc:text-2xl">
-          <p className={gradeStyles[card.cardGrade]}>{card.cardGrade}</p>
+          <p className={gradeStyles[card.grade]}>{card.grade}</p>
           <div className="text-gray400">|</div>
-          <p>{card.CardGenre}</p>
+          <p>{card.genre}</p>
         </div>
         <Link href="/" className="underline">
-          <p className="font-bold text-[18px] pc:text-2xl">{card.nickname}</p>
+          <p className="font-bold text-[18px] pc:text-2xl">
+            {card.sellerNickname}
+          </p>
         </Link>
       </div>
       <hr className="my-[30px] text-gray400" />
