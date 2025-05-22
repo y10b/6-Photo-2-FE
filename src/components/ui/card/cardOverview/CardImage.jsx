@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import Image from "next/image";
-import clsx from "clsx";
+import React from 'react';
+import Image from 'next/image';
+import clsx from 'clsx';
 
 export default function CardImage({
   imageUrl,
@@ -11,14 +11,29 @@ export default function CardImage({
   isForSale,
   saleStatus,
 }) {
+  const containerClass =
+    'relative w-[150px] tablet:w-[302px] pc:w-90 h-[112px] tablet:h-[226.5px] pc:h-[270px] mb-[10px] tablet:mb-[25.5px] pc:mb-[25px]';
+
+  const imageClass = clsx('rounded-[2px]', {
+    'opacity-30': isSoldOut,
+  });
+
+  const statusBadgeClass = clsx(
+    'absolute top-[5px] tablet:top-[10px] left-[5px] tablet:left-[10px] px-2 py-[5px] tablet:py-[5.5px] bg-[rgba(0,0,0,0.5)] text-[10px] tablet:text-sm pc:text-base rounded-[2px] font-normal',
+    {
+      'text-main': saleStatus === '교환 제시 대기 중',
+      'text-white': saleStatus !== '교환 제시 대기 중',
+    },
+  );
+
   return (
-    <div className="relative w-[150px] tablet:w-[302px] pc:w-90 h-[112px] tablet:h-[226.5px] pc:h-[270px] mb-[10px] tablet:mb-[25.5px] pc:mb-[25px]">
+    <div className={containerClass}>
       <Image
         src={imageUrl}
         alt={title}
         layout="fill"
         objectFit="cover"
-        className={clsx("rounded-[2px]", isSoldOut && "opacity-30")}
+        className={imageClass}
       />
 
       {isSoldOut && (
@@ -34,14 +49,7 @@ export default function CardImage({
       )}
 
       {isForSale && saleStatus && (
-        <div
-          className={clsx(
-            "absolute top-[5px] tablet:top-[10px] left-[5px] tablet:left-[10px] px-2 py-[5px] tablet:py-[5.5px] bg-[rgba(0,0,0,0.5)] text-[10px] tablet:text-sm pc:text-base rounded-[2px] font-normal",
-            saleStatus === "교환 제시 대기 중" ? "text-main" : "text-white"
-          )}
-        >
-          {saleStatus}
-        </div>
+        <div className={statusBadgeClass}>{saleStatus}</div>
       )}
     </div>
   );
