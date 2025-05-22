@@ -31,7 +31,7 @@ const BuyerCardItem = ({card, quantity, onQuantityChange}) => {
       <div className="mb-5 flex justify-between items-center">
         <span className="font-normal text-[18px] pc:text-xl">구매수량</span>
         <CounterInput
-          initialValue={quantity || 1}
+          initialValue={quantity}
           max={card.remainingQuantity}
           showMaxInfo={false}
           onChange={handleQuantityChange}
