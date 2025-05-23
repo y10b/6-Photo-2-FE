@@ -66,7 +66,10 @@ export default function AlertModal() {
             {modalContent?.button && (
               <Button
                 role="modal"
-                onClick={modalContent.button.onClick || closeModal}
+                onClick={() => {
+                  modalContent.button.onClick?.();
+                  closeModal();
+                }}
               >
                 {modalContent.button.label || '확인'}
               </Button>
