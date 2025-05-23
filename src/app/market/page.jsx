@@ -1,18 +1,17 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import {SearchInput} from '@/components/ui/input';
 import {fetchMarketCards} from '@/lib/api/marketApi';
 import DropdownInput from '@/components/ui/input/DropdownInput';
 import Image from 'next/image';
-import Link from 'next/link';
-import CardList from '@/components/ui/card/cardOverview/CardList';
 import Button from '@/components/common/Button';
-import Pagination from '@/components/market/Pagination';
+import CardList from '@/components/ui/card/cardOverview/CardList';
 import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
+import {countFilterValues} from '@/utils/countFilterValues';
 
 export default function MarketplacePage() {
   const [keyword, setKeyword] = useState('');
@@ -20,8 +19,8 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
+  const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
 
   // 브레이크포인트 감지
   useEffect(() => {
@@ -31,8 +30,7 @@ export default function MarketplacePage() {
           '--breakpoint-pc',
         ),
       );
-      const currentWidth = window.innerWidth;
-      return currentWidth < pcMinWidth;
+      return window.innerWidth < pcMinWidth;
     };
 
     const handleResize = () => {
@@ -44,7 +42,7 @@ export default function MarketplacePage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 무한스크롤 적용
+  // 무한스크롤 쿼리 (모든 디바이스에서 사용)
   const {
     data: infiniteData,
     fetchNextPage,
@@ -61,39 +59,21 @@ export default function MarketplacePage() {
         filterType: filter.type,
         filterValue: filter.value,
       }),
-    enabled: !isTabletOrMobile,
+    enabled: true,
     getNextPageParam: lastPage =>
       lastPage.currentPage < lastPage.totalPages
         ? lastPage.currentPage + 1
         : undefined,
   });
 
-  // 페이지네이션 적용
-  const {data: pageData} = useQuery({
-    queryKey: ['marketCards-page', keyword, sort, filter, currentPage],
-    queryFn: () =>
-      fetchMarketCards({
-        pageParam: currentPage,
-        take: 4,
-        keyword,
-        sort,
-        filterType: filter.type,
-        filterValue: filter.value,
-      }),
-    enabled: isTabletOrMobile,
-  });
-
-  // '나의 포토카드 판매하기' 바텀시트의 열림/닫힘 상태
-  const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
-
   // 무한 스크롤 트리거용 ref
   const {ref: loaderRef, inView} = useInView({threshold: 0.8});
 
   useEffect(() => {
-    if (!isTabletOrMobile && inView && hasNextPage && !isFetchingNextPage) {
+    if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
+  }, [inView, hasNextPage, isFetchingNextPage]);
 
   // 필터 값 카운트
   useEffect(() => {
@@ -103,27 +83,7 @@ export default function MarketplacePage() {
       keyword: '',
       sort: 'latest',
     }).then(res => {
-      const rawCards = res.result;
-
-      const counts = {
-        grade: {},
-        genre: {},
-        method: {},
-        soldOut: {},
-      };
-
-      rawCards.forEach(card => {
-        // 등급
-        counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
-
-        // 장르
-        counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
-
-        // 매진 여부
-        const isSoldOut = card.quantityLeft === 0 ? 'true' : 'false';
-        counts.soldOut[isSoldOut] = (counts.soldOut[isSoldOut] || 0) + 1;
-      });
-
+      const counts = countFilterValues(res.result);
       setFilterCounts(counts);
     });
   }, []);
@@ -136,6 +96,8 @@ export default function MarketplacePage() {
     {label: '높은 가격순', value: 'price-desc'},
     {label: '오래된순', value: 'oldest'},
   ];
+
+  const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
 
   return (
     <>
@@ -166,9 +128,7 @@ export default function MarketplacePage() {
               placeholder="검색"
             />
           </div>
-
           <hr className="border-gray400 mt-[15px]" />
-
           {/* 모바일 필터 + 정렬 */}
           <div className="flex tablet:hidden justify-between items-center">
             <button
@@ -272,33 +232,14 @@ export default function MarketplacePage() {
               />
             </div>
           </div>
-
-          {/* 카드 목록 그리드 */}
-          {/* TODO: 카드리스트 컴포넌트에서 그리드 처리하도록 수정해야 함. */}
-          <div className="w-full">
-            {isTabletOrMobile ? (
-              <>
-                <CardList
-                  cards={pageData?.result ?? []}
-                  className="grid gap-4 grid-cols-2"
-                />
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={pageData?.totalPages ?? 1}
-                  onPageChange={setCurrentPage}
-                />
-              </>
-            ) : (
-              <>
-                <CardList
-                  cards={infiniteData?.pages.flatMap(p => p.result) ?? []}
-                  className="grid gap-20 grid-cols-3 w-full"
-                />
-                <div ref={loaderRef} className="h-10" />
-              </>
-            )}
-          </div>
-
+          {/* 카드 목록 */}
+          <CardList
+            cards={cards}
+            className={`grid gap-4 ${
+              isTabletOrMobile ? 'grid-cols-2' : 'gap-20 grid-cols-3'
+            }`}
+          />
+          <div ref={loaderRef} className="h-10" />
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}
           <div className="tablet:hidden">
             <FilterBottomSheet
@@ -325,7 +266,7 @@ export default function MarketplacePage() {
         </div>
       </div>
 
-      {/* MyCardsSellBottomSheet 컴포넌트 */}
+      {/* 나의 포토카드 판매하기 바텀시트 */}
       <MyCardsSellBottomSheet
         isOpen={isMyCardsSellOpen}
         onClose={() => setIsMyCardsSellOpen(false)}
