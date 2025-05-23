@@ -1,18 +1,23 @@
 'use client';
 
-import {useState} from 'react';
-import {useModal} from '@/components/modal/ModalContext';
+import { useState } from 'react';
+import { useModal } from '@/components/modal/ModalContext';
 import SearchInput from '@/components/ui/input/SearchInput';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 
-export default function ExchangeModal({myCards = [], onSelect}) {
-  const {closeModal} = useModal();
+export default function ExchangeModal({ myCards = [], onSelect }) {
+  const { closeModal } = useModal();
   const [search, setSearch] = useState('');
 
-  // 검색된 카드 필터링입니다
-  const filteredCards = myCards.filter(card =>
-    card.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  // 🔍 검색 + type 설정
+  const filteredCards = myCards
+    .filter((card) =>
+      card.name.toLowerCase().includes(search.toLowerCase())
+    )
+    .map((card) => ({
+      ...card,
+      type: 'my_card', // ✅ 반드시 추가!
+    }));
 
   return (
     <div className="font-noto text-white w-full max-h-[80vh] overflow-y-auto pb-5 px-2">
@@ -28,10 +33,10 @@ export default function ExchangeModal({myCards = [], onSelect}) {
         </button>
       </div>
 
-      {/* 검색 인풋 */}
+      {/* 검색 */}
       <SearchInput
         value={search}
-        onChange={e => setSearch(e.target.value)}
+        onChange={(e) => setSearch(e.target.value)}
         placeholder="보유 카드 검색"
         className="mb-5"
       />
