@@ -1,8 +1,9 @@
-/* 임시 로컬로 */
-const BASE_URL = `http://localhost:5005/api`
 
-export async function fetchPurchase(id) {
-    const res = await fetch(`${BASE_URL}/purchase/${id}`, {
+const BASE_URL = `http://localhost:5005/api`;
+
+// 판매 정보 가져오기
+export async function fetchPurchase(shopId) {
+    const res = await fetch(`${BASE_URL}/purchase/${shopId}`, {
         next: { revalidate: 0 },
     });
 
@@ -12,4 +13,24 @@ export async function fetchPurchase(id) {
 
     const result = await res.json();
     return result.data;
+}
+
+// 카드 구매 요청 보내기
+export async function postPurchase({ shopId, quantity, accessToken }) {
+    const response = await fetch(`${BASE_URL}/purchase/${shopId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ quantity }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('서버 에러 응답:', errorData);
+        throw new Error(errorData.message || '구매 요청 실패');
+    }
+
+    return await response.json();
 }
