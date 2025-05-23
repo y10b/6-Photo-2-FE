@@ -1,8 +1,10 @@
-import {ModalProvider} from '@/components/modal/ModalContext';
-import ModalRenderer from '@/components/modal/ModalRenderer';
-import ReactQueryProvider from '../providers/ReactQueryProvider';
 import './globals.css';
+import {ModalProvider} from '@/components/modal/ModalContext';
 import WrapperLayout from '@/components/layout/WrapperLayout';
+import AuthProvider from '@/providers/AuthProvider';
+import RouteGuard from '@/providers/RouteGuard';
+import ReactQueryProvider from '@/providers/ReactQueryProvider';
+import ModalRenderer from '@/components/modal/ModalRenderer';
 
 export const metadata = {
   title: '최애의 포토',
@@ -13,12 +15,16 @@ export default function RootLayout({children}) {
   return (
     <html lang="ko" className="font-noto">
       <body>
-        <ReactQueryProvider>
-          <ModalProvider>
-            <WrapperLayout>{children}</WrapperLayout>
-            <ModalRenderer />
-          </ModalProvider>
-        </ReactQueryProvider>
+        <AuthProvider>
+          <RouteGuard>
+            <ReactQueryProvider>
+              <ModalProvider>
+                <WrapperLayout>{children}</WrapperLayout>
+                <ModalRenderer />
+              </ModalProvider>
+            </ReactQueryProvider>
+          </RouteGuard>
+        </AuthProvider>
       </body>
     </html>
   );
