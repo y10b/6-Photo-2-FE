@@ -1,14 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import {useModal} from '@/components/modal/ModalContext';
 import Button from '@/components/common/Button';
 
-export default function AlertModal() {
-  const {isOpen, modalContent, closeModal} = useModal();
-
-  if (!isOpen) return null;
-
+export default function AlertModal({title, description, button, onClose}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 배경 */}
@@ -27,7 +22,7 @@ export default function AlertModal() {
         >
           {/* 닫기 버튼 */}
           <button
-            onClick={closeModal}
+            onClick={onClose}
             className="absolute top-[15px] right-[15px] pc:top-[30px] pc:right-[30px]"
             aria-label="닫기"
           >
@@ -48,7 +43,7 @@ export default function AlertModal() {
               mb-[30px] pc:mb-10
             "
             >
-              {modalContent?.title}
+              {title}
             </h2>
 
             {/* 설명 */}
@@ -59,16 +54,19 @@ export default function AlertModal() {
               mb-10 pc:mb-15
             "
             >
-              {modalContent?.description}
+              {description}
             </p>
 
             {/* 버튼 */}
-            {modalContent?.button && (
+            {button && (
               <Button
                 role="modal"
-                onClick={modalContent.button.onClick || closeModal}
+                onClick={() => {
+                  button.onClick?.();
+                  onClose();
+                }}
               >
-                {modalContent.button.label || '확인'}
+                {button.label || '확인'}
               </Button>
             )}
           </div>
