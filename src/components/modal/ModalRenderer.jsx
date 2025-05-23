@@ -10,7 +10,14 @@ export default function ModalRenderer() {
 
   // 알림형 모달일 때
   if (modalContent.type === 'alert') {
-    return <AlertModal {...modalContent} onClose={closeModal} />;
+    return (
+      <AlertModal
+        title={modalContent.title}
+        description={modalContent.description}
+        button={modalContent.button}
+        onClose={closeModal}
+      />
+    );
   }
 
   // 데스크탑 = 모달, 태블릿/모바일 = 바텀시트인 경우

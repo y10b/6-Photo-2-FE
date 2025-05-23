@@ -34,7 +34,10 @@ export default function Input({
   return (
     <div className="w-full font-noto">
       {label && (
-        <label htmlFor={name} className="block mb-3 text-[18px] font-[400]">
+        <label
+          htmlFor={name}
+          className="text-white block mb-3 text-[16px] font-[400] pc:text-[18px]"
+        >
           {label}
         </label>
       )}
@@ -54,7 +57,7 @@ export default function Input({
                   : "border-gray400"
               }
               ${isActive ? "bg-gray500" : "bg-black"}
-              text-white rounded-[2px] placeholder:text-white focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] pc:text-[16px]
+              text-white rounded-[2px] placeholder:text-white focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
               ${className}`}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -80,7 +83,7 @@ export default function Input({
                 }
                 ${isActive ? "bg-gray500" : "bg-black"}
                 text-white rounded-[2px] placeholder:text-white focus:outline-none
-focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] pc:text-[16px]
+focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
                 ${className}`}
             onFocus={handleFocus}
             onBlur={handleBlur}
