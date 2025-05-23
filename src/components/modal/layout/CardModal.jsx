@@ -1,26 +1,33 @@
 'use client';
 
 import Image from 'next/image';
-import {useModal} from '../ModalContext';
+import { useModal } from '../ModalContext';
 import Button from '../../common/Button';
 import NoHeader from '../../layout/NoHeader';
 
 export default function CardModal() {
-  const {isOpen, modalContent, closeModal} = useModal();
+  const { isOpen, modalContent, closeModal } = useModal();
 
   if (!isOpen) return null;
 
-  const {type, title, result, description, button} = modalContent || {};
+  const { type, title, result, description, button } = modalContent || {};
   const isSuccess = type === 'success';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <NoHeader />
 
-      {/* 배경 어둡게 */}
-      <div className="absolute inset-0 bg-black opacity-80" />
+      {/* 배경 클릭 시 모달 닫기 */}
+      <div
+        className="absolute inset-0 bg-black opacity-80"
+        onClick={closeModal}
+      />
 
-      <div className="relative z-10 flex items-center justify-center h-full">
+      <div
+        className="relative z-10 flex items-center justify-center h-full"
+        // 클릭 이벤트 버블링 방지
+        onClick={(e) => e.stopPropagation()}
+      >
         <div
           className="w-[238px] tablet:w-[384px] pc:w-[560px]
                      h-53 tablet:h-[215px] pc:h-[352px]
@@ -42,7 +49,6 @@ export default function CardModal() {
 
           {/* 모달 내용 */}
           <div className="flex flex-col items-center text-center">
-            {/* 타이틀 */}
             <h2 className="font-baskin font-normal text-[30px] tablet:text-4xl pc:text-[46px] mb-[30px] tablet:mb-10">
               {title}
               <span className={isSuccess ? 'text-main' : 'text-gray300'}>
@@ -51,14 +57,12 @@ export default function CardModal() {
               </span>
             </h2>
 
-            {/* 설명 */}
             {description && (
               <p className="font-bold text-base pc:text-xl text-white mb-[50px] tablet:mb-12 break-words">
                 {description}
               </p>
             )}
 
-            {/* 버튼 */}
             {button && (
               <Button
                 role="failed"
