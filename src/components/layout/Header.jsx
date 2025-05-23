@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {useAuth} from '@/providers/AuthProvider';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
+import NotificationModal from './NotificationModal';
 
 const Header = () => {
   // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
@@ -16,6 +17,8 @@ const Header = () => {
   const handleLogout = () => {
     logout(); // AuthProvider의 logout 함수 호출 (랜딩페이지로 이동)
   };
+
+  const [isNotificationActive, setIsNotificationActive] = useState(false);
 
   return (
     <header>
@@ -50,8 +53,11 @@ const Header = () => {
               <li className="hidden tablet:block text-[14px] font-[700]">
                 {user?.pointBalance?.toLocaleString() || 0} P
               </li>
-              <li>
-                <figure className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px]">
+              <li className="relative">
+                <figure
+                  className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px] cursor-pointer"
+                  onClick={() => setIsNotificationActive(prev => !prev)}
+                >
                   <Image
                     className="object-cover"
                     src={'/icons/ic_alarm_default.svg'}
@@ -59,6 +65,9 @@ const Header = () => {
                     alt="알림"
                   />
                 </figure>
+                {isNotificationActive && (
+                  <NotificationModal isActive={setIsNotificationActive} />
+                )}
               </li>
               <li className="hidden tablet:block font-baskin text-[18px] font-[400]">
                 {user?.nickname || ''}
