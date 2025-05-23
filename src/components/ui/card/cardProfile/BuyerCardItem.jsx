@@ -1,7 +1,8 @@
 import Button from '@/components/common/Button';
 import CounterInput from '@/components/ui/input/CounterInput';
 import {useModal} from '@/components/modal/ModalContext';
-import { postPurchase } from '@/lib/api/purchase';
+import {postPurchase} from '@/lib/api/purchase';
+import {useRouter} from 'next/navigation';
 
 const BuyerCardItem = ({card, quantity = 0, onQuantityChange}) => {
   const {openModal} = useModal();
@@ -11,7 +12,7 @@ const BuyerCardItem = ({card, quantity = 0, onQuantityChange}) => {
   const handleQuantityChange = newValue => {
     onQuantityChange(card.grade, newValue);
   };
-
+  const router = useRouter();
   const handlePurchaseCheck = () => {
     openModal({
       type: 'alert',
@@ -26,18 +27,40 @@ const BuyerCardItem = ({card, quantity = 0, onQuantityChange}) => {
               alert('로그인이 필요합니다.');
               return;
             }
-  
+
             const response = await postPurchase({
-              shopId:card.id,
+              shopId: card.id,
               quantity,
               accessToken,
             });
-  
-            alert(response.message || '구매에 성공했습니다!');
-            // TODO: 구매 후 상태 업데이트 (예: 잔여 수량 등)
+
+            openModal({
+              type: 'success',
+              title: '구매',
+              result: '성공',
+              description: `[${card.grade} | ${card.name}] ${quantity}장 구매에 성공했습니다!`,
+              button: {
+                label: '마이갤러리에서 확인하기',
+                onClick: () => {
+                  /* TODO: 마이갤러리로 리다이렉트 */
+                  router.push('/');
+                },
+              },
+            });
           } catch (error) {
             console.error('구매 실패:', error);
-            alert(error.message || '구매에 실패했습니다.');
+            openModal({
+              type: 'fail',
+              title: '구매',
+              result: '실패',
+              description: `[${card.grade} | ${card.name}] ${quantity}장 구매에 실패했습니다.`,
+              button: {
+                label: '마켓플레이스로 돌아가기',
+                onClick: () => {
+                  router.replace('/market');
+                },
+              },
+            });
           }
         },
       },

@@ -3,6 +3,7 @@
 import {useModal} from './ModalContext';
 import AlertModal from './layout/AlertModal';
 import ResponsiveModalWrapper from './ResponsiveModalWrapper';
+import CardModal from './layout/CardModal';
 
 export default function ModalRenderer() {
   const {isOpen, modalContent, closeModal} = useModal();
@@ -30,6 +31,10 @@ export default function ModalRenderer() {
         {modalContent.children}
       </ResponsiveModalWrapper>
     );
+  }
+
+  if (modalContent.type === 'success' || modalContent.type === 'fail') {
+    return <CardModal />;
   }
 
   return null;

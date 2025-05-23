@@ -1,16 +1,22 @@
 'use client';
 
 import Image from 'next/image';
-import { useModal } from '../ModalContext';
+import {useModal} from '../ModalContext';
 import Button from '../../common/Button';
 import NoHeader from '../../layout/NoHeader';
 
 export default function CardModal() {
-  const { isOpen, modalContent, closeModal } = useModal();
+  const {isOpen, modalContent, closeModal} = useModal();
 
-  if (!isOpen) return null;
+  if (!isOpen || !modalContent) return null;
 
-  const { type, title, result, description, button } = modalContent || {};
+  const {
+    type,
+    title = '',
+    result = '',
+    description = '',
+    button,
+  } = modalContent;
   const isSuccess = type === 'success';
 
   return (
@@ -18,15 +24,12 @@ export default function CardModal() {
       <NoHeader />
 
       {/* 배경 클릭 시 모달 닫기 */}
-      <div
-        className="absolute inset-0 bg-black opacity-80"
-        onClick={closeModal}
-      />
+      <div className="absolute inset-0 bg-black" onClick={closeModal} />
 
       <div
         className="relative z-10 flex items-center justify-center h-full"
         // 클릭 이벤트 버블링 방지
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <div
           className="w-[238px] tablet:w-[384px] pc:w-[560px]
@@ -63,15 +66,13 @@ export default function CardModal() {
               </p>
             )}
 
-            {button && (
-              <Button
-                role="failed"
-                variant="outline"
-                onClick={button.onClick || closeModal}
-              >
-                {button.label}
-              </Button>
-            )}
+            <Button
+              role={type === 'fail' ? 'failed' : 'success'}
+              variant="outline"
+              onClick={button?.onClick || closeModal}
+            >
+              {button?.label || '확인'}
+            </Button>
           </div>
         </div>
       </div>
