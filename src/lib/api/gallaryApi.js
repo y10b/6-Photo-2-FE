@@ -20,20 +20,17 @@ export async function fetchMyGalleryCards({
     params.append('filterValue', filterValue);
   }
 
-  const url = `${BASE_API}/api/mypage/cards?${params.toString()}`;
+  const url = `${BASE_API}/api/mypage/idle-cards?${params.toString()}`;
   const res = await fetch(url, {
     credentials: 'include',
   });
 
-  console.log('[FETCH] 응답 status:', res.status);
-
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
-    console.error('[FETCH] 에러 응답 내용:', error);
+
     throw new Error(error.message || '마이갤러리 불러오기 실패');
   }
 
   const data = await res.json();
-  console.log('[FETCH] 응답 데이터:', data);
   return data;
 }

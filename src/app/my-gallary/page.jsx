@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useMemo, useCallback} from 'react';
 import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
 import Image from 'next/image';
@@ -11,59 +11,54 @@ import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import Pagination from '@/components/market/Pagination';
 import {fetchMyGalleryCards} from '@/lib/api/gallaryApi';
+import {countFilterValues} from '@/utils/countFilterValues';
+import {formatCardGrade} from '@/utils/formatCardGrade';
+import gradeStyles from '@/utils/gradeStyles';
 
 export default function MyGalleryPage() {
   const [keyword, setKeyword] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
+  const [filterCounts, setFilterCounts] = useState({
+    grade: {},
+    genre: {},
+  });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterCounts, setFilterCounts] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
-  const [totalOwnedCount, setTotalOwnedCount] = useState(0);
 
+  // 디바이스 유형 판별 함수
+  const checkDeviceType = useCallback(() => {
+    const pcMinWidth = parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--breakpoint-pc',
+      ),
+    );
+    return window.innerWidth < pcMinWidth;
+  }, []);
+
+  // 디바이스 리사이징 감지
   useEffect(() => {
-    const getIsMobileOrTablet = () => {
-      const pcMinWidth = parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          '--breakpoint-pc',
-        ),
-      );
-      return window.innerWidth < pcMinWidth;
-    };
-
-    const handleResize = () => setIsTabletOrMobile(getIsMobileOrTablet());
+    const handleResize = () => setIsTabletOrMobile(checkDeviceType());
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [checkDeviceType]);
 
-  // 필터 값 카운트
+  // 필터 카운트 계산
   useEffect(() => {
     fetchMyGalleryCards({
       pageParam: 1,
-      take: 1, // count만 필요하므로 적은 수
+      take: 1000,
       keyword: '',
+      sort: 'latest',
     }).then(res => {
-      setTotalOwnedCount(res.totalCount);
-
-      const counts = {
-        grade: {},
-        genre: {},
-      };
-
-      rawCards.forEach(card => {
-        // 등급
-        counts.grade[card.cardGrade] = (counts.grade[card.cardGrade] || 0) + 1;
-
-        // 장르
-        counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
-      });
-
+      const counts = countFilterValues(res.result);
       setFilterCounts(counts);
     });
   }, []);
 
+  // 무한 스크롤 쿼리 (데스크탑용)
   const {
     data: infiniteData,
     fetchNextPage,
@@ -87,6 +82,7 @@ export default function MyGalleryPage() {
     enabled: !isTabletOrMobile,
   });
 
+  // 페이지네이션 쿼리 (모바일/태블릿용)
   const {data: pageData} = useQuery({
     queryKey: ['myGalleryPage', keyword, sort, filter, currentPage],
     queryFn: () =>
@@ -101,29 +97,17 @@ export default function MyGalleryPage() {
     enabled: isTabletOrMobile,
   });
 
-  const effectiveData = isTabletOrMobile ? pageData : infiniteData?.pages?.[0];
-  const totalCount = effectiveData?.totalCount ?? 0;
-  const nickname = effectiveData?.nickname ?? '유저';
-  const countsByGrade = effectiveData?.countsByGrade ?? {};
+  // 전체 응답 객체
+  const responseData = isTabletOrMobile ? pageData : infiniteData?.pages?.[0];
+  const nickname = responseData?.nickname;
+  const totalCount = responseData?.totalCount ?? 0;
 
-  const rawCards = isTabletOrMobile
-    ? pageData?.list ?? []
-    : infiniteData?.pages.flatMap(p => p.list) ?? [];
+  // 실제 카드 배열만 추출
+  const displayCards = isTabletOrMobile
+    ? pageData?.result ?? []
+    : infiniteData?.pages.flatMap(p => p.result) ?? [];
 
-  // count 값을 그대로 quantity로 사용
-  const groupedCards = rawCards.reduce((acc, card) => {
-    const key = card.photoCardId;
-    if (!acc[key]) {
-      acc[key] = {
-        ...card,
-        quantity: card.count ?? 1, // 👈 여기서 count → quantity
-      };
-    }
-    return acc;
-  }, {});
-
-  const deduplicatedCards = Object.values(groupedCards);
-
+  // 무한 스크롤 트리거
   const {ref: loaderRef, inView} = useInView({threshold: 0.8});
 
   useEffect(() => {
@@ -132,14 +116,9 @@ export default function MyGalleryPage() {
     }
   }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
 
+  // 검색어 변경 핸들러
   const handleSearch = value => setKeyword(value);
 
-  const sortOptions = [
-    {label: '최신순', value: 'latest'},
-    {label: '오래된순', value: 'oldest'},
-  ];
-
-  console.log(deduplicatedCards);
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
@@ -160,24 +139,16 @@ export default function MyGalleryPage() {
         {/* 유저 정보, 수량 */}
         <p className="text-white mb-2">
           {nickname}님이 보유한 포토카드{' '}
-          <span className="text-main">({totalOwnedCount}장)</span>
+          <span className="text-main">({totalCount}장)</span>
         </p>
         {/* 카드장르별 수량 */}
         <div className="flex gap-2 mb-3 flex-wrap">
           {['COMMON', 'RARE', 'SUPER_RARE', 'LEGENDARY'].map(grade => (
             <span
               key={grade}
-              className={`text-sm px-3 py-1 border rounded font-semibold ${
-                grade === 'COMMON'
-                  ? 'border-ㅡmain text-main'
-                  : grade === 'RARE'
-                  ? 'border-blue text-blue'
-                  : grade === 'SUPER_RARE'
-                  ? 'border-purple text-purple'
-                  : 'border-pink text-pink'
-              }`}
+              className={`text-sm px-3 py-1 border rounded font-semibold border-white ${gradeStyles[grade]}`}
             >
-              {grade.replace('_', ' ')} {countsByGrade[grade] ?? 0}장
+              {formatCardGrade(grade)} {filterCounts.grade[grade] ?? 0}장
             </span>
           ))}
         </div>
@@ -267,7 +238,7 @@ export default function MyGalleryPage() {
 
           <div>
             <CardList
-              cards={deduplicatedCards}
+              cards={displayCards}
               className={`grid ${
                 isTabletOrMobile ? 'grid-cols-2' : 'grid-cols-3'
               } gap-4`}
