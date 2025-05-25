@@ -53,7 +53,6 @@ export default function ExchangeInfoSection({info}) {
         <span className="text-gray300 text-sm pc:text-base">{genre}</span>
       </div>
 
-      {/* 교환 버튼 */}
       <Button role="exchange-confirm" onClick={handleOpenModal}>
         포토카드 교환하기
       </Button>

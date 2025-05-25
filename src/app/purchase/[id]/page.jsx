@@ -7,12 +7,12 @@ import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
 import Image from 'next/image';
 import { fetchPurchase } from '@/lib/api/purchase';
-import { fetchMyCards } from '@/lib/api/shop'; 
+import { fetchMyCards } from '@/lib/api/shop';
 
 export default function PurchasePage() {
   const { id } = useParams();
   const [photoCard, setPhotoCard] = useState(null);
-  const [myCards, setMyCards] = useState([]); 
+  const [myCards, setMyCards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,10 +21,13 @@ export default function PurchasePage() {
       try {
         const [purchaseData, myCardData] = await Promise.all([
           fetchPurchase(id),
-          fetchMyCards(),
+          fetchMyCards({
+            filterType: 'status',
+            filterValue: 'IDLE,LISTED',
+          }),
         ]);
         setPhotoCard(purchaseData);
-        setMyCards(myCardData.data); 
+        setMyCards(myCardData.result);
       } catch (error) {
         console.error('데이터 불러오기 실패:', error);
       } finally {
@@ -62,14 +65,13 @@ export default function PurchasePage() {
         </div>
       </section>
 
-      {/* 교환 희망 정보 + 내 카드 전달 */}
       <ExchangeInfoSection
         info={{
           description:
             '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
           grade: grade || 'COMMON',
           genre: genre || '장르 없음',
-          myCards, // 
+          myCards,
         }}
       />
     </div>
