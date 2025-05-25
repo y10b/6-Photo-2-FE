@@ -124,29 +124,39 @@ export default function MyGalleryPage() {
       <div className="max-w-[1480px] mx-auto">
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
-          <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
+          <h1 className="font-baskin text-[48px] pc:text-[62px] text-white">
             마이갤러리
           </h1>
-          <Button
-            role="create"
-            variant="primary"
-            fullWidth={false}
-            onClick={() => {}} // TODO: 포토카드 생성페이지와 연결
-          >
-            포토카드 생성하기
-          </Button>
+          <div className="flex gap-3 items-end">
+            <span className="text-gray300 text-sm ">
+              {new Date().getFullYear()}년 {new Date().getMonth() + 1}월
+            </span>
+            <Button
+              role="create"
+              variant="primary"
+              fullWidth={false}
+              disabled={false}
+              onClick={() => {}} // TODO: 포토카드 생성페이지와 연결 + 생성 제한
+            >
+              포토카드 생성하기(3/3) {/* 추후 로직 구현 */}
+            </Button>
+          </div>
         </div>
+
+        <hr className="border-2 border-gray200 mt-5 mb-10" />
         {/* 유저 정보, 수량 */}
-        <p className="text-white mb-2">
+        <p className="text-white text-sm mb-[15px] tablet:text-xl pc:text-2xl tablet:mb-5">
           {nickname}님이 보유한 포토카드{' '}
-          <span className="text-main">({totalCount}장)</span>
+          <span className="text-gray300 text-xs tablet:text-lg pc:text-xl">
+            ({totalCount}장)
+          </span>
         </p>
         {/* 카드장르별 수량 */}
-        <div className="flex gap-2 mb-3 flex-wrap">
+        <div className="flex gap-[10px] mb-[15px] text-xs font-light overflow-x-auto whitespace-nowrap tablet:text-sm tablet:mb-10 pc:text-base pc:gap-5">
           {['COMMON', 'RARE', 'SUPER_RARE', 'LEGENDARY'].map(grade => (
             <span
               key={grade}
-              className={`text-sm px-3 py-1 border rounded font-semibold border-white ${gradeStyles[grade]}`}
+              className={`px-3 py-1 border ${gradeStyles[grade]} pc:px-5 pc:py-[10px]`}
             >
               {formatCardGrade(grade)} {filterCounts.grade[grade] ?? 0}장
             </span>
@@ -156,11 +166,11 @@ export default function MyGalleryPage() {
         <div className="space-y-[15px] pb-[80px]">
           <hr className="border-gray400 mt-[15px]" />
           {/* 모바일 필터 + 검색 */}
-          <div className="flex tablet:hidden items-center gap-2 mb-4">
+          <div className="flex tablet:hidden items-center gap-[10px] mb-5">
             {/* 필터 버튼 */}
             <button
               onClick={() => setIsFilterOpen(true)}
-              className="w-[35px] h-[35px] border border-white rounded flex items-center justify-center shrink-0"
+              className="w-[45px] h-[45px] border border-white rounded-xs flex items-center justify-center shrink-0"
             >
               <Image
                 src="/icons/ic_filter.svg"
@@ -182,8 +192,8 @@ export default function MyGalleryPage() {
           </div>
 
           {/* 데스크탑/태블릿: 검색 + 필터 + 정렬 */}
-          <div className="hidden tablet:flex flex-wrap gap-2 py-2 items-center justify-between">
-            <div className="flex flex-wrap items-center max-w-full tablet:max-w-[calc(100%-180px)]">
+          <div className="hidden tablet:flex flex-wrap items-center justify-between">
+            <div className="flex flex-wrap items-center max-w-full mb-10 tablet:max-w-[calc(100%-180px)]">
               {/* 검색창 */}
               <div>
                 <SearchInput
@@ -192,7 +202,7 @@ export default function MyGalleryPage() {
                   onChange={e => setKeyword(e.target.value)}
                   onSearch={handleSearch}
                   placeholder="검색"
-                  className="!w-[160px] pc:!w-[320px]"
+                  className="!w-[200px] !h-[45px] pc:!w-[320px]"
                 />
               </div>
 

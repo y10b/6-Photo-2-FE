@@ -61,7 +61,7 @@ export default function PurchasePage() {
         </div>
 
         <div className="w-full tablet:flex-1">
-          <CardProfile type="buyer" cards={[photoCard]} />
+          {photoCard && <CardProfile type="buyer" cards={[photoCard]} />}
         </div>
       </section>
 
