@@ -17,11 +17,13 @@ export default function PurchasePage() {
       if (!id) return;
       try {
         const data = await fetchPurchase(id);
+        console.log(data);
         setPhotoCard(data);
       } catch (error) {
         console.error('카드 정보를 불러오는 데 실패했습니다:', error);
       } finally {
         setIsLoading(false);
+        
       }
     };
 
@@ -64,7 +66,7 @@ export default function PurchasePage() {
 
         {/* 카드 상세 컴포넌트 */}
         <div className="w-full tablet:flex-1">
-          <CardProfile type="buyer" cards={[photoCard]} />
+        {photoCard ?<CardProfile type="buyer" cards={[photoCard]} /> : null}  
         </div>
       </section>
     </div>
