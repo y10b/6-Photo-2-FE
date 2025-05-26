@@ -7,7 +7,7 @@ import CardDetailItem from './CardDetailItem';
 import SellerCardItem from './SellerCardItem';
 import gradeStyles from '@/utils/gradeStyles';
 
-const CardProfile = ({type, cards, exchangeCard}) => {
+const CardProfile = ({type, cards, exchangeCard, error}) => {
   const isBuyer = type === 'buyer';
   const isDetail = type === 'card_detail';
   const isSeller = type === 'seller';
@@ -53,6 +53,7 @@ const CardProfile = ({type, cards, exchangeCard}) => {
                 card={card}
                 quantity={quantity}
                 onQuantityChange={handleQuantityChange}
+                error={error}
               />
             )}
             {isSeller &&

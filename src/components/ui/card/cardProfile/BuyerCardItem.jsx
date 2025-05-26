@@ -1,9 +1,9 @@
 import Button from '@/components/common/Button';
 import CounterInput from '@/components/ui/input/CounterInput';
-import { useBuyerCardHandlers } from '@/utils/useBuyerCardHandlers';
+import {useBuyerCardHandlers} from '@/utils/useBuyerCardHandlers';
 
-const BuyerCardItem = ({ card, quantity = 0, onQuantityChange }) => {
-  const { handlePurchaseCheck } = useBuyerCardHandlers(card, quantity);
+const BuyerCardItem = ({card, quantity = 0, onQuantityChange, error}) => {
+  const {handlePurchaseCheck} = useBuyerCardHandlers(card, quantity);
 
   const totalPrice = card.price * quantity;
 
@@ -39,9 +39,9 @@ const BuyerCardItem = ({ card, quantity = 0, onQuantityChange }) => {
         </div>
       </div>
 
-        <Button role="product" onClick={handlePurchaseCheck}>
-          포토카드 구매하기
-        </Button>
+      <Button role="product" onClick={handlePurchaseCheck} disabled={!!error}>
+        포토카드 구매하기
+      </Button>
     </div>
   );
 };

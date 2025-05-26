@@ -7,6 +7,10 @@ export async function fetchPurchase(shopId) {
         next: { revalidate: 0 },
     });
 
+    if (res.status === 410) {
+        throw new Error("판매가 완료된 상품입니다.");
+    }
+
     if (!res.ok) {
         throw new Error("포토카드 정보를 불러올 수 없습니다");
     }
