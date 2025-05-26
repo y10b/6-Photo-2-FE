@@ -3,9 +3,7 @@
 import Image from 'next/image';
 import {useModal} from '@/components/modal/ModalContext';
 
-export default function DesktopModal({children}) {
-  const {isOpen, modalContent, closeModal} = useModal();
-
+export default function DesktopModal({children, onClose}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 배경 */}
@@ -21,7 +19,7 @@ export default function DesktopModal({children}) {
         >
           {/* 닫기 버튼 */}
           <button
-            onClick={closeModal}
+            onClick={onClose}
             className="absolute top-[30px] right-[30px]"
             aria-label="닫기"
           >
