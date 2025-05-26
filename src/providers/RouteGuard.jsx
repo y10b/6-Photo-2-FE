@@ -13,8 +13,8 @@ const protectedPaths = [
 // 미인증 사용자만 접근 가능한 경로
 const publicPaths = [
   '/',
-  '/login',
-  '/signup',
+  '/auth/login',
+  '/auth/signup',
   // 추가 공개 경로들...
 ];
 
@@ -42,9 +42,9 @@ export default function RouteGuard({children}) {
 
     // 사용자의 인증 상태에 따른 리다이렉트 처리
     if (isProtectedRoute && !user) {
-      router.push('/login');
+      router.push('/auth/login');
     } else if (isPublicRoute && user) {
-      if (path === '/login' || path === '/signup' || path === '/') {
+      if (path === '/auth/login' || path === '/auth/signup' || path === '/') {
         router.push('/market');
       } else {
         setIsLoading(false); // ✔️ 로그인된 상태에서 공개 경로 접근 허용 시 로딩 종료

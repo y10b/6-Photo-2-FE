@@ -1,5 +1,5 @@
 
-const BASE_URL = `http://localhost:5005/api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 
 // 판매 정보 가져오기
 export async function fetchPurchase(shopId) {

@@ -29,12 +29,12 @@ const CardProfile = ({type, cards}) => {
 
   if (isDetail) {
     return (
-      <div className="font-noto w-[345px] tablet:w-[342px] pc:w-[440px]">
+      <div className="w-[345px] tablet:w-[342px] pc:w-[440px]">
         {cards.map(card => (
           <CardDetailItem
-            key={card.id || card.grade}
+            key={card.id}
             card={card}
-            quantity={quantities[card.grade] || 1}
+            quantity={quantities[card.grade]}
             onQuantityChange={handleQuantityChange}
           />
         ))}
@@ -43,10 +43,10 @@ const CardProfile = ({type, cards}) => {
   }
 
   return (
-    <div className="font-noto w-[345px] tablet:w-[342px] pc:w-[440px]">
+    <div className="w-[345px] tablet:w-[342px] pc:w-[440px]">
       {cards.map(card => (
         <CardBasicItem
-          key={card.id || card.grade}
+          key={card.id }
           card={card}
           gradeStyles={gradeStyles}
         />
@@ -54,9 +54,9 @@ const CardProfile = ({type, cards}) => {
       {isBuyer &&
         cards.map(card => (
           <BuyerCardItem
-            key={`buyer-${card.id || card.grade}`}
+            key={`buyer-${card.id }`}
             card={card}
-            quantity={quantities[card.grade] || 1}
+            quantity={quantities[card.grade]}
             onQuantityChange={handleQuantityChange}
           />
         ))}
