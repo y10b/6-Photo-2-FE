@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {useAuth} from '@/providers/AuthProvider';
 import {useEffect, useState} from 'react';
 import NotificationModal from './NotificationModal';
+import ProfileModal from './ProfileModal';
 
 const Header = () => {
   // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
@@ -18,13 +19,16 @@ const Header = () => {
     logout(); // AuthProvider의 logout 함수 호출 (랜딩페이지로 이동)
   };
 
+  // 알림 모달
   const [isNotificationActive, setIsNotificationActive] = useState(false);
+  // 프로필 모달
+  const [isProfileActive, setIsProfileActive] = useState(false);
 
   return (
-    <header>
-      <nav className="h-[60px] flex items-center justify-between max-w-[744px] m-auto px-[20px] tablet:max-w-[1200px] tablet:px-[40px] pc:px-[0]">
+    <header className="pc:px-[20px]">
+      <nav className="h-[60px] flex items-center justify-between max-w-[744px] m-auto px-[20px] tablet:max-w-[1200px] tablet:px-[20px] pc:max-w-[1479px] pc:px-[0]">
         <Image
-          className="tablet:hidden"
+          className="tablet:hidden cursor-pointer"
           src={'/icons/ic_menu.svg'}
           width={22}
           height={22}
@@ -69,8 +73,14 @@ const Header = () => {
                   <NotificationModal isActive={setIsNotificationActive} />
                 )}
               </li>
-              <li className="hidden tablet:block font-baskin text-[18px] font-[400]">
-                {user?.nickname || ''}
+              <li className="hidden tablet:block font-baskin text-[18px] font-[400] relative">
+                <p
+                  className="cursor-pointer"
+                  onClick={() => setIsProfileActive(prev => !prev)}
+                >
+                  {user?.nickname || ''}
+                </p>
+                {isProfileActive && <ProfileModal />}
               </li>
             </div>
             <div className="hidden tablet:block w-[1px] h-[20px] bg-[var(--color-gray400)]" />
