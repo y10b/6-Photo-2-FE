@@ -6,6 +6,7 @@ import {useAuth} from '@/providers/AuthProvider';
 import {useEffect, useState} from 'react';
 import NotificationModal from './NotificationModal';
 import ProfileModal from './ProfileModal';
+import ProfileMobileModal from './ProfileMobileModal';
 
 const Header = () => {
   // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
@@ -25,7 +26,7 @@ const Header = () => {
   const [isProfileActive, setIsProfileActive] = useState(false);
 
   return (
-    <header className="pc:px-[20px]">
+    <header className="relative pc:px-[20px]">
       <nav className="h-[60px] flex items-center justify-between max-w-[744px] m-auto px-[20px] tablet:max-w-[1200px] tablet:px-[20px] pc:max-w-[1479px] pc:px-[0]">
         <Image
           className="tablet:hidden cursor-pointer"
@@ -33,7 +34,9 @@ const Header = () => {
           width={22}
           height={22}
           alt="메뉴 토글"
+          onClick={() => setIsProfileActive(prev => !prev)}
         />
+        {isProfileActive && <ProfileMobileModal />}
         <Link href={'/'}>
           <figure className="relative w-[83px] h-[15px] tablet:w-[111px] tablet:h-[20px] pc:w-[138px] pc:h-[25px]">
             <Image src={'/logo.svg'} fill className="object-cover" alt="로고" />
