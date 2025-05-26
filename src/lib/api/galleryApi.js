@@ -1,5 +1,6 @@
 const BASE_API = 'http://localhost:5005';
 
+// 마이 갤러리 카드 조회
 export async function fetchMyGalleryCards({
   pageParam = 1,
   take = 4,
@@ -33,4 +34,26 @@ export async function fetchMyGalleryCards({
 
   const data = await res.json();
   return data;
+}
+
+// 포토카드 생성 요청
+export async function createPhotoCard(data) {
+  const url = `${BASE_API}/api/mypage/create`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || '포토카드 생성에 실패했습니다');
+  }
+
+  const result = await res.json();
+  return result;
 }

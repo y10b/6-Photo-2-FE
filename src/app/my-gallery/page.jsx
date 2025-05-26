@@ -3,6 +3,7 @@
 import {useEffect, useState, useMemo, useCallback} from 'react';
 import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
+import {useRouter} from 'next/navigation';
 import Image from 'next/image';
 import Button from '@/components/common/Button';
 import SearchInput from '@/components/ui/input/SearchInput';
@@ -10,12 +11,13 @@ import DropdownInput from '@/components/ui/input/DropdownInput';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import Pagination from '@/components/market/Pagination';
-import {fetchMyGalleryCards} from '@/lib/api/gallaryApi';
+import {fetchMyGalleryCards} from '@/lib/api/galleryApi';
 import {countFilterValues} from '@/utils/countFilterValues';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
 
 export default function MyGalleryPage() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
@@ -252,6 +254,7 @@ export default function MyGalleryPage() {
               className={`grid ${
                 isTabletOrMobile ? 'grid-cols-2' : 'grid-cols-3'
               } gap-4`}
+              onCardClick={card => router.push()} // 카드 상세 페이지로 이동
             />
 
             {isTabletOrMobile ? (
