@@ -23,7 +23,7 @@ export default function Home() {
             </p>
           </div>
           <Link
-            href="/product"
+            href="/market"
             className="mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] pc:mt-[33px] pc:mb-[0]"
           >
             <Button role="navigate">최애 찾으러 가기</Button>
@@ -55,7 +55,7 @@ export default function Home() {
           나의 최애를 지금 찾아보세요!
         </p>
         <Link
-          href="/product"
+          href="/market"
           className="mt-[24px] mb-[26px] tablet:mt-[38px] tablet:mb-[37px] pc:mt-[33px] pc:mb-[0]"
         >
           <Button role="navigate">최애 찾으러 가기</Button>
