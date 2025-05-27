@@ -1,4 +1,5 @@
-const BASE_API = process.env.NEXT_PUBLIC_BASE_API || 'http://localhost:5005';
+const BASE_API =
+  'https://six-photo-2-be-ysa8.onrender.com' || 'http://localhost:5005';
 
 // 마이 갤러리 카드 조회
 export async function fetchMyGalleryCards({
