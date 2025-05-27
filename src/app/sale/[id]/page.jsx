@@ -1,7 +1,4 @@
-import NoHeader from '@/components/layout/NoHeader';
-import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
-import Image from 'next/image';
-import React from 'react';
+import CardDetailSection from '@/components/common/CardDetailSection';
 
 function SalePage() {
   const cards = [
@@ -30,34 +27,12 @@ function SalePage() {
 
   /* 일단 하드 코딩 방식으로 스타일만 지정 */
   return (
-    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px] mb-30">
-      <NoHeader title="마켓플레이스" />
-
-      <section className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
-        <h3 className="mb-[10px] tablet:mb-5 font-bold text-2xl text-white">
-          {photoCard.name}
-        </h3>
-        <hr className="border-2 border-gray100" />
-      </section>
-
-      <section className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
-        <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
-          <Image
-            src={photoCard.imageUrl}
-            alt={photoCard.name}
-            fill
-            className="object-cover"
-          />
-        </div>
-
-        <div className="w-full tablet:flex-1">
-          <CardProfile
-            type="seller"
-            cards={[photoCard]}
-            exchangeCard={exchangeCard}
-          />
-        </div>
-      </section>
+    <div>
+      <CardDetailSection
+        type="seller"
+        photoCard={photoCard}
+        exchangeCard={exchangeCard}
+      />
     </div>
   );
 }
