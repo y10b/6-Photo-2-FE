@@ -1,11 +1,15 @@
 
-const BASE_URL = `http://localhost:5005/api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 
 // 판매 정보 가져오기
 export async function fetchPurchase(shopId) {
     const res = await fetch(`${BASE_URL}/purchase/${shopId}`, {
         next: { revalidate: 0 },
     });
+
+    if (res.status === 410) {
+        throw new Error("판매가 완료된 상품입니다.");
+    }
 
     if (!res.ok) {
         throw new Error("포토카드 정보를 불러올 수 없습니다");
