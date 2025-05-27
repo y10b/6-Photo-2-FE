@@ -3,8 +3,9 @@ import CardImage from './CardImage';
 import CardInfo from './CardInfo';
 import Button from '@/components/common/Button';
 
-export default function CardOverview({card}) {
+export default function CardOverview({card, onCardClick}) {
   const {
+    userCardId,
     type,
     title,
     imageUrl,
@@ -18,12 +19,28 @@ export default function CardOverview({card}) {
     saleStatus,
   } = card;
 
+  const id = userCardId;
+
   const isSoldOut = type === 'soldout' || type === 'for_sale_soldout';
   const isExchange = type === 'exchange';
   const isForSale = type === 'for_sale';
 
+  const handleClick = () => {
+    if (onCardClick && id) {
+      onCardClick(id); 
+    } else {
+      console.log('CardOverview: onCardClick or card.id is missing.', {
+        onCardClick,
+        id,
+      }); 
+    }
+  };
+
   return (
-    <div className="text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white">
+    <div
+      onClick={handleClick}
+      className="font-noto text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white"
+    >
       <CardImage
         imageUrl={imageUrl}
         title={title}
