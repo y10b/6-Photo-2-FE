@@ -222,7 +222,7 @@ const Button = ({
       : classNames(
           baseStyle,
           fontSize,
-          'bg-gray500 text-white border border-white hover:opacity-80 cursor-pointer',
+          'bg-transparent text-white border border-white hover:opacity-80 cursor-pointer',
         ),
   };
 
