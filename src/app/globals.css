@@ -1,30 +1,30 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Regular.woff2") format("woff2");
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Bold.woff2") format("woff2");
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Noto Sans KR";
-  src: url("/fonts/NotoSansKR-Light.woff2") format("woff2");
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Baskin Robbins";
-  src: url("/fonts/BRB.woff2") format("woff2");
+  font-family: 'Baskin Robbins';
+  src: url('/fonts/BRB.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -43,8 +43,8 @@
   --purple: #a77eff;
   --pink: #ff2a6a;
   --main: #efff04;
-  --baskin: "Baskin Robbins";
-  --noto: "Noto Sans KR";
+  --baskin: 'Baskin Robbins';
+  --noto: 'Noto Sans KR';
 }
 
 @theme inline {
@@ -91,49 +91,49 @@
 
 /* 백그라운드 이미지 설정 */
 .bg-custom-landing1bg {
-  background-image: url("/images/landing/landing1bg.svg");
+  background-image: url('/images/landing/landing1bg.svg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
 }
 .bg-landing2 {
-  background-image: url("/images/landing/landing2s.svg");
+  background-image: url('/images/landing/landing2s.svg');
   background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }
 .bg-landing3 {
-  background-image: url("/images/landing/landing3_sm.png");
+  background-image: url('/images/landing/landing3_sm.png');
   background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }
 .bg-landing4 {
-  background-image: url("/images/landing/landing4_sm.png");
+  background-image: url('/images/landing/landing4_sm.png');
   background-size: auto;
   background-repeat: no-repeat;
   background-position: center;
 }
 @media (min-width: 744px) {
   .bg-landing2 {
-    background-image: url("/images/landing/landing2md.svg");
+    background-image: url('/images/landing/landing2md.svg');
   }
   .bg-landing3 {
-    background-image: url("/images/landing/landing3_md.png");
+    background-image: url('/images/landing/landing3_md.png');
   }
   .bg-landing4 {
-    background-image: url("/images/landing/landing4_md.png");
+    background-image: url('/images/landing/landing4_md.png');
   }
 }
 @media (min-width: 1200px) {
   .bg-landing2 {
-    background-image: url("/images/landing/landing2.svg");
+    background-image: url('/images/landing/landing2.svg');
   }
   .bg-landing3 {
-    background-image: url("/images/landing/landing3_lg.png");
+    background-image: url('/images/landing/landing3_lg.png');
   }
   .bg-landing4 {
-    background-image: url("/images/landing/landing4_lg.png");
+    background-image: url('/images/landing/landing4_lg.png');
   }
 }
 

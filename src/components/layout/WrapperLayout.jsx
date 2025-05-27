@@ -1,10 +1,10 @@
-import Header from "./Header";
+import Header from './Header';
 
-const WrapperLayout = ({ children }) => {
+const WrapperLayout = ({children}) => {
   return (
     <>
       <Header />
-      <main className="mt-[20px] tablet:mt-[40px] pc:mt-[60px] px-[16px] tablet:px-[20px] pc:px-[0px]">
+      <main className="mt-[20px] tablet:mt-[40px] pc:mt-[60px] px-[16px] tablet:px-[20px]">
         {children}
       </main>
     </>
