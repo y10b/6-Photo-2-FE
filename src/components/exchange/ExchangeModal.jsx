@@ -3,67 +3,120 @@
 import { useState, useEffect } from 'react';
 import { useModal } from '@/components/modal/ModalContext';
 import SearchInput from '@/components/ui/input/SearchInput';
+import TextboxInput from '@/components/ui/input/TextboxInput';
+import Button from '@/components/common/Button';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
 import Image from 'next/image';
+import FullScreenModal from '@/components/modal/layout/FullScreenModal';
 
 export default function ExchangeModal({ myCards = [], onSelect }) {
-  const { closeModal } = useModal();
+  const { closeModal, openModal } = useModal();
+
   const [search, setSearch] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filter, setFilter] = useState({ type: '', value: '' });
   const [filterCounts, setFilterCounts] = useState({ grade: {}, genre: {} });
 
-  const testCard = {
-    type: 'my_card',
-    title: '테스트 포토카드',
-    cardGrade: 'RARE',
-    cardGenre: 'TRAVEL',
-    nickname: 'me',
-    price: 5000,
-    quantityLeft: 3,
-    quantityTotal: 10,
-    imageUrl: '/images/sample.png',
-  };
-
-  const rawCards = myCards.length === 0 ? [testCard] : myCards;
-
+  // 필터 수량 계산
   useEffect(() => {
     const counts = { grade: {}, genre: {} };
-    rawCards.forEach((card) => {
-      counts.grade[card.grade] = (counts.grade[card.grade] || 0) + 1;
-      counts.genre[card.genre] = (counts.genre[card.genre] || 0) + 1;
+    myCards.forEach(card => {
+      const grade = card.grade ?? card.cardGrade;
+      const genre = card.genre ?? card.cardGenre;
+      counts.grade[grade] = (counts.grade[grade] || 0) + 1;
+      counts.genre[genre] = (counts.genre[genre] || 0) + 1;
     });
     setFilterCounts(counts);
-  }, [rawCards]);
+  }, [myCards]);
 
-  const filtered = rawCards.filter((card) => {
-    const matchesSearch =
-      card.name?.toLowerCase().includes(search.toLowerCase()) ||
-      card.title?.toLowerCase().includes(search.toLowerCase());
+  // 검색 및 필터링
+  const filtered = myCards.filter(card => {
+    const name = card.name ?? card.title ?? '';
+    const grade = card.grade ?? card.cardGrade;
+    const genre = card.genre ?? card.cardGenre;
 
+    const matchesSearch = name.toLowerCase().includes(search.toLowerCase());
     const matchesFilter =
       !filter.type || !filter.value
         ? true
-        : filter.value.split(',').includes(
-            filter.type === 'grade' ? card.grade : card.genre
-          );
+        : filter.value.split(',').includes(filter.type === 'grade' ? grade : genre);
 
     return matchesSearch && matchesFilter;
   });
 
-  const mappedCards = filtered.map((card) => ({
-    type: 'my_card',
-    title: card.name ?? card.title ?? '제목 없음',
+  // 카드 데이터 변환
+  const mappedCards = filtered.map(card => ({
+    id: card.id,
+    title: card.name ?? card.title,
     cardGrade: card.grade ?? card.cardGrade,
     cardGenre: card.genre ?? card.cardGenre,
-    nickname:
-      card.ownerNickname || card.sellerNickname || card.nickname || 'me',
+    nickname: card.nickname ?? card.ownerNickname ?? 'me',
     price: card.price ?? 0,
-    quantityLeft: card.remainingQuantity ?? card.quantityLeft ?? 0,
-    quantityTotal: card.initialQuantity ?? card.quantityTotal ?? 0,
+    quantityLeft: card.remainingQuantity ?? card.quantityLeft ?? 1,
+    quantityTotal: card.initialQuantity ?? card.quantityTotal ?? 1,
     imageUrl: card.imageUrl ?? '/images/fallback.png',
+    description: card.description ?? '',
   }));
+
+  // 카드 클릭 시 FullScreenModal 열기 (setTimeout 사용!)
+  const handleCardClick = (card) => {
+    closeModal(); // 바텀시트 먼저 닫고
+
+    setTimeout(() => {
+      let proposalMessage = '';
+
+      openModal({
+        type: 'custom',
+        children: (
+          <FullScreenModal onClose={closeModal}>
+            <div className="text-white p-4 pt-12 space-y-4">
+              <h2 className="text-xl font-bold">교환 제안</h2>
+
+              <div className="flex gap-4 items-center">
+                <img
+                  src={card.imageUrl}
+                  alt={card.title}
+                  className="w-[100px] h-[75px] object-cover rounded"
+                />
+                <div>
+                  <p className="font-bold">{card.title}</p>
+                  <p className="text-sm text-gray300">
+                    {card.cardGrade} | {card.cardGenre}
+                  </p>
+                  <p className="text-sm text-gray400 mt-1">
+                    수량 {card.quantityLeft}/{card.quantityTotal}
+                  </p>
+                </div>
+              </div>
+
+              <TextboxInput
+                value={proposalMessage}
+                onChange={(e) => {
+                  proposalMessage = e.target.value;
+                }}
+                placeholder="교환 제안 내용을 입력하세요."
+              />
+
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" onClick={closeModal}>
+                  취소하기
+                </Button>
+                <Button
+                  onClick={() => {
+                    onSelect?.(card.id, proposalMessage);
+                    closeModal();
+                  }}
+                >
+                  교환하기
+                </Button>
+              </div>
+            </div>
+          </FullScreenModal>
+        ),
+      });
+    }, 0);
+  };
 
   return (
     <div className="font-noto text-white w-full max-h-[80vh] overflow-y-auto pb-5 px-2 relative">
@@ -79,7 +132,7 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
         </button>
       </div>
 
-      {/* 검색 + 필터 버튼 */}
+      {/* 검색 + 필터 */}
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => setIsFilterOpen(true)}
@@ -89,16 +142,17 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
         </button>
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           placeholder="보유 카드 검색"
           className="flex-1"
         />
       </div>
 
-      {/* 카드 리스트 */}
+      {/* 카드 목록 */}
       {mappedCards.length > 0 ? (
         <CardList
           cards={mappedCards}
+          onCardClick={handleCardClick}
           className="grid grid-cols-2 tablet:grid-cols-3 pc:grid-cols-4 gap-5"
         />
       ) : (

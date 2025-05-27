@@ -3,7 +3,7 @@ import CardImage from './CardImage';
 import CardInfo from './CardInfo';
 import Button from '@/components/common/Button';
 
-export default function CardOverview({card}) {
+export default function CardOverview({ card, onClick }) {
   const {
     type,
     title,
@@ -23,7 +23,10 @@ export default function CardOverview({card}) {
   const isForSale = type === 'for_sale';
 
   return (
-    <div className="text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white">
+    <div
+      onClick={onClick} // ✅ 클릭 연결
+      className="cursor-pointer text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white"
+    >
       <CardImage
         imageUrl={imageUrl}
         title={title}

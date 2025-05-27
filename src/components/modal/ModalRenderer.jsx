@@ -1,15 +1,15 @@
 'use client';
 
-import {useModal} from './ModalContext';
+import { useModal } from './ModalContext';
 import AlertModal from './layout/AlertModal';
 import ResponsiveModalWrapper from './ResponsiveModalWrapper';
 import CardModal from './layout/CardModal';
 
 export default function ModalRenderer() {
-  const {isOpen, modalContent, closeModal} = useModal();
+  const { isOpen, modalContent, closeModal } = useModal();
+
   if (!isOpen || !modalContent?.type) return null;
 
-  // 알림형 모달일 때
   if (modalContent.type === 'alert') {
     return (
       <AlertModal
@@ -21,7 +21,6 @@ export default function ModalRenderer() {
     );
   }
 
-  // 데스크탑 = 모달, 태블릿/모바일 = 바텀시트인 경우
   if (modalContent.type === 'responsive') {
     return (
       <ResponsiveModalWrapper
@@ -35,6 +34,15 @@ export default function ModalRenderer() {
 
   if (modalContent.type === 'success' || modalContent.type === 'fail') {
     return <CardModal />;
+  }
+
+  // ✅ 여기 추가: custom 모달용
+  if (modalContent.type === 'custom') {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-black">
+        {modalContent.children}
+      </div>
+    );
   }
 
   return null;
