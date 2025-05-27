@@ -1,6 +1,7 @@
 'use client';
 
 import {signUp, signIn, signOut} from '@/api/auth.api';
+import {getUserInfo, updateUserInfo} from '@/api/user.api';
 import {createContext, useContext, useEffect, useState} from 'react';
 
 const AuthContext = createContext({
@@ -22,46 +23,39 @@ export const useAuth = () => {
 export default function AuthProvider({children}) {
   const [user, setUser] = useState(null);
 
+  // 사용자 정보 불러오기
   const getUser = async () => {
     try {
-      // 현재는 user API가 없으므로 토큰에서 유저 정보 추출하는 임시 방법 사용
-      // 향후 getMyUserInfo API가 구현되면 해당 API 호출로 대체
-      const userData = JSON.parse(localStorage.getItem('user'));
+      const userData = await getUserInfo();
       setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('사용자 정보를 가져오는데 실패했습니다:', error);
       setUser(null);
-      // 토큰이 유효하지 않으면 제거
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
     }
   };
 
+  // 회원가입
   const register = async (nickname, email, password, passwordConfirmation) => {
-    try {
-      if (password !== passwordConfirmation) {
-        throw new Error('비밀번호가 일치하지 않습니다.');
-      }
-      await signUp({email, nickname, password});
-      return true;
-    } catch (error) {
-      console.error('AuthProvider 회원가입 실패:', error);
-      throw error; // 에러를 다시 throw하여 컴포넌트에서 처리할 수 있도록 함
+    if (password !== passwordConfirmation) {
+      throw new Error('비밀번호가 일치하지 않습니다.');
     }
+    await signUp({email, nickname, password});
+    return true;
   };
 
+  // 로그인
   const login = async (email, password) => {
     try {
       const response = await signIn({email, password});
-      // 액세스 토큰 저장
+
       if (response.accessToken) {
         localStorage.setItem('accessToken', response.accessToken);
+        await getUser();
       }
-      // 사용자 정보 저장 (임시)
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-      await getUser();
-      console.log('AuthProvider 로그인 성공');
+
       return true;
     } catch (error) {
       console.error('AuthProvider 로그인 실패:', error);
@@ -69,40 +63,33 @@ export default function AuthProvider({children}) {
     }
   };
 
+  // 로그아웃
   const logout = async () => {
     try {
       await signOut();
-      setUser(null);
-
-      // 로컬 스토리지 정리
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
-
-      // 랜딩페이지로 이동
-      window.location.href = '/';
     } catch (error) {
-      console.error('로그아웃 실패:', error);
-      // 로그아웃 실패해도 클라이언트 상태는 초기화
+      console.warn('서버 로그아웃 실패:', error);
+    } finally {
       setUser(null);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
-
-      // 랜딩페이지로 이동
       window.location.href = '/';
     }
   };
 
+  // 사용자 정보 수정
   const updateUser = async userData => {
-    // 현재는 updateMyUserInfo API가 없으므로 임시로 로컬 스토리지 업데이트
-    // 향후 API가 구현되면 해당 API 호출로 대체
-    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
-    const updatedUser = {...currentUser, ...userData};
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+    try {
+      const updatedUser = await updateUserInfo(userData);
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error('사용자 정보 업데이트 실패:', error);
+    }
   };
 
+  // 초기 실행
   useEffect(() => {
-    // 토큰이 있으면 사용자 정보 가져오기
     const token = localStorage.getItem('accessToken');
     if (token) {
       getUser();
@@ -110,7 +97,7 @@ export default function AuthProvider({children}) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{user, login, logout, updateUser, register}}>
+    <AuthContext.Provider value={{user, login, logout, updateUser, register, getUser}}>
       {children}
     </AuthContext.Provider>
   );
