@@ -1,3 +1,4 @@
+// MarketplacePage.jsx
 'use client';
 
 import {useEffect, useState} from 'react';
@@ -12,6 +13,7 @@ import Button from '@/components/common/Button';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 import {countFilterValues} from '@/utils/countFilterValues';
+import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
 import {useModal} from '@/components/modal/ModalContext';
 import PointDrawModal from '@/components/common/PointDrawModal';
 
@@ -24,8 +26,10 @@ export default function MarketplacePage() {
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
   const {openModal} = useModal();
+  const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState(null);
 
-  // 브레이크포인트 감지
+  // 브레이크포인트 감지 (기존 코드 유지)
   useEffect(() => {
     const getIsMobileOrTablet = () => {
       const pcMinWidth = parseInt(
@@ -78,7 +82,7 @@ export default function MarketplacePage() {
     }
   }, [inView, hasNextPage, isFetchingNextPage]);
 
-  // 필터 값 카운트
+  // 필터 값 카운트 (기존 코드 유지)
   useEffect(() => {
     fetchMarketCards({
       pageParam: 1,
@@ -102,10 +106,22 @@ export default function MarketplacePage() {
 
   const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
 
+  const handleCardSelectedForSale = cardId => {
+    console.log('MarketplacePage: Card selected for sale, ID:', cardId);
+    setSelectedCardId(cardId);
+    setIsMyCardsSellOpen(false);
+    setIsSellRegistrationOpen(true);
+  };
+
+  const handleCloseSellRegistration = () => {
+    setIsSellRegistrationOpen(false);
+    setSelectedCardId(null);
+  };
+
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
-        {/* 데스크탑/태블릿 헤더 */}
+        {/* 데스크탑/태블릿 헤더 (기존 코드 유지) */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
             마켓플레이스
@@ -139,7 +155,7 @@ export default function MarketplacePage() {
         </div>
 
         <div className="space-y-[15px] pb-[80px]">
-          {/* 모바일 검색창 */}
+          {/* 모바일 검색창 (기존 코드 유지) */}
           <div className="block tablet:hidden w-full mb-2">
             <SearchInput
               name="query"
@@ -174,7 +190,7 @@ export default function MarketplacePage() {
             </div>
           </div>
 
-          {/* 데스크탑/태블릿: 검색 + 필터 + 정렬 */}
+          {/* 데스크탑/태블릿: 검색 + 필터 + 정렬 (기존 코드 유지) */}
           <div className="hidden tablet:flex flex-wrap gap-2 py-2 items-center justify-between">
             <div className="flex flex-wrap items-center max-w-full tablet:max-w-[calc(100%-180px)]">
               {/* 검색창 */}
@@ -253,6 +269,7 @@ export default function MarketplacePage() {
               />
             </div>
           </div>
+
           {/* 카드 목록 */}
           <CardList
             cards={cards}
@@ -291,6 +308,14 @@ export default function MarketplacePage() {
       <MyCardsSellBottomSheet
         isOpen={isMyCardsSellOpen}
         onClose={() => setIsMyCardsSellOpen(false)}
+        onCardSelectedForSale={handleCardSelectedForSale}
+      />
+
+      {/* SellCardRegistrationBottomSheet 컴포넌트 렌더링 추가 */}
+      <SellCardRegistrationBottomSheet
+        isOpen={isSellRegistrationOpen}
+        onClose={handleCloseSellRegistration}
+        cardId={selectedCardId}
       />
     </>
   );
