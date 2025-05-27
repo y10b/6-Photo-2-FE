@@ -1,4 +1,5 @@
 import CardDetailSection from '@/components/common/CardDetailSection';
+import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
 
 function SalePage() {
   const cards = [
@@ -22,17 +23,30 @@ function SalePage() {
       description: '안녕하세요',
     },
   ];
-
+  const suggestedCards = [
+    {
+      type: 'exchange',
+      title: '교환 카드',
+      price: 0,
+      imageUrl: '/images/image1.png',
+      cardGrade: 'SUPER_RARE',
+      CardGenre: '여행',
+      nickname: '카드수집가짱',
+      description:
+        '이거슨 설명 이거슨 설명이거슨 설명이거슨 설명 설명 길게 작성중 설명 진짜 길게 작성중 이거슨 설명 이거슨 설명이거슨 설명이거슨 설명 설명 길게 작성중 설명 진짜 길게 작성중',
+    },
+  ];
   const photoCard = cards[0];
 
   /* 일단 하드 코딩 방식으로 스타일만 지정 */
   return (
-    <div>
+    <div className="mb-30 w-full">
       <CardDetailSection
         type="seller"
         photoCard={photoCard}
         exchangeCard={exchangeCard}
       />
+      <ExchangeSuggest cards={suggestedCards} />
     </div>
   );
 }

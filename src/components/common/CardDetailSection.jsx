@@ -15,7 +15,7 @@ export default function CardDetailSection({
       <NoHeader title="마켓플레이스" />
 
       <section className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
-        <h3 className="mb-[10px] tablet:mb-5 font-bold text-2xl text-white">
+        <h3 className="mb-[10px] tablet:mb-5 font-bold text-2xl tablet:text-[32px] pc:text-[40px] text-white">
           {name}
         </h3>
         <hr className="border-2 border-gray100" />
@@ -23,11 +23,7 @@ export default function CardDetailSection({
 
       <section className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
         <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
-          {imageUrl ? (
-            <Image src={imageUrl} alt={name} fill className="object-cover" />
-          ) : (
-            <div className="w-full h-full bg-gray-300" />
-          )}
+          <Image src={imageUrl} alt={name} fill className="object-cover" />
         </div>
 
         <div className="w-full tablet:flex-1">

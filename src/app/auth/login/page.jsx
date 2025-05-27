@@ -55,24 +55,13 @@ export default function LoginPage() {
       const success = await login(form.email, form.password);
 
       if (success) {
-        openModal({
-          //type, alert로 사용!
-          type: 'alert', // 🔥 type 추가
-          title: '로그인 성공',
-          description: '환영합니다!\n마켓페이지로 이동합니다.',
-          button: {
-            label: '확인',
-            onClick: () => {
-              router.push('/market');
-            },
-          },
-        });
+        router.push('/market'); // 모달 없이 바로 이동
       } else {
         throw new Error('로그인 실패');
       }
     } catch (error) {
       openModal({
-        type: 'alert', // 🔥 type 추가
+        type: 'alert',
         title: '로그인 실패',
         description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
         button: {
@@ -83,7 +72,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    console.log('Google 로그인 시도');
+    window.location.href = 'http://localhost:5005/auth/google';
   };
 
   const isFormValid = form.email && form.password;
