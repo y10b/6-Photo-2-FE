@@ -296,7 +296,7 @@ export default function MyGalleryPage() {
                 variant="primary"
                 fullWidth
                 className="w-full h-full"
-                onClick={() => {}} // TODO: 포토카드 생성페이지와 연결
+                onClick={() => router.push('/my-gallery/create')}
               >
                 나의 포토카드 생성하기
               </Button>
