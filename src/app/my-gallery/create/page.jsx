@@ -9,7 +9,7 @@ import {
   DropdownInput,
 } from '@/components/ui/input';
 import Button from '@/components/common/Button';
-import {createPhotoCard} from '@/lib/api/galleryApi';
+import {createPhotoCard, uploadImage} from '@/lib/api/galleryApi';
 
 export default function CreatePhotoCardPage() {
   const router = useRouter();
@@ -54,11 +54,18 @@ export default function CreatePhotoCardPage() {
     setErrors(prev => ({...prev, [name]: error}));
   };
 
-  const handleImageChange = e => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const handleImageChange = async file => {
+    if (!file) return;
+
+    try {
+      const imageUrl = await uploadImage(file);
       setImageFile(file);
-      setForm(prev => ({...prev, imageUrl: file.name}));
+      setForm(prev => ({
+        ...prev,
+        imageUrl,
+      }));
+    } catch (error) {
+      console.error('[❌] 이미지 업로드 실패:', error);
     }
   };
 
@@ -78,11 +85,8 @@ export default function CreatePhotoCardPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    console.log('[handleSubmit] 클릭됨');
 
     try {
-      console.log('👉 API 호출 직전', form);
-
       const result = await createPhotoCard({
         ...form,
         price: Number(form.price),
@@ -152,6 +156,7 @@ export default function CreatePhotoCardPage() {
             label="가격"
             name="price"
             type="number"
+            min="1"
             value={form.price}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -163,6 +168,8 @@ export default function CreatePhotoCardPage() {
             label="발행량"
             name="initialQuantity"
             type="number"
+            min="1"
+            max="10"
             value={form.initialQuantity}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -173,7 +180,6 @@ export default function CreatePhotoCardPage() {
           <UploadInput
             label="이미지 URL"
             name="imageUrl"
-            value={form.imageUrl}
             onChange={handleImageChange}
             error={errors.imageUrl}
           />
