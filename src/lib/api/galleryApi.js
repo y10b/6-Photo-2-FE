@@ -1,5 +1,4 @@
-const BASE_API =
-  'https://six-photo-2-be-ysa8.onrender.com' || 'http://localhost:5005';
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 
 // 마이 갤러리 카드 조회
 export async function fetchMyGalleryCards({
@@ -24,12 +23,13 @@ export async function fetchMyGalleryCards({
     params.append('filterValue', filterValue);
   }
 
-  const url = `${BASE_API}/api/mypage/idle-cards?${params.toString()}`;
+  const url = `${BASE_URL}/mypage/idle-cards?${params.toString()}`;
 
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -44,7 +44,7 @@ export async function fetchMyGalleryCards({
 export async function createPhotoCard(data) {
   const token = localStorage.getItem('accessToken');
 
-  const url = `${BASE_API}/api/mypage/create`;
+  const url = `${BASE_URL}/mypage/create`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -53,6 +53,7 @@ export async function createPhotoCard(data) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -65,7 +66,7 @@ export async function createPhotoCard(data) {
 
 // 이미지 업로드
 export async function uploadImage(file) {
-  const url = `${BASE_API}/api/upload`;
+  const url = `${BASE_URL}/upload`;
   const formData = new FormData();
   formData.append('image', file);
 
@@ -79,17 +80,18 @@ export async function uploadImage(file) {
   }
 
   const data = await response.json();
-  return `${BASE_API.replace('/api', '')}${data.imageUrl}`;
+  return `${BASE_URL.replace('/api', '')}${data.imageUrl}`;
 }
 
 // 포토카드 생성 제한
 export async function fetchCardCreationQuota() {
   const token = localStorage.getItem('accessToken');
 
-  const res = await fetch(`${BASE_API}/api/mypage/creation-quota`, {
+  const res = await fetch(`${BASE_URL}/mypage/creation-quota`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {

@@ -1,5 +1,4 @@
-const BASE_API =
-  'https://six-photo-2-be-ysa8.onrender.com' || 'http://localhost:5005';
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 
 export async function fetchMarketCards({
   pageParam = 1,
@@ -15,7 +14,7 @@ export async function fetchMarketCards({
     params.append('filterValue', filterValue);
   }
 
-  const response = await fetch(`${BASE_API}/api/cards?${params.toString()}`, {
+  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, {
     headers: {
       'Content-Type': 'application/json',
     },
