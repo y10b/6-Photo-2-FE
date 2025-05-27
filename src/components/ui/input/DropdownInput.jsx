@@ -58,7 +58,7 @@ export default function DropdownInput({
         </button>
 
         {isOpen && (
-          <div className="absolute z-10 min-w-max mt-1 bg-black border-[1px] border-gray200 shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-100 min-w-max mt-1 bg-black border-[1px] border-gray200 shadow-lg max-h-60 overflow-auto">
             {options.map(option => (
               <div
                 key={option.value}

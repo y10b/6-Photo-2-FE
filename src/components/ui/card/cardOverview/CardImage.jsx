@@ -31,9 +31,10 @@ export default function CardImage({
       <Image
         src={imageUrl}
         alt={title}
-        layout="fill"
-        objectFit="cover"
+        fill
+        style={{objectFit: 'cover'}}
         className={imageClass}
+        unoptimized
       />
 
       {isSoldOut && (
