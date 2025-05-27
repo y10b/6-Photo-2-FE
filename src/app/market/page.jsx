@@ -12,6 +12,8 @@ import Button from '@/components/common/Button';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 import {countFilterValues} from '@/utils/countFilterValues';
+import {useModal} from '@/components/modal/ModalContext';
+import PointDrawModal from '@/components/common/PointDrawModal';
 
 export default function MarketplacePage() {
   const [keyword, setKeyword] = useState('');
@@ -21,6 +23,7 @@ export default function MarketplacePage() {
   const [filterCounts, setFilterCounts] = useState(null);
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
+  const {openModal} = useModal();
 
   // 브레이크포인트 감지
   useEffect(() => {
@@ -114,6 +117,24 @@ export default function MarketplacePage() {
             onClick={() => setIsMyCardsSellOpen(true)}
           >
             나의 포토카드 판매하기
+          </Button>
+        </div>
+
+        {/* ✅ 여기 아래에 포인트 뽑기 버튼 추가 */}
+        <div className="mt-6">
+          <Button
+            role="modal"
+            variant="primary"
+            fullWidth={false}
+            onClick={() =>
+              openModal({
+                type: 'responsive',
+                variant: 'bottom',
+                children: <PointDrawModal />,
+              })
+            }
+          >
+            🎁 오늘의 포인트 뽑기
           </Button>
         </div>
 
