@@ -16,14 +16,14 @@ export default function RootLayout({children}) {
     <html lang="ko" className="font-noto">
       <body>
         <AuthProvider>
-          <RouteGuard>
-            <ReactQueryProvider>
-              <ModalProvider>
+          <ModalProvider>
+            <RouteGuard>
+              <ReactQueryProvider>
                 <WrapperLayout>{children}</WrapperLayout>
                 <ModalRenderer />
-              </ModalProvider>
-            </ReactQueryProvider>
-          </RouteGuard>
+              </ReactQueryProvider>
+            </RouteGuard>
+          </ModalProvider>
         </AuthProvider>
       </body>
     </html>
