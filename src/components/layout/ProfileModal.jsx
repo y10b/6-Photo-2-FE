@@ -2,7 +2,6 @@
 
 import {useAuth} from '@/providers/AuthProvider';
 import Link from 'next/link';
-import React from 'react';
 
 const ProfileModal = () => {
   const {user} = useAuth();
