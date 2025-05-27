@@ -144,7 +144,7 @@ export default function MarketplacePage() {
             </button>
             <div>
               <DropdownInput
-                className="!w-[130px] !h-[35px]"
+                className="!w-[130px] !h-[35px]" //TODO: 정렬 드롭다운이 솔드아웃 스티커보다 위로 나오게 수정
                 name="sort"
                 value={sort}
                 onChange={({target}) => setSort(target.value)}

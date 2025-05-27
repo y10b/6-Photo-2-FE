@@ -11,7 +11,10 @@ import DropdownInput from '@/components/ui/input/DropdownInput';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import Pagination from '@/components/market/Pagination';
-import {fetchMyGalleryCards} from '@/lib/api/galleryApi';
+import {
+  fetchMyGalleryCards,
+  fetchCardCreationQuota,
+} from '@/lib/api/galleryApi';
 import {countFilterValues} from '@/utils/countFilterValues';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
@@ -28,6 +31,7 @@ export default function MyGalleryPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
+  const [remainingQuota, setRemainingQuota] = useState(3);
 
   // 디바이스 유형 판별 함수
   const checkDeviceType = useCallback(() => {
@@ -57,6 +61,13 @@ export default function MyGalleryPage() {
     }).then(res => {
       const counts = countFilterValues(res.result);
       setFilterCounts(counts);
+      fetchCardCreationQuota()
+        .then(res => {
+          setRemainingQuota(res.remainingQuota);
+        })
+        .catch(err => {
+          console.error('생성 가능 횟수 조회 실패:', err);
+        });
     });
   }, []);
 
@@ -137,10 +148,10 @@ export default function MyGalleryPage() {
               role="create"
               variant="primary"
               fullWidth={false}
-              disabled={false}
-              onClick={() => {}} // TODO: 포토카드 생성페이지와 연결 + 생성 제한
+              disabled={remainingQuota === 0}
+              onClick={() => router.push('/my-gallery/create')}
             >
-              포토카드 생성하기(3/3) {/* 추후 로직 구현 */}
+              포토카드 생성하기 ({remainingQuota}/3)
             </Button>
           </div>
         </div>
