@@ -66,7 +66,7 @@ export default function SignUpPage() {
       );
 
       openModal({
-        type: 'alert', // 🔥 type 추가
+        type: 'alert',
         title: '회원가입 완료',
         description: '회원가입이 완료되었습니다!\n로그인 페이지로 이동합니다.',
         button: {
@@ -78,7 +78,7 @@ export default function SignUpPage() {
       });
     } catch (error) {
       openModal({
-        type: 'alert', // 🔥 type 추가
+        type: 'alert',
         title: '회원가입 실패',
         description:
           error.message ||
@@ -91,9 +91,9 @@ export default function SignUpPage() {
   };
 
   const handleGoogleLogin = () => {
-    console.log('Google 로그인 시도');
+    window.location.href = 'http://localhost:5005/auth/google';
   };
-
+  
   const isFormValid =
     form.email && form.nickname && form.password && form.confirmPassword;
 
