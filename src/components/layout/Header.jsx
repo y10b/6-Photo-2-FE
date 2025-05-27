@@ -90,7 +90,7 @@ const Header = () => {
             </div>
             <div className="hidden tablet:block w-[1px] h-[20px] bg-[var(--color-gray400)]" />
             <li
-              className="hidden tablet:block text-[14px] text-[var(--color-gray400)]"
+              className="hidden tablet:block text-[14px] text-[var(--color-gray400)] cursor-pointer"
               onClick={handleLogout}
             >
               로그아웃
