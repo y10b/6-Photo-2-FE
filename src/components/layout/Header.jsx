@@ -36,7 +36,9 @@ const Header = () => {
           alt="메뉴 토글"
           onClick={() => setIsProfileActive(prev => !prev)}
         />
-        {isProfileActive && <ProfileMobileModal />}
+        {isProfileActive && (
+          <ProfileMobileModal isActive={setIsProfileActive} />
+        )}
         <Link href={'/'}>
           <figure className="relative w-[83px] h-[15px] tablet:w-[111px] tablet:h-[20px] pc:w-[138px] pc:h-[25px]">
             <Image src={'/logo.svg'} fill className="object-cover" alt="로고" />

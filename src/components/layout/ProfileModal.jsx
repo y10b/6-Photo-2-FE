@@ -1,6 +1,7 @@
 'use client';
 
 import {useAuth} from '@/providers/AuthProvider';
+import Link from 'next/link';
 import React from 'react';
 
 const ProfileModal = () => {
@@ -18,9 +19,13 @@ const ProfileModal = () => {
         </div>
       </div>
       <ul className="p-[20px] flex flex-col justify-center gap-[15px]">
-        <li className="cursor-pointer">마켓플레이스</li>
-        <li className="cursor-pointer">마이갤러리</li>
-        <li className="cursor-pointer">판매 중인 포토카트</li>
+        <li className="cursor-pointer">
+          <Link href={'/market'}>마켓플레이스</Link>
+        </li>
+        <li className="cursor-pointer">
+          <Link href={'/my-gallery'}>마켓갤러리</Link>
+        </li>
+        <li className="cursor-pointer">판매 중인 포토카드</li>
       </ul>
     </div>
   );
