@@ -1,4 +1,4 @@
-import CardDetailSection from '@/components/common/CardDetailSection';
+import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
 
 function SalePage() {
