@@ -40,11 +40,14 @@ export default function DropdownInput({
           {label}
         </label>
       )}
-      <div className="relative" ref={dropdownRef}>
+      <div
+        className="relative flex text-xs tablet:text-[14px] pc:text-[16px]"
+        ref={dropdownRef}
+      >
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-full px-5 py-4 border-[1px] bg-black text-gray200 rounded-[2px] text-left flex justify-between items-center h-[55px] pc:h-[60px] text-[14px] pc:text-[16px] font-[300] pc:font-[400] ${className}`}
+          className={`w-full px-5 py-4 border-[1px] bg-black text-gray200 rounded-[2px] text-left flex justify-between items-center h-[55px] pc:h-[60px] font-[300] pc:font-[400] cursor-pointer ${className}`}
           {...rest}
         >
           <span className={value ? 'text-white' : 'text-gray200'}>
@@ -53,7 +56,7 @@ export default function DropdownInput({
           <GoTriangleDown
             className={`text-white transition-transform ${
               isOpen ? 'rotate-180' : ''
-            } w-8 h-5`}
+            } w-5 h-5`}
           />
         </button>
 

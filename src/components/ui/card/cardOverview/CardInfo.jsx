@@ -57,9 +57,14 @@ export default function CardInfo({
               {myCard ? '수량' : '잔여'}
             </span>
             <p className="font-light text-gray300">
-              <span className="font-normal text-white">{quantityLeft}</span>
-              {!myCard && type !== 'for_sale' && !forSaleSoldOut && (
-                <>/{quantityTotal}</>
+              {type === 'for_sale' || type === 'soldout' || forSaleSoldOut ? ( // 마켓플레이스에 올라온 것들은 (잔여/수량)
+                <>
+                  <span className="font-normal text-white">{quantityLeft}</span>
+                  <span className="font-normal">/</span>
+                  <span className="font-normal">{quantityTotal}</span>
+                </>
+              ) : (
+                <span className="font-normal text-white">{quantityLeft}</span> // 마이갤러리(수량)
               )}
             </p>
           </div>
