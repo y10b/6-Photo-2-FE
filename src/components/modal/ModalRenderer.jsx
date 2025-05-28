@@ -36,7 +36,6 @@ export default function ModalRenderer() {
     return <CardModal />;
   }
 
-  // ✅ 여기 추가: custom 모달용
   if (modalContent.type === 'custom') {
     return (
       <div className="fixed inset-0 z-[9999] bg-black">

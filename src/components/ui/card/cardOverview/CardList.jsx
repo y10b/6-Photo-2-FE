@@ -7,7 +7,7 @@ export default function CardList({ cards, className, onCardClick = () => {} }) {
         <Card
           key={index}
           card={card}
-          onClick={() => onCardClick(card)} 
+          onCardClick={onCardClick} 
         />
       ))}
     </div>

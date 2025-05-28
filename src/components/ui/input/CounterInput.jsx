@@ -60,12 +60,12 @@ export default function CounterInput({
 
       {/* showMaxInfo prop으로 최대값 정보 표시 여부를 제어 */}
       {showMaxInfo && max && (
-        <div className="ml-5 flex flex-col justify-start">
+        <div className="pc:ml-5 tablet:ml-3 flex flex-col justify-start">
           <div className="flex items-center text-white">
-            <span className="text-[20px] font-[700]">/ {max}</span>
+            <span className="pc:text-[20px] tablet:text-[18px] font-[700]">/ {max}</span>
           </div>
           {maxText && (
-            <div className="text-gray200 text-[14px] font-[300]">
+            <div className="text-gray200 pc:text-[14px] tablet:text-[12px] font-[300]">
               최대 {maxText}
             </div>
           )}

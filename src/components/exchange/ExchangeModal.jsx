@@ -9,8 +9,9 @@ import CardList from '@/components/ui/card/cardOverview/CardList';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
 import Image from 'next/image';
 import FullScreenModal from '@/components/modal/layout/FullScreenModal';
+import CardOverview from '@/components/ui/card/cardOverview/CardOverview'; // ✅ 카드 모양 재사용
 
-export default function ExchangeModal({ myCards = [], onSelect }) {
+export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) {
   const { closeModal, openModal } = useModal();
 
   const [search, setSearch] = useState('');
@@ -18,7 +19,6 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
   const [filter, setFilter] = useState({ type: '', value: '' });
   const [filterCounts, setFilterCounts] = useState({ grade: {}, genre: {} });
 
-  // 필터 수량 계산
   useEffect(() => {
     const counts = { grade: {}, genre: {} };
     myCards.forEach(card => {
@@ -30,7 +30,6 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
     setFilterCounts(counts);
   }, [myCards]);
 
-  // 검색 및 필터링
   const filtered = myCards.filter(card => {
     const name = card.name ?? card.title ?? '';
     const grade = card.grade ?? card.cardGrade;
@@ -45,9 +44,8 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
     return matchesSearch && matchesFilter;
   });
 
-  // 카드 데이터 변환
   const mappedCards = filtered.map(card => ({
-    id: card.id,
+    userCardId: card.id,
     title: card.name ?? card.title,
     cardGrade: card.grade ?? card.cardGrade,
     cardGenre: card.genre ?? card.cardGenre,
@@ -57,54 +55,45 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
     quantityTotal: card.initialQuantity ?? card.quantityTotal ?? 1,
     imageUrl: card.imageUrl ?? '/images/fallback.png',
     description: card.description ?? '',
+    type: 'my_card', // ✅ 카드 스타일 맞추기 위해 type 지정
   }));
 
-  // 카드 클릭 시 FullScreenModal 열기 (setTimeout 사용!)
   const handleCardClick = (card) => {
-    closeModal(); // 바텀시트 먼저 닫고
+    closeModal();
 
     setTimeout(() => {
-      let proposalMessage = '';
+      let message = '';
 
       openModal({
         type: 'custom',
         children: (
           <FullScreenModal onClose={closeModal}>
-            <div className="text-white p-4 pt-12 space-y-4">
-              <h2 className="text-xl font-bold">교환 제안</h2>
+            <div className="text-white">
+              <h2 className="text-center text-base font-bold mb-6">포토카드 교환하기</h2>
 
-              <div className="flex gap-4 items-center">
-                <img
-                  src={card.imageUrl}
-                  alt={card.title}
-                  className="w-[100px] h-[75px] object-cover rounded"
-                />
-                <div>
-                  <p className="font-bold">{card.title}</p>
-                  <p className="text-sm text-gray300">
-                    {card.cardGrade} | {card.cardGenre}
-                  </p>
-                  <p className="text-sm text-gray400 mt-1">
-                    수량 {card.quantityLeft}/{card.quantityTotal}
-                  </p>
-                </div>
+              {/* ✅ 동일한 카드 모양 재사용 */}
+              <div className="flex justify-center mb-6">
+                <CardOverview card={card} />
               </div>
 
-              <TextboxInput
-                value={proposalMessage}
-                onChange={(e) => {
-                  proposalMessage = e.target.value;
-                }}
-                placeholder="교환 제안 내용을 입력하세요."
-              />
+              <div className="mb-4">
+                <label className="block text-sm font-bold mb-2">교환 제시 내용</label>
+                <TextboxInput
+                  placeholder="내용을 입력해주세요"
+                  onChange={(e) => (message = e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
-              <div className="flex gap-2 mt-4">
-                <Button variant="outline" onClick={closeModal}>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={closeModal}>
                   취소하기
                 </Button>
                 <Button
+                  variant="primary"
+                  className="flex-1 bg-yellow-300 text-black font-bold"
                   onClick={() => {
-                    onSelect?.(card.id, proposalMessage);
+                    onSelect?.(card.userCardId, message);
                     closeModal();
                   }}
                 >
@@ -142,13 +131,13 @@ export default function ExchangeModal({ myCards = [], onSelect }) {
         </button>
         <SearchInput
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="보유 카드 검색"
           className="flex-1"
         />
       </div>
 
-      {/* 카드 목록 */}
+      {/* 카드 리스트 */}
       {mappedCards.length > 0 ? (
         <CardList
           cards={mappedCards}

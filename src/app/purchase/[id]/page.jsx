@@ -86,14 +86,15 @@ export default function PurchasePage() {
       </section>
 
       <ExchangeInfoSection
-        info={{
-          description:
-            '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
-          grade: grade || 'COMMON',
-          genre: genre || '장르 없음',
-          myCards,
-        }}
-      />
+  info={{
+    targetCardId: photoCard.id, 
+    description: photoCard.exchangeDescription,
+    grade: photoCard.exchangeGrade,
+    genre: photoCard.exchangeGenre,
+    myCards, 
+  }}
+/>
+
     </div>
   );
 }
