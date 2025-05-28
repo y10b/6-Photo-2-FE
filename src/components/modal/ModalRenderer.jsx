@@ -37,5 +37,12 @@ export default function ModalRenderer() {
     return <CardModal />;
   }
 
+  // 랜덤포인트 모달일 때
+  if (modalContent.type === 'point') {
+    return (
+      <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
+    );
+  }
+
   return null;
 }

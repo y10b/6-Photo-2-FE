@@ -1,19 +1,15 @@
 'use client';
 
-import {getNotification, patchNotification} from '@/lib/api/notificationApi';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useNotificationQuery} from '@/hooks/useNotificationQuery';
+import {patchNotification} from '@/lib/api/notificationApi';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
 
 const NotificationModal = ({isActive}) => {
   const router = useRouter();
-  const accessToken = localStorage.getItem('accessToken');
   const queryClient = useQueryClient();
 
-  const {data, isPending, error} = useQuery({
-    queryKey: ['notifications'],
-    queryFn: () => getNotification(accessToken),
-    enabled: !!accessToken,
-  });
+  const {data, isPending, error} = useNotificationQuery();
 
   const {mutate} = useMutation({
     mutationFn: patchNotification,
@@ -28,7 +24,6 @@ const NotificationModal = ({isActive}) => {
   });
 
   const handleClick = (notificationId, relatedShopId) => {
-    console.log(notificationId, relatedShopId);
     mutate(notificationId);
   };
 

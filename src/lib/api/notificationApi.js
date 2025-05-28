@@ -1,5 +1,5 @@
-// const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/notification`;
-const BASE_URL = `http://localhost:5005/api/notification`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/notification`;
+// const BASE_URL = `http://localhost:5005/api/notification`;
 
 // 알림 조회
 export const getNotification = async accessToken => {

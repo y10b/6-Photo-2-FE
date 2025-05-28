@@ -9,6 +9,7 @@ export default function ResponsiveModalWrapper({
   children,
   onClose,
   variant = 'bottom', // 모바일 전용 바텀시트 or 전체화면 모달
+  title,
 }) {
   const isMobile = useMediaQuery('(max-width: 743px)');
   const isTablet = useMediaQuery('(min-width: 744px) and (max-width: 1199px)');
@@ -20,7 +21,7 @@ export default function ResponsiveModalWrapper({
 
   // 모바일인데 전체화면 모달일 경우
   if (variant === 'full' && isMobile) {
-    return <FullScreenModal onClose={onClose}>{children}</FullScreenModal>;
+    return <FullScreenModal onClose={onClose} title={title}>{children}</FullScreenModal>;
   }
 
   return <BottomSheetModal onClose={onClose}>{children}</BottomSheetModal>;

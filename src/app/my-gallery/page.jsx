@@ -18,6 +18,8 @@ import {
 import {countFilterValues} from '@/utils/countFilterValues';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
+import NoHeader from '@/components/layout/NoHeader';
+import ToastMessage from '@/components/common/ToastMessage';
 
 export default function MyGalleryPage() {
   const router = useRouter();
@@ -32,6 +34,7 @@ export default function MyGalleryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
   const [remainingQuota, setRemainingQuota] = useState(3);
+  const [showToast, setShowToast] = useState(false);
 
   // 디바이스 유형 판별 함수
   const checkDeviceType = useCallback(() => {
@@ -129,12 +132,30 @@ export default function MyGalleryPage() {
     }
   }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
 
+  useEffect(() => {
+    fetchCardCreationQuota()
+      .then(res => {
+        setRemainingQuota(res.remainingQuota);
+        if (res.remainingQuota === 0) {
+          setShowToast(true);
+        }
+      })
+      .catch(err => console.error('생성 가능 횟수 조회 실패:', err));
+  }, []);
+
   // 검색어 변경 핸들러
   const handleSearch = value => setKeyword(value);
 
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
+        {showToast && (
+          <ToastMessage
+            message="이번달 모든 생성 기회를 소진했어요"
+            onClose={() => setShowToast(false)}
+          />
+        )}
+        <NoHeader title="마이갤러리" />
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] text-white">
@@ -149,14 +170,20 @@ export default function MyGalleryPage() {
               variant="primary"
               fullWidth={false}
               disabled={remainingQuota === 0}
-              onClick={() => router.push('/my-gallery/create')}
+              onClick={() => {
+                if (remainingQuota === 0) {
+                  setShowToast(true);
+                } else {
+                  router.push('/my-gallery/create');
+                }
+              }}
             >
               포토카드 생성하기 ({remainingQuota}/3)
             </Button>
           </div>
         </div>
 
-        <hr className="border-2 border-gray200 mt-5 mb-10" />
+        <hr className="hidden tablet:block border-2 border-gray200 mt-5 mb-10" />
         {/* 유저 정보, 수량 */}
         <p className="text-white text-sm mb-[15px] tablet:text-xl pc:text-2xl tablet:mb-5">
           {nickname}님이 보유한 포토카드{' '}
@@ -296,7 +323,13 @@ export default function MyGalleryPage() {
                 variant="primary"
                 fullWidth
                 className="w-full h-full"
-                onClick={() => router.push('/my-gallery/create')}
+                onClick={() => {
+                  if (remainingQuota === 0) {
+                    setShowToast(true);
+                  } else {
+                    router.push('/my-gallery/create');
+                  }
+                }}
               >
                 나의 포토카드 생성하기
               </Button>

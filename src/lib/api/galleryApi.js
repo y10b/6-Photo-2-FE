@@ -1,9 +1,6 @@
 import axiosInstance from '@/api/axiosInstance';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
-
 // 마이 갤러리 카드 조회
-
 export async function fetchMyGalleryCards({
   pageParam = 1,
   take = 12,
@@ -40,6 +37,28 @@ export async function fetchMyGalleryCards({
     console.error('마이갤러리 불러오기 실패:', error);
     throw new Error(
       error.response?.data?.message || error.message || '알 수 없는 오류',
+    );
+  }
+}
+
+// 포토카드 생성
+export async function createPhotoCard(data) {
+  try {
+    const token = localStorage.getItem('accessToken');
+
+    const response = await axiosInstance.post('/api/mypage/create', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('포토카드 생성 실패:', error);
+    throw new Error(
+      error.response?.data?.message ||
+        error.message ||
+        '포토카드 생성에 실패했습니다',
     );
   }
 }
