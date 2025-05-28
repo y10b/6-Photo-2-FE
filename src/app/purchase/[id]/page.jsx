@@ -5,7 +5,7 @@ import {useParams} from 'next/navigation';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
-import CardDetailSection from '@/components/common/CardDetailSection';
+import CardDetailSection from '@/components/common/TransactionSection';
 
 export default function PurchasePage() {
   const {id} = useParams();
