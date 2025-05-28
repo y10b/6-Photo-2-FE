@@ -2,12 +2,10 @@
 
 import {useEffect, useState} from 'react';
 import {useParams} from 'next/navigation';
-import NoHeader from '@/components/layout/NoHeader';
-import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
-import Image from 'next/image';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
+import CardDetailSection from '@/components/common/CardDetailSection';
 
 export default function PurchasePage() {
   const {id} = useParams();
@@ -16,6 +14,13 @@ export default function PurchasePage() {
   const [myCards, setMyCards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (id) {
+      setIsLoading(true);
+      loadData(id);
+    }
+  }, [id]);
 
   const loadData = async shopId => {
     try {
@@ -30,6 +35,7 @@ export default function PurchasePage() {
       setPhotoCard(purchaseData);
       setMyCards(myCardData.result);
 
+      // 구매 불가 상태지만 UI는 보여줌
       if (purchaseData.remainingQuantity === 0) {
         setError('잔여 수량이 0인 상품입니다. 구매할 수 없습니다.');
       } else {
@@ -41,13 +47,6 @@ export default function PurchasePage() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (id) {
-      setIsLoading(true);
-      loadData(id);
-    }
-  }, [id]);
 
   /* 이후 스켈레톤 UI 고려 */
   if (isLoading) {
@@ -65,25 +64,8 @@ export default function PurchasePage() {
   const {name, imageUrl, grade, genre} = photoCard;
 
   return (
-    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
-      <NoHeader title="마켓플레이스" />
-
-      <section className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
-        <h3 className="mb-[10px] tablet:mb-5 font-bold text-2xl text-white">
-          {name}
-        </h3>
-        <hr className="border-2 border-gray100" />
-      </section>
-
-      <section className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
-        <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
-          <Image src={imageUrl} alt={name} fill className="object-cover" />
-        </div>
-
-        <div className="w-full tablet:flex-1">
-          <CardProfile type="buyer" cards={[photoCard]} error={error} />
-        </div>
-      </section>
+    <div>
+      <CardDetailSection type="buyer" photoCard={photoCard} error={error} />
 
       <ExchangeInfoSection
         info={{

@@ -1,6 +1,6 @@
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
-
+/* const BASE_URL = `http://localhost:5005/api` */
 // 판매 정보 가져오기
 export async function fetchPurchase(shopId) {
     const res = await fetch(`${BASE_URL}/purchase/${shopId}`, {
@@ -8,16 +8,21 @@ export async function fetchPurchase(shopId) {
     });
 
     if (res.status === 410) {
-        throw new Error("판매가 완료된 상품입니다.");
+        const json = await res.json();
+        return {
+            ...json.data,
+            isSoldOut: true,
+        };
     }
 
-    if (!res.ok) {
-        throw new Error("포토카드 정보를 불러올 수 없습니다");
+    if (res.ok) {
+        const result = await res.json();
+        return result.data;
     }
 
-    const result = await res.json();
-    return result.data;
+    throw new Error("포토카드 정보를 불러올 수 없습니다");
 }
+
 
 // 카드 구매 요청 보내기
 export async function postPurchase({ shopId, quantity, accessToken }) {
