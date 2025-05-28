@@ -25,13 +25,7 @@ export const fetchMyCards = async (params = {}) => {
 
     const url = `/api/mypage/idle-cards?${queryParams.toString()}`;
 
-    const token = localStorage.getItem('accessToken');
-
-    const response = await axiosInstance.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axiosInstance.get(url);
 
     return response.data;
   } catch (error) {
