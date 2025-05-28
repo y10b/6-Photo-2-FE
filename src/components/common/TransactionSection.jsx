@@ -2,7 +2,7 @@ import Image from 'next/image';
 import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
 import NoHeader from '../layout/NoHeader';
 
-export default function CardDetailSection({
+export default function TransactionSection({
   type,
   photoCard,
   exchangeCard,
@@ -23,7 +23,13 @@ export default function CardDetailSection({
 
       <section className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
         <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
-          <Image src={imageUrl} alt={name} fill className="object-cover" />
+          <Image
+            src={imageUrl}
+            alt={name}
+            fill
+            sizes="(min-width: 1200px) 960px, (min-width: 744px) 342px, 345px"
+            className="object-cover"
+          />
         </div>
 
         <div className="w-full tablet:flex-1">
