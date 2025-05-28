@@ -49,9 +49,11 @@ export default function CardImage({
         </div>
       )}
 
-      {isForSale && saleStatus && (
-        <div className={statusBadgeClass}>{saleStatus}</div>
-      )}
+      {!isSoldOut &&
+        isForSale &&
+        saleStatus && ( // 솔드아웃을 때 뱃지 안 보이도록
+          <div className={statusBadgeClass}>{saleStatus}</div>
+        )}
     </div>
   );
 }
