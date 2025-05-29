@@ -85,8 +85,6 @@ export const deleteShop = async shopId => {
 };
 
 // 판매 포토카드 조회
-import axios from 'axios';
-
 export const fetchMySalesCards = async (params = {}) => {
   const {
     filterType = '',
@@ -115,5 +113,21 @@ export const fetchMySalesCards = async (params = {}) => {
     console.error('판매 포토카드 조회 실패:', error);
     const message = error.response?.data?.message || '판매 포토카드 조회 실패';
     throw new Error(message);
+  }
+};
+
+/**
+ * 판매글 상세 조회
+ * GET /api/shop/:shopId
+ */
+export const fetchShopDetail = async shopId => {
+  try {
+    const response = await axiosInstance.get(`/api/shop/${shopId}`);
+    return response.data;
+  } catch (error) {
+    console.error('판매글 상세 조회 실패:', error);
+    throw new Error(
+      error.response?.data?.message || error.message || '판매글 상세 조회 실패',
+    );
   }
 };
