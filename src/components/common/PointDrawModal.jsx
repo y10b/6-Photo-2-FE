@@ -6,7 +6,7 @@ import Button from './Button';
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {checkPointCooldown, drawPoint} from '@/api/user.api';
 import {useAuth} from '@/providers/AuthProvider';
-import {getAccessTokenFromStorage} from '@/lib/token';
+import {useAccessToken} from '@/hooks/useAccessToken';
 
 export default function PointDrawModal() {
   const [selectedBox, setSelectedBox] = useState(null);
@@ -165,7 +165,7 @@ export default function PointDrawModal() {
             <Button
               role="dev"
               onClick={async () => {
-                const token = getAccessTokenFromStorage();
+                const token = useAccessToken();
 
                 const res = await fetch(
                   'http://localhost:5005/api/users/reset-point-cooldown',
