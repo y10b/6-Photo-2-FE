@@ -4,6 +4,7 @@ import {useModal} from './ModalContext';
 import AlertModal from './layout/AlertModal';
 import ResponsiveModalWrapper from './ResponsiveModalWrapper';
 import CardModal from './layout/CardModal';
+import PointModal from './layout/PointModal';
 
 export default function ModalRenderer() {
   const {isOpen, modalContent, closeModal} = useModal();

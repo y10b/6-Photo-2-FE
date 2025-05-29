@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import CardList from '../ui/card/cardOverview/CardList';
 
