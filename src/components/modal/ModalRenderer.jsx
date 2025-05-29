@@ -1,12 +1,14 @@
+// ModalRenderer.jsx
 'use client';
 
-import { useModal } from './ModalContext';
+import {useModal} from './ModalContext';
 import AlertModal from './layout/AlertModal';
 import ResponsiveModalWrapper from './ResponsiveModalWrapper';
 import CardModal from './layout/CardModal';
+import PointModal from './layout/PointModal';
 
 export default function ModalRenderer() {
-  const { isOpen, modalContent, closeModal } = useModal();
+  const {isOpen, modalContent, closeModal} = useModal();
 
   if (!isOpen || !modalContent?.type) return null;
 
@@ -36,12 +38,15 @@ export default function ModalRenderer() {
     return <CardModal />;
   }
 
-  if (modalContent.type === 'custom') {
+  if (modalContent.type === 'point') {
     return (
-      <div className="fixed inset-0 z-[9999] bg-black">
-        {modalContent.children}
-      </div>
+      <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
     );
+  }
+
+  // ✅ custom 타입 처리 추가
+  if (modalContent.type === 'custom') {
+    return modalContent.children || modalContent.content || null;
   }
 
   return null;
