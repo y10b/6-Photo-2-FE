@@ -21,13 +21,14 @@ const publicPaths = [
 ];
 
 export default function RouteGuard({children}) {
-  const {user} = useAuth(); // 로그인 상태를 가져오는 훅
+  const {user, loading} = useAuth(); // 로그인 상태를 가져오는 훅 // loading: 사용자 인증 확인 중인지
   const router = useRouter();
   const pathname = usePathname(); // 현재 경로
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); //경로 접근 허용 판단 중인지
   const {openModal} = useModal();
 
   useEffect(() => {
+    if (loading) return; // 아직 로딩 중이면 아무것도 하지 않음
     // pathname을 경로와 쿼리 부분으로 분리
     const path = pathname.split('?')[0];
 
@@ -66,10 +67,10 @@ export default function RouteGuard({children}) {
     } else {
       setIsLoading(false); // 보호/공개 경로 외 기타 접근 허용
     }
-  }, [user, pathname, router]);
+  }, [user, loading, pathname, router]);
 
   // 리다이렉트 중이거나 인증 확인 중일 때는 컨텐츠를 표시하지 않음
-  if (isLoading) {
+  if (loading || isLoading) {
     return <LoadingSpinner />;
   }
 

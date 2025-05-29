@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState, useCallback} from 'react';
 import ResponsiveModalWrapper from '@/components/modal/ResponsiveModalWrapper';
-import {fetchMyCards, registerSale} from '@/lib/api/shop';
+import {fetchShopDetail, updateShop} from '@/lib/api/shop';
 import Image from 'next/image';
 import DropdownInput from '@/components/ui/input/DropdownInput';
 import Button from '@/components/common/Button';
@@ -12,16 +12,16 @@ import gradeStyles from '@/utils/gradeStyles';
 import {useModal} from '@/components/modal/ModalContext';
 import {useRouter} from 'next/navigation';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import {useParams} from 'next/navigation';
 
-export default function SellCardRegistrationBottomSheet({
-  isOpen,
-  onClose,
-  cardId,
-}) {
+export default function EditCardModal({isOpen, onClose}) {
   const {openModal, closeModal} = useModal();
   const router = useRouter();
+  const {id} = useParams();
 
-  const [cardDetails, setCardDetails] = useState(null);
+  const [shopDetails, setShopDetails] = useState(null);
+  const [initialShopDetails, setInitialShopDetails] = useState(null);
+
   const [sellingQuantity, setSellingQuantity] = useState(1);
   const [sellingPrice, setSellingPrice] = useState('');
   const [exchangeGrade, setExchangeGrade] = useState('');
@@ -32,47 +32,59 @@ export default function SellCardRegistrationBottomSheet({
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
-    if (isOpen && cardId) {
+    if (isOpen && id) {
       setIsLoading(true);
-      fetchMyCards({page: 1, take: 1000})
+      fetchShopDetail(Number(id))
         .then(response => {
-          const cards = response.result || response;
-          const foundCard = cards.find(card => card.userCardId === cardId);
-          if (foundCard) {
-            setCardDetails(foundCard);
-            setSellingQuantity(1);
-            setExchangeGrade('');
-            setExchangeGenre('');
-            setExchangeDescription('');
+          const shopItem = response.shop || response;
+          if (shopItem) {
+            setShopDetails(shopItem);
+            const processedInitialData = {
+              ...shopItem,
+              price: shopItem.price || '',
+              exchangeGrade: shopItem.exchangeGrade?.trim() || '',
+              exchangeGenre: shopItem.exchangeGenre?.trim() || '',
+              exchangeDescription: shopItem.exchangeDescription?.trim() || '',
+            };
+            setInitialShopDetails(processedInitialData);
+
+            setSellingQuantity(shopItem.initialQuantity || 1);
+            setSellingPrice(shopItem.price || '');
+            setExchangeGrade(shopItem.exchangeGrade || '');
+            setExchangeGenre(shopItem.exchangeGenre || '');
+            setExchangeDescription(shopItem.exchangeDescription || '');
           } else {
-            setCardDetails(null);
+            setShopDetails(null);
+            setInitialShopDetails(null);
             openModal({
-              type: 'fail',
-              title: '판매 등록',
-              result: '실패',
-              description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
+              type: 'alert',
+              title: '판매글 정보 불러오기 실패',
+              description: '해당 판매글 정보를 불러오는 데 실패했습니다.',
               button: {
-                label: '마켓플레이스로 돌아가기',
+                label: '확인',
                 onClick: () => {
-                  router.push('/market');
                   closeModal();
+                  onClose();
                 },
               },
             });
           }
         })
         .catch(error => {
-          setCardDetails(null);
+          setShopDetails(null);
+          setInitialShopDetails(null);
           openModal({
-            type: 'fail',
-            title: '판매 등록',
-            result: '실패',
-            description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
+            type: 'alert',
+            title: '판매글 정보 불러오기 실패',
+            description: `판매글 정보를 불러오는 중 오류가 발생했습니다: ${
+              error.message || '알 수 없는 오류'
+            }`,
             button: {
               label: '마켓플레이스로 돌아가기',
               onClick: () => {
                 router.push('/market');
                 closeModal();
+                onClose();
               },
             },
           });
@@ -80,8 +92,9 @@ export default function SellCardRegistrationBottomSheet({
         .finally(() => {
           setIsLoading(false);
         });
-    } else {
-      setCardDetails(null);
+    } else if (!isOpen) {
+      setShopDetails(null);
+      setInitialShopDetails(null);
       setSellingQuantity(1);
       setSellingPrice('');
       setExchangeGrade('');
@@ -89,112 +102,125 @@ export default function SellCardRegistrationBottomSheet({
       setExchangeDescription('');
       setIsLoading(false);
     }
-  }, [isOpen, cardId, openModal]);
+  }, [isOpen, id, openModal, closeModal, onClose, router]);
 
   const handleQuantityChange = useCallback(newVal => {
     setSellingQuantity(newVal);
   }, []);
 
-  const handleRegisterSale = async () => {
-    if (!cardDetails) {
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
-      return;
-    }
+  const hasChanges = useCallback(() => {
+    if (!initialShopDetails) return false;
+
+    const initialPriceString = initialShopDetails.price || '';
+    const currentPriceString = sellingPrice || '';
+
     if (
-      !sellingQuantity ||
-      sellingQuantity <= 0 ||
-      sellingQuantity > cardDetails.quantityLeft
+      sellingQuantity !== initialShopDetails.initialQuantity ||
+      currentPriceString !== initialPriceString
     ) {
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
-      return;
+      return true;
     }
-    if (!sellingPrice || sellingPrice <= 0) {
+
+    const initialExchangeGrade = initialShopDetails.exchangeGrade?.trim() || '';
+    const initialExchangeGenre = initialShopDetails.exchangeGenre?.trim() || '';
+    const initialExchangeDescription =
+      initialShopDetails.exchangeDescription?.trim() || '';
+
+    const currentExchangeGrade = exchangeGrade?.trim() || '';
+    const currentExchangeGenre = exchangeGenre?.trim() || '';
+    const currentExchangeDescription = exchangeDescription?.trim() || '';
+
+    const initialHasExchangeInfo =
+      initialExchangeGrade ||
+      initialExchangeGenre ||
+      initialExchangeDescription;
+    const currentHasExchangeInfo =
+      currentExchangeGrade ||
+      currentExchangeGenre ||
+      currentExchangeDescription;
+
+    if (initialHasExchangeInfo !== currentHasExchangeInfo) {
+      return true;
+    }
+
+    if (currentHasExchangeInfo) {
+      if (
+        currentExchangeGrade !== initialExchangeGrade ||
+        currentExchangeGenre !== initialExchangeGenre ||
+        currentExchangeDescription !== initialExchangeDescription
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [
+    initialShopDetails,
+    sellingQuantity,
+    sellingPrice,
+    exchangeGrade,
+    exchangeGenre,
+    exchangeDescription,
+  ]);
+
+  const handleEditSubmit = async () => {
+    if (!sellingQuantity || !sellingPrice || sellingPrice === 0) {
       openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
+        type: 'alert',
+        title: '입력 오류',
+        description: '판매 수량과 가격을 입력해주세요.',
         button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
+          label: '확인',
+          onClick: closeModal,
         },
       });
       return;
     }
 
-    const currentListingType =
-      exchangeGrade || exchangeGenre || exchangeDescription
-        ? 'FOR_SALE_AND_TRADE'
-        : 'FOR_SALE';
+    const hasExchangeInfo =
+      exchangeGrade || exchangeGenre || exchangeDescription;
 
-    const saleData = {
-      photoCardId: Number(cardDetails.photoCardId),
-      quantity: Number(sellingQuantity),
+    const updatedData = {
+      initialQuantity: sellingQuantity,
       price: Number(sellingPrice),
-      listingType: currentListingType,
-      ...(currentListingType === 'FOR_SALE_AND_TRADE' && {
-        exchangeGrade,
-        exchangeGenre,
-        exchangeDescription,
-      }),
     };
 
-    console.log('판매 등록 데이터:', saleData);
+    if (hasExchangeInfo) {
+      updatedData.listingType = 'FOR_SALE_AND_TRADE';
+      updatedData.exchangeGrade = exchangeGrade;
+      updatedData.exchangeGenre = exchangeGenre;
+      updatedData.exchangeDescription = exchangeDescription;
+    } else {
+      updatedData.listingType = 'FOR_SALE';
+      updatedData.exchangeGrade = null;
+      updatedData.exchangeGenre = null;
+      updatedData.exchangeDescription = null;
+    }
 
     try {
-      await registerSale(saleData);
+      await updateShop(Number(id), updatedData);
 
       openModal({
         type: 'success',
-        title: '판매 등록',
-        result: '성공',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 성공했습니다.`,
+        title: '수정 완료',
+        description: '판매글이 성공적으로 수정되었습니다.',
         button: {
-          label: '마켓플레이스로 돌아가기',
+          label: '확인',
           onClick: () => {
-            router.push('/market');
             closeModal();
+            onClose();
+            router.refresh();
           },
         },
       });
     } catch (error) {
-      console.error('판매 등록 실패:', error);
       openModal({
         type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
+        title: '수정 실패',
+        description: error.message || '수정 중 오류가 발생했습니다.',
         button: {
-          label: '마켓플레이스로 돌아가기',
+          label: '닫기',
           onClick: () => {
-            router.push('/market');
             closeModal();
           },
         },
@@ -225,38 +251,40 @@ export default function SellCardRegistrationBottomSheet({
     return null;
   }
 
+  const isSubmitDisabled = isLoading || !initialShopDetails || !hasChanges();
+
   return (
     <>
       <ResponsiveModalWrapper
         onClose={onClose}
         variant={isMobile ? 'full' : 'bottom'}
-        title={'나의 포토카드 판매하기'}
+        title={'수정하기'}
       >
         <div
           className="px-[15px] tablet:p-5 text-white min-h-[90vh]"
           style={{overflowY: 'auto'}}
         >
           {isLoading ? (
-            <div className="flex justify-center h-screen">
+            <div className="flex justify-center h-screen items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-4 border-b-transparent border-l-gray-400 border-r-gray-400"></div>
             </div>
-          ) : cardDetails ? (
+          ) : shopDetails ? (
             <div>
               <h2 className="hidden tablet:block font-baskin text-4 text-gray300 mb-10">
-                나의 포토카드 판매하기
+                수정하기
               </h2>
               <p className="text-[24px] mb-[10px] tablet:text-[32px] font-bold tablet:mb-5">
-                {cardDetails.title}
+                {shopDetails.photoCard.name || '카드 이름 없음'}
               </p>
 
               <div className="mb-[26px] border-[1.5px] border-gray100 tablet:mb-12"></div>
 
               <div className="tablet:flex tablet:gap-5 tablet:justify-between">
                 <div className="relative min-w-[345px] min-h-[258.5px] tablet:w-[342px] tablet:h-[256.5px] pc:w-110 ">
-                  {cardDetails.imageUrl && (
+                  {shopDetails.photoCard.imageUrl && (
                     <Image
-                      src={cardDetails.imageUrl}
-                      alt={cardDetails.title || '카드 이미지'}
+                      src={shopDetails.photoCard.imageUrl}
+                      alt={shopDetails.photoCard.name}
                       layout="fill"
                       objectFit="cover"
                     />
@@ -267,20 +295,21 @@ export default function SellCardRegistrationBottomSheet({
                     <div className="flex items-center gap-[15px]">
                       <p
                         className={`${
-                          gradeStyles[cardDetails.cardGrade]
+                          gradeStyles[shopDetails.photoCard.grade]
                         } text-[18px] font-normal`}
                       >
-                        {cardDetails.cardGrade}
+                        {shopDetails.photoCard.grade}
                       </p>
                       <div className="text-gray400">|</div>
                       <p className="text-[16px] text-gray300 font-normal">
                         {getGenreLabel(
-                          cardDetails.cardGenre || cardDetails.genre,
+                          shopDetails.photoCard.genre ||
+                            shopDetails.photoCard.cardGenre,
                         )}
                       </p>
                     </div>
                     <p className="underline text-[18px] text-white ">
-                      {cardDetails.sellerNickname || cardDetails.nickname}
+                      {shopDetails.seller.nickname}
                     </p>
                   </div>
                   <div className="w-full border-[1px] border-gray400 my-[30px]"></div>
@@ -291,9 +320,9 @@ export default function SellCardRegistrationBottomSheet({
                     <CounterInput
                       initialValue={sellingQuantity}
                       min={1}
-                      max={cardDetails.quantityLeft}
+                      max={shopDetails.remainingQuantity}
                       onChange={handleQuantityChange}
-                      maxText={`${cardDetails.quantityLeft}장`}
+                      maxText={`${shopDetails.remainingQuantity}장`}
                       width="w-[144px] pc:w-[176px]"
                       height="h-[45px] pc:h-[50px]"
                     />
@@ -389,15 +418,18 @@ export default function SellCardRegistrationBottomSheet({
                 <Button
                   role="submit"
                   variant="primary"
-                  onClick={handleRegisterSale}
+                  onClick={handleEditSubmit}
                   className="w-full"
+                  disabled={isSubmitDisabled}
                 >
-                  판매하기
+                  수정하기
                 </Button>
               </div>
             </div>
           ) : (
-            <p className="text-center">카드 정보를 불러올 수 없습니다.</p>
+            <p className="text-center text-white">
+              카드 정보를 불러올 수 없습니다. 다시 시도해주세요.
+            </p>
           )}
         </div>
       </ResponsiveModalWrapper>

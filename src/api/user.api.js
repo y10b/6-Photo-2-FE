@@ -33,3 +33,15 @@ export const updateUserInfo = async userData => {
     throw error;
   }
 };
+
+// 쿨타임 확인
+export const checkPointCooldown = async () => {
+  const res = await axiosInstance.get('/api/users/me/point/check');
+  return res.data;
+};
+
+// 포인트 뽑기
+export const drawPoint = async () => {
+  const res = await axiosInstance.post('/api/users/me/point/draw');
+  return res.data;
+};
