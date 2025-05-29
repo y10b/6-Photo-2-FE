@@ -108,11 +108,7 @@ export const fetchMySalesCards = async (params = {}) => {
 
     const url = `/api/mypage/sales?${queryParams.toString()}`;
 
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      },
-    });
+    const response = await axiosInstance.get(url);
 
     return response.data;
   } catch (error) {
