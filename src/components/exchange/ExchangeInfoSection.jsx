@@ -12,65 +12,7 @@ export default function ExchangeInfoSection({info}) {
     openModal({
       type: 'responsive',
       variant: 'bottom',
-      children: (
-        <ExchangeModal
-          myCards={myCards}
-          targetCardId={targetCardId}
-          onSelect={async (requestCardId, offerDescription) => {
-            try {
-              const accessToken = localStorage.getItem('accessToken');
-              if (!accessToken) {
-                alert('로그인이 필요합니다.');
-                return;
-              }
-
-              console.log('📤 선택한 카드 ID:', requestCardId);
-              console.log('📝 입력한 제시 내용:', offerDescription);
-              console.log('📦 교환 요청 보낼 데이터:', {
-                targetCardId,
-                requestCardId,
-                description: offerDescription,
-              });
-
-              const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange`,
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                  },
-                  body: JSON.stringify({
-                    targetCardId,
-                    requestCardId,
-                    description: offerDescription,
-                  }),
-                },
-              );
-
-              const resultText = await response.text();
-              let result = {};
-              try {
-                result = JSON.parse(resultText);
-              } catch (e) {
-                console.error('응답 JSON 파싱 실패:', resultText);
-              }
-
-              if (!response.ok) {
-                console.error('❌ 교환 실패 응답:', result);
-                throw new Error(
-                  result?.message || '교환 제안 중 오류가 발생했습니다.',
-                );
-              }
-
-              alert('교환 제안이 성공적으로 전송되었습니다!');
-            } catch (error) {
-              console.error('❌ 교환 제안 실패:', error);
-              alert(error.message || '교환 제안 중 오류가 발생했습니다.');
-            }
-          }}
-        />
-      ),
+      children: <ExchangeModal myCards={myCards} targetCardId={targetCardId} />,
     });
   };
 
@@ -82,7 +24,7 @@ export default function ExchangeInfoSection({info}) {
         {description}
       </p>
       <div className="flex items-center gap-2 mb-10">
-        <span className={`font-bold text-sm text-blue`}>{grade}</span>
+        <span className="font-bold text-sm text-blue">{grade}</span>
         <span className="text-gray400">|</span>
         <span className="text-gray300 text-sm">{genre}</span>
       </div>
