@@ -1,4 +1,3 @@
-// ExchangeModal.jsx
 'use client';
 
 import {useState, useEffect} from 'react';
@@ -14,9 +13,15 @@ import CardOverview from '@/components/ui/card/cardOverview/CardOverview';
 function ExchangeFullScreen({card, onClose, onSelect}) {
   const [exchangeNote, setExchangeNote] = useState('');
 
-  const handleExchange = () => {
-    onSelect?.(card?.userCardId, exchangeNote); 
-    onClose(); 
+  const handleExchange = async () => {
+    console.log('🔽 교환 요청 실행');
+    console.log('💬 입력한 제시 내용:', exchangeNote);
+    console.log('📦 선택된 카드 userCardId:', card?.userCardId);
+
+    const isSuccess = await onSelect?.(card?.userCardId, exchangeNote);
+    if (isSuccess) {
+      onClose();
+    }
   };
 
   return (
@@ -104,6 +109,7 @@ export default function ExchangeModal({myCards = [], targetCardId, onSelect}) {
   }));
 
   const handleCardClick = card => {
+    console.log('✅ 선택된 카드:', card?.userCardId);
     openModal({
       type: 'custom',
       content: (
@@ -117,7 +123,7 @@ export default function ExchangeModal({myCards = [], targetCardId, onSelect}) {
   };
 
   return (
-    <div className="font-noto text-white w-full max-h-[80vh] overflow-y-auto pb-5 px-2 relative">
+    <div className="font-noto text-white w-full max-h-[80vh] overflow-y-auto pb-5 px-4 relative">
       <div className="mb-[30px] relative">
         <p className="font-baskin text-gray300 text-sm mb-[15px]">마이갤러리</p>
         <p className="font-baskin text-[26px]">포토카드 교환하기</p>
@@ -146,11 +152,9 @@ export default function ExchangeModal({myCards = [], targetCardId, onSelect}) {
       </div>
 
       {mappedCards.length > 0 ? (
-        <CardList
-          cards={mappedCards}
-          onCardClick={handleCardClick}
-          className="grid grid-cols-2 tablet:grid-cols-3 pc:grid-cols-4 gap-5"
-        />
+        <div className="grid grid-cols-2 tablet:grid-cols-3 pc:grid-cols-4 gap-4">
+          <CardList cards={mappedCards} onCardClick={handleCardClick} />
+        </div>
       ) : (
         <p className="text-gray300 text-sm">일치하는 포토카드가 없습니다.</p>
       )}

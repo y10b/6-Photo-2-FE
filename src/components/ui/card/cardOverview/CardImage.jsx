@@ -44,11 +44,15 @@ export default function CardImage({
   saleStatus,
   isMyCard = false,
 }) {
+  const safeImageUrl = imageUrl || '/images/fallback.png';
+  const safeAlt = title || '포토카드 이미지';
+
   return (
     <div className={getImageContainerClass(isMyCard)}>
+      {/* 이미지가 없으면 fallback, alt도 기본값 지정 */}
       <Image
-        src={imageUrl}
-        alt={title}
+        src={safeImageUrl}
+        alt={safeAlt}
         fill
         style={{objectFit: 'cover'}}
         className={clsx('rounded-[2px]', {'opacity-30': isSoldOut})}
