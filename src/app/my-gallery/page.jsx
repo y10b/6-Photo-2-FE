@@ -1,8 +1,7 @@
 'use client';
 
-import {useEffect, useState, useMemo, useCallback} from 'react';
-import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
-import {useInView} from 'react-intersection-observer';
+import {useEffect, useState, useCallback} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
 import Image from 'next/image';
 import Button from '@/components/common/Button';
@@ -74,32 +73,8 @@ export default function MyGalleryPage() {
     });
   }, []);
 
-  // 무한 스크롤 쿼리 (데스크탑용)
-  const {
-    data: infiniteData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['myGallery', keyword, sort, filter],
-    queryFn: ({pageParam = 1}) =>
-      fetchMyGalleryCards({
-        pageParam,
-        take: 12,
-        keyword,
-        sort,
-        filterType: filter.type,
-        filterValue: filter.value,
-      }),
-    getNextPageParam: lastPage =>
-      lastPage.currentPage < lastPage.totalPages
-        ? lastPage.currentPage + 1
-        : undefined,
-    enabled: !isTabletOrMobile,
-  });
-
-  // 페이지네이션 쿼리 (모바일/태블릿용)
-  const {data: pageData} = useQuery({
+  // 페이지네이션 쿼리
+  const {data: data} = useQuery({
     queryKey: ['myGalleryPage', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMyGalleryCards({
@@ -110,27 +85,11 @@ export default function MyGalleryPage() {
         filterType: filter.type,
         filterValue: filter.value,
       }),
-    enabled: isTabletOrMobile,
   });
 
-  // 전체 응답 객체
-  const responseData = isTabletOrMobile ? pageData : infiniteData?.pages?.[0];
-  const nickname = responseData?.nickname;
-  const totalCount = responseData?.totalCount ?? 0;
-
-  // 실제 카드 배열만 추출
-  const displayCards = isTabletOrMobile
-    ? pageData?.result ?? []
-    : infiniteData?.pages.flatMap(p => p.result) ?? [];
-
-  // 무한 스크롤 트리거
-  const {ref: loaderRef, inView} = useInView({threshold: 0.8});
-
-  useEffect(() => {
-    if (!isTabletOrMobile && inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
+  const nickname = data?.nickname;
+  const totalCount = data?.totalCount ?? 0;
+  const displayCards = data?.result ?? [];
 
   useEffect(() => {
     fetchCardCreationQuota()
@@ -155,7 +114,9 @@ export default function MyGalleryPage() {
             onClose={() => setShowToast(false)}
           />
         )}
-        <NoHeader title="마이갤러리" />
+        <div className="block tablet:hidden">
+          <NoHeader title="마이갤러리" />
+        </div>
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] text-white">
@@ -246,21 +207,26 @@ export default function MyGalleryPage() {
                 />
               </div>
 
-              {/* TODO: 필터 중복 선택 가능하도록 수정해야 함. */}
-              {/* TODO: 드롭다운 메뉴 너비/폰트 조정해야 함. */}
               <div className="tablet:ml-[30px] pc:ml-[60px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="grade"
                   value={filter.type === 'grade' ? filter.value : ''}
-                  onChange={({target}) =>
-                    setFilter({type: 'grade', value: target.value})
-                  }
+                  // 드롭다운 토글
+                  onChange={({target}) => {
+                    const isSameValue =
+                      filter.type === 'grade' && filter.value === target.value;
+                    setFilter(
+                      isSameValue
+                        ? {type: '', value: ''}
+                        : {type: 'grade', value: target.value},
+                    );
+                  }}
                   placeholder="등급"
                   options={[
                     {label: 'COMMON', value: 'COMMON'},
                     {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
                     {label: 'LEGENDARY', value: 'LEGENDARY'},
                   ]}
                 />
@@ -268,12 +234,19 @@ export default function MyGalleryPage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="genre"
                   value={filter.type === 'genre' ? filter.value : ''}
-                  onChange={({target}) =>
-                    setFilter({type: 'genre', value: target.value})
-                  }
+                  // 드롭다운 토글
+                  onChange={({target}) => {
+                    const isSameValue =
+                      filter.type === 'genre' && filter.value === target.value;
+                    setFilter(
+                      isSameValue
+                        ? {type: '', value: ''}
+                        : {type: 'genre', value: target.value},
+                    );
+                  }}
                   placeholder="장르"
                   options={[
                     {label: '여행', value: 'TRAVEL'},
@@ -295,15 +268,11 @@ export default function MyGalleryPage() {
               onCardClick={card => router.push()} // 카드 상세 페이지로 이동
             />
 
-            {isTabletOrMobile ? (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={pageData?.totalPages ?? 1}
-                onPageChange={setCurrentPage}
-              />
-            ) : (
-              <div ref={loaderRef} className="h-10" />
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={data?.totalPages ?? 1}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}

@@ -28,7 +28,7 @@ export default function MarketplacePage() {
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
 
-  // 브레이크포인트 감지 (기존 코드 유지)
+  // 브레이크포인트 감지
   useEffect(() => {
     const getIsMobileOrTablet = () => {
       const pcMinWidth = parseInt(
@@ -94,6 +94,7 @@ export default function MarketplacePage() {
     });
   }, []);
 
+  // 검색어 핸들러
   const handleSearch = value => setKeyword(value);
 
   const sortOptions = [
@@ -120,7 +121,7 @@ export default function MarketplacePage() {
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
-        {/* 데스크탑/태블릿 헤더 (기존 코드 유지) */}
+        {/* 데스크탑/태블릿 헤더*/}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
             마켓플레이스
@@ -153,7 +154,7 @@ export default function MarketplacePage() {
         </div>
 
         <div className="space-y-[15px] pb-[80px]">
-          {/* 모바일 검색창 (기존 코드 유지) */}
+          {/* 모바일 검색창 */}
           <div className="block tablet:hidden w-full mb-2">
             <SearchInput
               name="query"
@@ -179,7 +180,7 @@ export default function MarketplacePage() {
             </button>
             <div>
               <DropdownInput
-                className="!w-[130px] !h-[35px]" //TODO: 정렬 드롭다운이 솔드아웃 스티커보다 위로 나오게 수정
+                className="!w-[130px] !h-[35px]"
                 name="sort"
                 value={sort}
                 onChange={({target}) => setSort(target.value)}
@@ -188,7 +189,7 @@ export default function MarketplacePage() {
             </div>
           </div>
 
-          {/* 데스크탑/태블릿: 검색 + 필터 + 정렬 (기존 코드 유지) */}
+          {/* 데스크탑/태블릿: 검색 + 필터 + 정렬 */}
           <div className="hidden tablet:flex flex-wrap gap-2 py-2 items-center justify-between">
             <div className="flex flex-wrap items-center max-w-full tablet:max-w-[calc(100%-180px)]">
               {/* 검색창 */}
@@ -199,25 +200,30 @@ export default function MarketplacePage() {
                   onChange={e => setKeyword(e.target.value)}
                   onSearch={handleSearch}
                   placeholder="검색"
-                  className="!w-[160px] pc:!w-[320px]"
+                  className="!w-[200px] pc:!w-[320px] !h-[45px] pc:!h-[50px]"
                 />
               </div>
 
-              {/* TODO: 필터 중복 선택 가능하도록 수정해야 함. */}
-              {/* TODO: 드롭다운 메뉴 너비/폰트 조정해야 함. */}
               <div className="tablet:ml-[30px] pc:ml-[60px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="grade"
                   value={filter.type === 'grade' ? filter.value : ''}
-                  onChange={({target}) =>
-                    setFilter({type: 'grade', value: target.value})
-                  }
+                  // 드롭다운 토글
+                  onChange={({target}) => {
+                    const isSameValue =
+                      filter.type === 'grade' && filter.value === target.value;
+                    setFilter(
+                      isSameValue
+                        ? {type: '', value: ''}
+                        : {type: 'grade', value: target.value},
+                    );
+                  }}
                   placeholder="등급"
                   options={[
                     {label: 'COMMON', value: 'COMMON'},
                     {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
                     {label: 'LEGENDARY', value: 'LEGENDARY'},
                   ]}
                 />
@@ -225,12 +231,19 @@ export default function MarketplacePage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="genre"
                   value={filter.type === 'genre' ? filter.value : ''}
-                  onChange={({target}) =>
-                    setFilter({type: 'genre', value: target.value})
-                  }
+                  // 드롭다운 토글
+                  onChange={({target}) => {
+                    const isSameValue =
+                      filter.type === 'genre' && filter.value === target.value;
+                    setFilter(
+                      isSameValue
+                        ? {type: '', value: ''}
+                        : {type: 'genre', value: target.value},
+                    );
+                  }}
                   placeholder="장르"
                   options={[
                     {label: '여행', value: 'TRAVEL'},
@@ -243,15 +256,23 @@ export default function MarketplacePage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="soldOut"
                   value={filter.type === 'soldOut' ? filter.value : ''}
-                  onChange={({target}) =>
-                    setFilter({type: 'soldOut', value: target.value})
-                  }
+                  // 드롭다운 토글
+                  onChange={({target}) => {
+                    const isSameValue =
+                      filter.type === 'soldOut' &&
+                      filter.value === target.value;
+                    setFilter(
+                      isSameValue
+                        ? {type: '', value: ''}
+                        : {type: 'soldOut', value: target.value},
+                    );
+                  }}
                   placeholder="매진여부"
                   options={[
-                    {label: '판매중', value: 'false'},
+                    {label: '판매 중', value: 'false'},
                     {label: '품절', value: 'true'},
                   ]}
                 />

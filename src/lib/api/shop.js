@@ -83,3 +83,37 @@ export const deleteShop = async shopId => {
     );
   }
 };
+
+// 판매 포토카드 조회
+import axios from 'axios';
+
+export const fetchMySalesCards = async (params = {}) => {
+  const {
+    filterType = '',
+    filterValue = '',
+    keyword = '',
+    page = 1,
+    take = 10,
+  } = params;
+
+  try {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      take: take.toString(),
+    });
+
+    if (filterType) queryParams.append('filterType', filterType);
+    if (filterValue) queryParams.append('filterValue', filterValue);
+    if (keyword) queryParams.append('keyword', keyword);
+
+    const url = `/api/mypage/sales?${queryParams.toString()}`;
+
+    const response = await axiosInstance.get(url);
+
+    return response.data;
+  } catch (error) {
+    console.error('판매 포토카드 조회 실패:', error);
+    const message = error.response?.data?.message || '판매 포토카드 조회 실패';
+    throw new Error(message);
+  }
+};

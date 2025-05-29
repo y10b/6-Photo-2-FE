@@ -3,10 +3,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {useAuth} from '@/providers/AuthProvider';
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import NotificationModal from './NotificationModal';
 import ProfileModal from './ProfileModal';
 import ProfileMobileModal from './ProfileMobileModal';
+import {useNotificationQuery} from '@/hooks/useNotificationQuery';
 
 const Header = () => {
   // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
@@ -24,6 +25,12 @@ const Header = () => {
   const [isNotificationActive, setIsNotificationActive] = useState(false);
   // 프로필 모달
   const [isProfileActive, setIsProfileActive] = useState(false);
+  // 신규 알림
+  const {data} = useNotificationQuery();
+
+  const hasUnread = useMemo(() => {
+    return data?.some(alarm => !alarm.isRead);
+  }, [data]);
 
   return (
     <header className="relative pc:px-[20px]">
@@ -67,12 +74,21 @@ const Header = () => {
                   className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px] cursor-pointer"
                   onClick={() => setIsNotificationActive(prev => !prev)}
                 >
-                  <Image
-                    className="object-cover"
-                    src={'/icons/ic_alarm_default.svg'}
-                    fill
-                    alt="알림"
-                  />
+                  {hasUnread ? (
+                    <Image
+                      className="object-cover"
+                      src={'/icons/ic_alarm.png'}
+                      fill
+                      alt="알림"
+                    />
+                  ) : (
+                    <Image
+                      className="object-cover"
+                      src={'/icons/ic_alarm_default.svg'}
+                      fill
+                      alt="알림"
+                    />
+                  )}
                 </figure>
                 {isNotificationActive && (
                   <NotificationModal isActive={setIsNotificationActive} />

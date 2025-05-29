@@ -6,6 +6,9 @@ import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
 import CardDetailSection from '@/components/common/TransactionSection';
+import TransactionSection from '@/components/ui/skeleton/TransactionSkeleton';
+import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import {getAccessTokenFromStorage} from '@/lib/token';
 
 export default function PurchasePage() {
   const {id} = useParams();
@@ -13,19 +16,37 @@ export default function PurchasePage() {
   const [photoCard, setPhotoCard] = useState(null);
   const [myCards, setMyCards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let timeoutId;
+
     if (id) {
       setIsLoading(true);
-      loadData(id);
+      setShowSkeleton(false);
+
+      timeoutId = setTimeout(() => {
+        setShowSkeleton(true); // 3초 후 skeleton 표시
+      }, 3000);
+
+      loadData(id).then(() => {
+        setIsLoading(false); // 로딩 끝
+      });
     }
+
+    return () => clearTimeout(timeoutId); // cleanup
   }, [id]);
 
   const loadData = async shopId => {
     try {
+      const accessToken = getAccessTokenFromStorage(); // accessToken 가져오기
+      if (!accessToken) {
+        throw new Error('로그인이 필요합니다.');
+      }
+
       const [purchaseData, myCardData] = await Promise.all([
-        fetchPurchase(shopId),
+        fetchPurchase(shopId, accessToken),
         fetchMyCards({
           filterType: 'status',
           filterValue: 'IDLE,LISTED',
@@ -35,7 +56,6 @@ export default function PurchasePage() {
       setPhotoCard(purchaseData);
       setMyCards(myCardData.result);
 
-      // 구매 불가 상태지만 UI는 보여줌
       if (purchaseData.remainingQuantity === 0) {
         setError('잔여 수량이 0인 상품입니다. 구매할 수 없습니다.');
       } else {
@@ -48,12 +68,16 @@ export default function PurchasePage() {
     }
   };
 
-  /* 이후 스켈레톤 UI 고려 */
-  if (isLoading) {
-    return <div>로딩중...</div>;
+  if (isLoading && showSkeleton) {
+    return (
+      <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
+        <TransactionSection type="buyer" />
+        <ExchangeInfoSkeleton />
+      </div>
+    );
   }
 
-  if (!photoCard) {
+  if (!photoCard && isLoading) {
     return (
       <div className="text-white text-center mt-10">
         포토카드를 찾을 수 없습니다.
