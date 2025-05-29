@@ -1,103 +1,91 @@
 'use client';
 
-import {useEffect, useState} from 'react';
 import {useParams} from 'next/navigation';
+import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
+import CardDetailSection from '@/components/common/TransactionSection';
+import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
-import CardDetailSection from '@/components/common/TransactionSection';
-import TransactionSection from '@/components/ui/skeleton/TransactionSkeleton';
-import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
-import {getAccessTokenFromStorage} from '@/lib/token';
+import {useAccessToken} from '@/hooks/useAccessToken';
+
+function getErrorMessage(purchaseError, cardError, purchaseData) {
+  return (
+    purchaseError?.message ||
+    cardError?.message ||
+    (purchaseData?.remainingQuantity === 0
+      ? '잔여 수량이 0인 상품입니다. 구매할 수 없습니다.'
+      : null)
+  );
+}
+
+function PurchaseSkeleton() {
+  return (
+    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
+      <TransactionSkeleton type="buyer" />
+      <ExchangeInfoSkeleton />
+    </div>
+  );
+}
 
 export default function PurchasePage() {
   const {id} = useParams();
+  const accessToken = useAccessToken();
 
-  const [photoCard, setPhotoCard] = useState(null);
-  const [myCards, setMyCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showSkeleton, setShowSkeleton] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: purchaseData,
+    isLoading: isLoadingPurchase,
+    isError: isErrorPurchase,
+    error: purchaseError,
+  } = useQuery({
+    queryKey: ['purchase', id],
+    queryFn: () => fetchPurchase(id, accessToken),
+    enabled: !!id && !!accessToken,
+  });
 
-  useEffect(() => {
-    let timeoutId;
+  const {
+    data: myCardData,
+    isLoading: isLoadingCards,
+    isError: isErrorCards,
+    error: cardError,
+  } = useQuery({
+    queryKey: ['myCards', id],
+    queryFn: () =>
+      fetchMyCards({filterType: 'status', filterValue: 'IDLE,LISTED'}),
+    enabled: !!accessToken,
+  });
 
-    if (id) {
-      setIsLoading(true);
-      setShowSkeleton(false);
+  const isLoading = isLoadingPurchase || isLoadingCards;
+  const isError = isErrorPurchase || isErrorCards;
+  const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
 
-      timeoutId = setTimeout(() => {
-        setShowSkeleton(true); // 3초 후 skeleton 표시
-      }, 3000);
+  if (isLoading) return <PurchaseSkeleton />;
 
-      loadData(id).then(() => {
-        setIsLoading(false); // 로딩 끝
-      });
-    }
-
-    return () => clearTimeout(timeoutId); // cleanup
-  }, [id]);
-
-  const loadData = async shopId => {
-    try {
-      const accessToken = getAccessTokenFromStorage(); // accessToken 가져오기
-      if (!accessToken) {
-        throw new Error('로그인이 필요합니다.');
-      }
-
-      const [purchaseData, myCardData] = await Promise.all([
-        fetchPurchase(shopId, accessToken),
-        fetchMyCards({
-          filterType: 'status',
-          filterValue: 'IDLE,LISTED',
-        }),
-      ]);
-
-      setPhotoCard(purchaseData);
-      setMyCards(myCardData.result);
-
-      if (purchaseData.remainingQuantity === 0) {
-        setError('잔여 수량이 0인 상품입니다. 구매할 수 없습니다.');
-      } else {
-        setError(null);
-      }
-    } catch (err) {
-      setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading && showSkeleton) {
-    return (
-      <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
-        <TransactionSection type="buyer" />
-        <ExchangeInfoSkeleton />
-      </div>
-    );
-  }
-
-  if (!photoCard && isLoading) {
+  if (isError || !purchaseData) {
     return (
       <div className="text-white text-center mt-10">
-        포토카드를 찾을 수 없습니다.
+        {errorMessage || '포토카드를 찾을 수 없습니다.'}
       </div>
     );
   }
 
-  const {name, imageUrl, grade, genre} = photoCard;
+  const {grade, genre} = purchaseData;
 
   return (
     <div>
-      <CardDetailSection type="buyer" photoCard={photoCard} error={error} />
-
+      <CardDetailSection
+        type="buyer"
+        photoCard={purchaseData}
+        error={errorMessage}
+      />
       <ExchangeInfoSection
         info={{
           description:
             '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
           grade: grade || 'COMMON',
           genre: genre || '장르 없음',
-          myCards,
+          myCards: myCardData?.result || [],
         }}
       />
     </div>
