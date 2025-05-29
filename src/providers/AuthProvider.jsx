@@ -10,6 +10,8 @@ const AuthContext = createContext({
   user: null,
   updateUser: () => {},
   register: () => {},
+  getUser: () => {},
+  loading: true,
 });
 
 export const useAuth = () => {
@@ -22,6 +24,7 @@ export const useAuth = () => {
 
 export default function AuthProvider({children}) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // 사용자 정보 불러오기
   const getUser = async () => {
@@ -34,6 +37,8 @@ export default function AuthProvider({children}) {
       setUser(null);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
+    } finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
@@ -93,11 +98,15 @@ export default function AuthProvider({children}) {
     const token = localStorage.getItem('accessToken');
     if (token) {
       getUser();
+    } else {
+      setLoading(false); // 토큰 없을 때도 로딩 종료
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{user, login, logout, updateUser, register, getUser}}>
+    <AuthContext.Provider
+      value={{user, login, logout, updateUser, register, getUser, loading}}
+    >
       {children}
     </AuthContext.Provider>
   );
