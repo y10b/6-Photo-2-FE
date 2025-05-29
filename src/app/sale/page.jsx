@@ -14,6 +14,7 @@ import {countFilterValues} from '@/utils/countFilterValues';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
 import NoHeader from '@/components/layout/NoHeader';
+import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 
 export default function MySalesPage() {
   const router = useRouter();
@@ -23,32 +24,28 @@ export default function MySalesPage() {
   const [filterCounts, setFilterCounts] = useState({grade: {}, genre: {}});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
 
-  const checkDeviceType = useCallback(() => {
-    const pcMinWidth = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue(
-        '--breakpoint-pc',
-      ),
-    );
-    return window.innerWidth < pcMinWidth;
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => setIsTabletOrMobile(checkDeviceType());
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [checkDeviceType]);
+  // 필터 카운트 계산
+  const {data: filterData} = useQuery({
+    queryKey: ['filterCardCounts'],
+    queryFn: () =>
+      fetchMySalesCards({
+        pageParam: 1,
+        take: 1000,
+        keyword: '',
+        sort: 'latest',
+      }),
+  });
 
   useEffect(() => {
-    fetchMySalesCards({pageParam: 1, take: 1000}).then(res => {
-      const counts = countFilterValues(res.result);
+    if (filterData) {
+      const counts = countFilterValues(filterData.result);
       setFilterCounts(counts);
-    });
-  }, []);
+    }
+  }, [filterData]);
 
-  const {data} = useQuery({
+  // 페이지네이션 쿼리
+  const {data: data, isLoading} = useQuery({
     queryKey: ['mySalesPage', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMySalesCards({
@@ -62,16 +59,25 @@ export default function MySalesPage() {
   });
 
   const displayCards = data?.result ?? [];
-  const totalPages = data?.totalPages ?? 1;
   const totalCount = data?.totalCount ?? 0;
   const nickname = data?.nickname;
 
+  // 검색어 변경 핸들러
   const handleSearch = value => setKeyword(value);
+
+  // 드롭다운 토글 핸들러
+  const handleDropdownChange = (type, value) => {
+    setFilter(prev =>
+      prev.type === type && prev.value === value
+        ? {type: '', value: ''}
+        : {type, value},
+    );
+  };
 
   return (
     <div className="max-w-[1480px] mx-auto">
       <div className="block tablet:hidden">
-        <NoHeader title="마이갤러리" />
+        <NoHeader title="나의 판매 포토카드" />
       </div>
       {/* 데스크탑/태블릿 헤더 */}
       <div className="hidden tablet:flex justify-between items-center">
@@ -149,16 +155,9 @@ export default function MySalesPage() {
                 className="border-none !px-0 !gap-[10px]"
                 name="grade"
                 value={filter.type === 'grade' ? filter.value : ''}
-                // 드롭다운 토글
-                onChange={({target}) => {
-                  const isSameValue =
-                    filter.type === 'grade' && filter.value === target.value;
-                  setFilter(
-                    isSameValue
-                      ? {type: '', value: ''}
-                      : {type: 'grade', value: target.value},
-                  );
-                }}
+                onChange={({target}) =>
+                  handleDropdownChange('grade', target.value)
+                }
                 placeholder="등급"
                 options={[
                   {label: 'COMMON', value: 'COMMON'},
@@ -174,16 +173,9 @@ export default function MySalesPage() {
                 className="border-none !px-0 !gap-[10px]"
                 name="genre"
                 value={filter.type === 'genre' ? filter.value : ''}
-                // 드롭다운 토글
-                onChange={({target}) => {
-                  const isSameValue =
-                    filter.type === 'genre' && filter.value === target.value;
-                  setFilter(
-                    isSameValue
-                      ? {type: '', value: ''}
-                      : {type: 'genre', value: target.value},
-                  );
-                }}
+                onChange={({target}) =>
+                  handleDropdownChange('genre', target.value)
+                }
                 placeholder="장르"
                 options={[
                   {label: '여행', value: 'TRAVEL'},
@@ -198,15 +190,9 @@ export default function MySalesPage() {
                 className="border-none !px-0 !gap-[10px]"
                 name="method"
                 value={filter.type === 'method' ? filter.value : ''}
-                onChange={({target}) => {
-                  const isSame =
-                    filter.type === 'method' && filter.value === target.value;
-                  setFilter(
-                    isSame
-                      ? {type: '', value: ''}
-                      : {type: 'method', value: target.value},
-                  );
-                }}
+                onChange={({target}) =>
+                  handleDropdownChange('method', target.value)
+                }
                 placeholder="판매방법"
                 options={[
                   {label: '판매', value: 'for_sale'},
@@ -220,15 +206,9 @@ export default function MySalesPage() {
                 className="border-none !px-0 !gap-[10px]"
                 name="soldOut"
                 value={filter.type === 'soldOut' ? filter.value : ''}
-                onChange={({target}) => {
-                  const isSame =
-                    filter.type === 'soldOut' && filter.value === target.value;
-                  setFilter(
-                    isSame
-                      ? {type: '', value: ''}
-                      : {type: 'soldOut', value: target.value},
-                  );
-                }}
+                onChange={({target}) =>
+                  handleDropdownChange('soldOut', target.value)
+                }
                 placeholder="매진 여부"
                 options={[
                   {label: '판매중', value: 'false'},
@@ -239,13 +219,20 @@ export default function MySalesPage() {
           </div>
         </div>
 
-        <div>
-          <CardList
-            cards={displayCards}
-            className={`grid ${
-              isTabletOrMobile ? 'grid-cols-2' : 'grid-cols-3'
-            } gap-4`}
-          />
+        {/* 카드 목록 */}
+        <div className="mt-6">
+          {isLoading ? (
+            <div className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3">
+              {Array.from({length: 6}).map((_, idx) => (
+                <CardOverviewSkeleton key={idx} type="for_sale" />
+              ))}
+            </div>
+          ) : (
+            <CardList
+              cards={displayCards}
+              className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3"
+            />
+          )}
 
           <Pagination
             currentPage={currentPage}
@@ -261,7 +248,7 @@ export default function MySalesPage() {
             onClose={() => setIsFilterOpen(false)}
             onApply={filter => setFilter(filter)}
             filterCounts={filterCounts}
-            tabs={['grade', 'genre']}
+            tabs={['grade', 'genre', 'method', 'soldOut']}
             selectedFilter={filter}
           />
         </div>
