@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useModal } from '@/components/modal/ModalContext';
+import {useState, useEffect} from 'react';
+import {useModal} from '@/components/modal/ModalContext';
 import SearchInput from '@/components/ui/input/SearchInput';
 import TextboxInput from '@/components/ui/input/TextboxInput';
 import Button from '@/components/common/Button';
@@ -9,18 +9,21 @@ import CardList from '@/components/ui/card/cardOverview/CardList';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
 import Image from 'next/image';
 import FullScreenModal from '@/components/modal/layout/FullScreenModal';
-import CardOverview from '@/components/ui/card/cardOverview/CardOverview'; // ✅ 카드 모양 재사용
+import CardOverview from '@/components/ui/card/cardOverview/CardOverview';
 
-export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) {
-  const { closeModal, openModal } = useModal();
+export default function ExchangeModal({myCards = [], targetCardId, onSelect}) {
+  const {closeModal, openModal} = useModal();
 
   const [search, setSearch] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filter, setFilter] = useState({ type: '', value: '' });
-  const [filterCounts, setFilterCounts] = useState({ grade: {}, genre: {} });
+  const [filter, setFilter] = useState({type: '', value: ''});
+  const [filterCounts, setFilterCounts] = useState({grade: {}, genre: {}});
+
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [exchangeNote, setExchangeNote] = useState('');
 
   useEffect(() => {
-    const counts = { grade: {}, genre: {} };
+    const counts = {grade: {}, genre: {}};
     myCards.forEach(card => {
       const grade = card.grade ?? card.cardGrade;
       const genre = card.genre ?? card.cardGenre;
@@ -39,13 +42,15 @@ export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) 
     const matchesFilter =
       !filter.type || !filter.value
         ? true
-        : filter.value.split(',').includes(filter.type === 'grade' ? grade : genre);
+        : filter.value
+            .split(',')
+            .includes(filter.type === 'grade' ? grade : genre);
 
     return matchesSearch && matchesFilter;
   });
 
   const mappedCards = filtered.map(card => ({
-    userCardId: card.id,
+    userCardId: card.userCardId ?? card.id,
     title: card.name ?? card.title,
     cardGrade: card.grade ?? card.cardGrade,
     cardGenre: card.genre ?? card.cardGenre,
@@ -55,56 +60,68 @@ export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) 
     quantityTotal: card.initialQuantity ?? card.quantityTotal ?? 1,
     imageUrl: card.imageUrl ?? '/images/fallback.png',
     description: card.description ?? '',
-    type: 'my_card', // ✅ 카드 스타일 맞추기 위해 type 지정
+    status: card.status ?? 'UNKNOWN',
+    type: 'my_card',
   }));
 
-  const handleCardClick = (card) => {
-    closeModal();
+  const handleCardClick = card => {
+    setSelectedCard(card);
+    setExchangeNote('');
 
-    setTimeout(() => {
-      let message = '';
+    // ✅ 카드 선택 시 디버깅용 콘솔 추가
+    console.log('✅ 선택한 카드 정보:', card);
+    console.log('🆔 카드 ID:', card.userCardId);
+    console.log('📛 카드 이름:', card.title);
+    console.log('🏷️ 카드 등급:', card.cardGrade);
+    console.log('🎨 카드 장르:', card.cardGenre);
+    console.log('🔁 카드 상태:', card.status);
 
-      openModal({
-        type: 'custom',
-        children: (
-          <FullScreenModal onClose={closeModal}>
-            <div className="text-white">
-              <h2 className="text-center text-base font-bold mb-6">포토카드 교환하기</h2>
+    openModal({
+      type: 'custom',
+      children: (
+        <FullScreenModal onClose={closeModal}>
+          <div className="text-white">
+            <h2 className="text-center text-base font-bold mb-6">
+              포토카드 교환하기
+            </h2>
 
-              {/* ✅ 동일한 카드 모양 재사용 */}
-              <div className="flex justify-center mb-6">
-                <CardOverview card={card} />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-bold mb-2">교환 제시 내용</label>
-                <TextboxInput
-                  placeholder="내용을 입력해주세요"
-                  onChange={(e) => (message = e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={closeModal}>
-                  취소하기
-                </Button>
-                <Button
-                  variant="primary"
-                  className="flex-1 bg-yellow-300 text-black font-bold"
-                  onClick={() => {
-                    onSelect?.(card.userCardId, message);
-                    closeModal();
-                  }}
-                >
-                  교환하기
-                </Button>
-              </div>
+            <div className="flex justify-center mb-6">
+              <CardOverview card={card} />
             </div>
-          </FullScreenModal>
-        ),
-      });
-    }, 0);
+
+            <div className="mb-4">
+              <label className="block text-sm font-bold mb-2">
+                교환 제시 내용
+              </label>
+              <TextboxInput
+                placeholder="내용을 입력해주세요"
+                value={exchangeNote}
+                onChange={e => setExchangeNote(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={closeModal}>
+                취소하기
+              </Button>
+              <Button
+                variant="primary"
+                className="flex-1 bg-yellow-300 text-black font-bold"
+                onClick={() => {
+                  console.log('📤 선택한 카드:', card?.userCardId);
+                  console.log('📝 입력한 제시 내용:', exchangeNote);
+                  onSelect?.(card?.userCardId, exchangeNote);
+                  closeModal();
+                }}
+              >
+                교환하기
+              </Button>
+            </div>
+          </div>
+        </FullScreenModal>
+      ),
+    });
   };
 
   return (
@@ -121,7 +138,6 @@ export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) 
         </button>
       </div>
 
-      {/* 검색 + 필터 */}
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => setIsFilterOpen(true)}
@@ -131,13 +147,12 @@ export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) 
         </button>
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           placeholder="보유 카드 검색"
           className="flex-1"
         />
       </div>
 
-      {/* 카드 리스트 */}
       {mappedCards.length > 0 ? (
         <CardList
           cards={mappedCards}
@@ -148,11 +163,10 @@ export default function ExchangeModal({ myCards = [], targetCardId, onSelect }) 
         <p className="text-gray300 text-sm">일치하는 포토카드가 없습니다.</p>
       )}
 
-      {/* 필터 바텀시트 */}
       <FilterBottomSheet
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
-        onApply={(f) => setFilter(f)}
+        onApply={f => setFilter(f)}
         filterCounts={filterCounts}
         tabs={['grade', 'genre']}
       />
