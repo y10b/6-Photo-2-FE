@@ -4,20 +4,37 @@ import {useState} from 'react';
 import {useModal} from '@/components/modal/ModalContext';
 import Image from 'next/image';
 import Button from './Button';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {checkPointCooldown, drawPoint} from '@/api/user.api';
 
 export default function PointDrawModal() {
-  const {closeModal} = useModal();
-  const [isDrawn, setIsDrawn] = useState(false);
-  const [point, setPoint] = useState(null);
   const [selectedBox, setSelectedBox] = useState(null);
+  const queryClient = useQueryClient();
+
+  const {data: cooldownData} = useQuery({
+    queryKey: ['pointCooldown'],
+    queryFn: checkPointCooldown,
+  });
+
+  const {
+    mutate,
+    data: drawResult,
+    isSuccess,
+  } = useMutation({
+    mutationFn: drawPoint,
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['pointCooldown']});
+    },
+  });
+
+  if (!cooldownData) return null; // 로딩 메시지 제거
 
   const handleDraw = () => {
-    const randomPoint = Math.floor(Math.random() * 91) + 10;
-    setTimeout(() => {
-      setPoint(randomPoint);
-      setIsDrawn(true);
-    }, 1000);
+    mutate();
   };
+
+  const isDrawn = isSuccess;
+  const point = drawResult?.point;
 
   return (
     <div className="w-full px-4 pb-8 text-center font-noto">
@@ -37,7 +54,13 @@ export default function PointDrawModal() {
           {/* 쿨타임 (가짜 값) */}
           <p className="text-gray300 text-[14px] font-[400] mb-15 whitespace-pre-wrap">
             다음 기회까지 남은 시간 <br />
-            <span className="text-main">59분 59초</span>
+            <span className="text-main">
+              {cooldownData.canDraw
+                ? '지금 뽑을 수 있어요!'
+                : `${Math.floor(cooldownData.remainSeconds / 60)}분 ${
+                    cooldownData.remainSeconds % 60
+                  }초`}
+            </span>
           </p>
 
           {/* 상자 3개 */}
@@ -67,7 +90,7 @@ export default function PointDrawModal() {
             ))}
           </div>
           {/* 선택 시에만 나타나는 버튼 */}
-          {selectedBox !== null && (
+          {selectedBox !== null && cooldownData.canDraw && !isDrawn && (
             <div className="mt-15">
               <Button role="random" onClick={handleDraw}>
                 선택완료
@@ -91,10 +114,16 @@ export default function PointDrawModal() {
             {point}P <span className="text-white">획득!</span>
           </p>
 
-          {/* 쿨타임 (가짜 값) */}
+          {/* 뽑기 이후 쿨타임 표시 */}
           <p className="text-gray300 text-[14px] font-[400] mb-15 whitespace-pre-wrap">
             다음 기회까지 남은 시간 <br />
-            <span className="text-main">59분 59초</span>
+            <span className="text-main">
+              {cooldownData.remainSeconds > 0
+                ? `${Math.floor(cooldownData.remainSeconds / 60)}분 ${
+                    cooldownData.remainSeconds % 60
+                  }초`
+                : '지금 뽑을 수 있어요!'}
+            </span>
           </p>
         </>
       )}

@@ -135,7 +135,7 @@ export default function MarketplacePage() {
           </Button>
         </div>
 
-        {/* ✅ 여기 아래에 포인트 뽑기 버튼 추가 */}
+        {/* 여기 아래에 포인트 뽑기 버튼 추가 */}
         <div className="mt-6">
           <Button
             role="modal"
@@ -143,8 +143,7 @@ export default function MarketplacePage() {
             fullWidth={false}
             onClick={() =>
               openModal({
-                type: 'responsive',
-                variant: 'bottom',
+                type: 'point',
                 children: <PointDrawModal />,
               })
             }
