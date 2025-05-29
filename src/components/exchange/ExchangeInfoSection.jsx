@@ -12,18 +12,7 @@ export default function ExchangeInfoSection({info, onSelect}) {
     openModal({
       type: 'responsive',
       variant: 'bottom',
-      children: (
-        <ExchangeModal
-          myCards={myCards}
-          targetCardId={targetCardId}
-          onSelect={async (requestCardId, offerDescription) => {
-            console.log('📤 선택한 카드 ID:', requestCardId);
-            console.log('🎯 대상 카드 ID:', targetCardId);
-            console.log('📝 제안 내용:', offerDescription);
-            return await onSelect(requestCardId, offerDescription);
-          }}
-        />
-      ),
+      children: <ExchangeModal myCards={myCards} targetCardId={targetCardId} />,
     });
   };
 
@@ -35,7 +24,7 @@ export default function ExchangeInfoSection({info, onSelect}) {
         {description}
       </p>
       <div className="flex items-center gap-2 mb-10">
-        <span className={`font-bold text-sm text-blue`}>{grade}</span>
+        <span className="font-bold text-sm text-blue">{grade}</span>
         <span className="text-gray400">|</span>
         <span className="text-gray300 text-sm">{genre}</span>
       </div>
