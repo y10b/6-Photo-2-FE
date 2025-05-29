@@ -6,8 +6,8 @@ import Image from 'next/image';
 export default function FullScreenModal({children, onClose, title}) {
   return (
     <div className="fixed inset-0 z-50 bg-black flex justify-center items-center">
-      <NoHeader />
-      <div className="w-full h-full bg-black text-white relative overflow-auto">
+      <NoHeader title={title} />
+      <div className="w-full h-full bg-black text-white relative overflow-auto px-[15px]">
         {/* 상단 뒤로가기 버튼 */}
         <button
           onClick={onClose}
