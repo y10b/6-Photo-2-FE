@@ -1,7 +1,7 @@
 import SkeletonBox from './SkeletonBox';
 import CardProfileSkeleton from './CardProfileSkeleton';
 
-export default function TransactionSection({type}) {
+export default function TransactionSkeleton({type}) {
   return (
     <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
       {/* 헤더 */}

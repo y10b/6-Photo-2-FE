@@ -1,4 +1,4 @@
-export function getAccessTokenFromStorage() {
+export function useAccessToken() {
     if (typeof window === 'undefined') return null; // SSR 방지
 
     try {
