@@ -104,7 +104,6 @@ export default function MarketplacePage() {
   const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
 
   const handleCardSelectedForSale = cardId => {
-    console.log('MarketplacePage: Card selected for sale, ID:', cardId);
     setSelectedCardId(cardId);
     setIsMyCardsSellOpen(false);
     setIsSellRegistrationOpen(true);

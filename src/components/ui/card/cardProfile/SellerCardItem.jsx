@@ -1,14 +1,64 @@
+'use client';
+
 import Button from '@/components/common/Button';
+import {useModal} from '@/components/modal/ModalContext';
+import {deleteShop} from '@/lib/api/shop';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import Image from 'next/image';
-import React from 'react';
+import {useParams, useRouter} from 'next/navigation';
+import React, {useState} from 'react';
+import EditCardModal from '@/components/market/EditCardModal';
 
-function SellerCardItem({exchangeCard, gradeStyles}) {
-  const {grade, genre, description} = exchangeCard;
+function SellerCardItem({exchangeCard, gradeStyles, card}) {
+  const router = useRouter();
+  const {openModal, closeModal} = useModal();
+  const {id} = useParams();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleDelete = async () => {
+    openModal({
+      type: 'alert',
+      title: '포토카드 판매 내리기',
+      description: '정말로 판매를 중단하시겠습니까?',
+      button: {
+        label: '판매 내리기',
+        onClick: async () => {
+          try {
+            await deleteShop(Number(id));
+            closeModal();
+
+            openModal({
+              type: 'alert',
+              title: '판매 포토 카드 삭제 완료',
+              description: '판매글이 성공적으로 삭제되었습니다.',
+              button: {
+                label: '확인',
+                onClick: () => {
+                  closeModal();
+                  router.push('/market');
+                },
+              },
+            });
+          } catch (error) {
+            closeModal();
+            openModal({
+              type: 'alert',
+              title: '판매 포토 카드 삭제 실패',
+              description: '삭제 중 오류가 발생했습니다.',
+              button: {
+                label: '닫기',
+                onClick: closeModal,
+              },
+            });
+          }
+        },
+      },
+    });
+  };
 
   return (
     <div className="mt-[78px]">
-      {/* 헤더 */}
       <div className="mb-[10px] flex items-center gap-[10px]">
         <div className="relative w-[22px] h-[22px] pc:w-[24.61px] pc:h-[24.5px]">
           <Image src="/icons/ic_exchange.png" fill alt="exchange" />
@@ -22,27 +72,43 @@ function SellerCardItem({exchangeCard, gradeStyles}) {
 
       {/* 카드 정보 */}
       <div className="flex items-center gap-[11px] pc:gap-[15px] text-[18px] pc:text-2xl font-bold">
-        <p className={gradeStyles[grade]}>{formatCardGrade(grade)}</p>
+        <p className={gradeStyles[exchangeCard.grade]}>
+          {formatCardGrade(exchangeCard.grade)}
+        </p>
         <span className="text-gray400">|</span>
-        <p className="text-gray300">{genre}</p>
+        <p className="text-gray300">{exchangeCard.genre}</p>
       </div>
 
       <hr className="my-[30px] border-t text-gray400" />
 
-      {/* 설명 */}
       <p className="mb-[54px] text-base pc:text-[18px] font-normal">
-        {description}
+        {exchangeCard.description}
       </p>
 
-      {/* 액션 버튼 */}
+      {/* 버튼 */}
       <div className="space-y-5">
-        <Button role="exchange-confirm" onClick={() => {}}>
+        <Button
+          role="exchange-confirm"
+          onClick={() => setIsEditModalOpen(true)}
+        >
           수정하기
         </Button>
-        <Button role="exchange-confirm" variant="outline" onClick={() => {}}>
+        <Button
+          role="exchange-confirm"
+          variant="outline"
+          onClick={handleDelete}
+        >
           판매 내리기
         </Button>
       </div>
+
+      {/* 수정 모달 */}
+      {isEditModalOpen && (
+        <EditCardModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

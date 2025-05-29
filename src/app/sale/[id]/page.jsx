@@ -1,48 +1,66 @@
+'use client';
+
+import {useEffect, useState} from 'react';
+import {useParams} from 'next/navigation';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
+import {fetchShopDetail} from '@/lib/api/shop'; 
 
 function SalePage() {
-  const cards = [
-    {
-      name: '우리집 앞마당',
-      grade: 'COMMON',
-      genre: 'K-POP',
-      imageUrl: '/images/image1.png',
-      description: '방탄소년단 포토카드',
-      sellerNickname: 'seller123',
-      price: 5000,
-      remainingQuantity: 10,
-      initialQuantity: 20,
-    },
-  ];
+  const {id} = useParams();
+  const [shopData, setShopData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchShopDetail(id);
+        setShopData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadData();
+    }
+  }, [id]);
+
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생: {error}</div>;
+  if (!shopData) return <div>데이터가 없습니다.</div>;
+
+  const {shop, isSeller} = shopData;
+
+  const photoCard = {
+    name: shop.photoCard.name,
+    grade: shop.photoCard.grade,
+    genre: shop.photoCard.genre,
+    imageUrl:shop.photoCard.imageUrl,
+    description: shop.photoCard.description,
+    sellerNickname: shop.seller.nickname, 
+    price: shop.price,
+    remainingQuantity: shop.remainingQuantity,
+    initialQuantity: shop.initialQuantity,
+  };
 
   const exchangeCard = [
     {
-      grade: 'RARE',
-      genre: '환경',
-      description: '안녕하세요',
+      grade: shop.exchangeGrade ?? '',
+      genre: shop.exchangeGenre ?? '',
+      description: shop.exchangeDescription ?? '교환 희망 안함',
     },
   ];
-  const suggestedCards = [
-    {
-      type: 'exchange',
-      title: '교환 카드',
-      price: 0,
-      imageUrl: '/images/image1.png',
-      cardGrade: 'SUPER_RARE',
-      CardGenre: '여행',
-      nickname: '카드수집가짱',
-      description:
-        '이거슨 설명 이거슨 설명이거슨 설명이거슨 설명 설명 길게 작성중 설명 진짜 길게 작성중 이거슨 설명 이거슨 설명이거슨 설명이거슨 설명 설명 길게 작성중 설명 진짜 길게 작성중',
-    },
-  ];
-  const photoCard = cards[0];
 
-  /* 일단 하드 코딩 방식으로 스타일만 지정 */
+  const suggestedCards = []; 
+
   return (
     <div className="mb-30 w-full">
       <CardDetailSection
-        type="seller"
+        type={isSeller ? 'seller' : 'buyer'}
         photoCard={photoCard}
         exchangeCard={exchangeCard}
       />

@@ -61,6 +61,7 @@ const CardProfile = ({type, cards, exchangeCard, error}) => {
                 <SellerCardItem
                   key={`exchange-${index}`}
                   exchangeCard={card}
+                  card={cards}
                   gradeStyles={gradeStyles}
                 />
               ))}
