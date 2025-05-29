@@ -21,7 +21,8 @@ export default function CardOverview({card, onCardClick}) {
 
   const id = userCardId;
 
-  const isSoldOut = type === 'soldout' || type === 'for_sale_soldout';
+  const isSoldOut =
+    type === 'soldout' || type === 'for_sale_soldout' || quantityLeft === 0; // 솔드아웃 조건 추가
   const isExchange = type === 'exchange';
   const isForSale = type === 'for_sale';
 

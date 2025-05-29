@@ -9,7 +9,12 @@ import {
   DropdownInput,
 } from '@/components/ui/input';
 import Button from '@/components/common/Button';
-import {createPhotoCard, uploadImage} from '@/lib/api/galleryApi';
+import {
+  createPhotoCard,
+  fetchCardCreationQuota,
+  uploadImage,
+} from '@/lib/api/galleryApi';
+import NoHeader from '@/components/layout/NoHeader';
 
 export default function CreatePhotoCardPage() {
   const router = useRouter();
@@ -26,6 +31,7 @@ export default function CreatePhotoCardPage() {
   const [touched, setTouched] = useState({});
   const [imageFile, setImageFile] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [remainingQuota, setRemainingQuota] = useState(0);
 
   const validate = (name, value) => {
     if (!value.trim()) return '필수 입력 항목입니다.';
@@ -65,7 +71,7 @@ export default function CreatePhotoCardPage() {
         imageUrl,
       }));
     } catch (error) {
-      console.error('[❌] 이미지 업로드 실패:', error);
+      console.error('이미지 업로드 실패:', error);
     }
   };
 
@@ -83,6 +89,12 @@ export default function CreatePhotoCardPage() {
     setIsFormValid(allFilled && allValid);
   }, [form, imageFile]);
 
+  useEffect(() => {
+    fetchCardCreationQuota()
+      .then(res => setRemainingQuota(res.remainingQuota))
+      .catch(err => console.error('생성 가능 횟수 조회 실패:', err));
+  }, []);
+
   const handleSubmit = async e => {
     e.preventDefault();
 
@@ -99,10 +111,34 @@ export default function CreatePhotoCardPage() {
 
   return (
     <div className="max-w-[1480px] mx-auto px-4">
-      <div className="hidden tablet:flex">
+      {/* 모바일 헤더 */}
+      <NoHeader title="포토카드 생성" />
+      <div className="tablet:hidden px-4 mt-2 mb-4 flex items-baseline text-white">
+        <span className="text-main text-[32px] leading-none">
+          {remainingQuota}
+        </span>
+        <span className="text-xl leading-none">/3</span>
+        <span className="text-gray300 text-sm ml-3 leading-none">
+          ({new Date().getFullYear()}년 {new Date().getMonth() + 1}월)
+        </span>
+      </div>
+
+      {/* 데스크탑/태블릿 헤더 */}
+      <div className="hidden tablet:flex justify-between items-end">
         <h1 className="font-baskin text-[48px] pc:text-[62px] tracking-[-0.03em] text-white">
           포토카드 생성
         </h1>
+        <div className="flex items-end mb-5">
+          <span className="text-main  text-[40px] leading-none self-end">
+            {remainingQuota}
+          </span>
+          <span className="text-white text-[28px] leading-none self-end">
+            /3
+          </span>
+          <span className="text-gray300 ml-3">
+            ({new Date().getFullYear()}년 {new Date().getMonth() + 1}월)
+          </span>
+        </div>
       </div>
 
       <hr className="hidden tablet:flex border-2 border-gray200 mb-10" />
@@ -195,6 +231,8 @@ export default function CreatePhotoCardPage() {
           />
           <Button
             type="submit"
+            disabled={!isFormValid}
+            className="w-full"
             style={{
               position: 'relative',
               zIndex: 9999,
