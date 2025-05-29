@@ -8,6 +8,7 @@ import {fetchMyCards} from '@/lib/api/shop';
 import CardDetailSection from '@/components/common/TransactionSection';
 import TransactionSection from '@/components/ui/skeleton/TransactionSkeleton';
 import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import {getAccessTokenFromStorage} from '@/lib/token';
 
 export default function PurchasePage() {
   const {id} = useParams();
@@ -39,8 +40,13 @@ export default function PurchasePage() {
 
   const loadData = async shopId => {
     try {
+      const accessToken = getAccessTokenFromStorage(); // accessToken 가져오기
+      if (!accessToken) {
+        throw new Error('로그인이 필요합니다.');
+      }
+
       const [purchaseData, myCardData] = await Promise.all([
-        fetchPurchase(shopId),
+        fetchPurchase(shopId, accessToken),
         fetchMyCards({
           filterType: 'status',
           filterValue: 'IDLE,LISTED',
@@ -50,7 +56,6 @@ export default function PurchasePage() {
       setPhotoCard(purchaseData);
       setMyCards(myCardData.result);
 
-      // 구매 불가 상태지만 UI는 보여줌
       if (purchaseData.remainingQuantity === 0) {
         setError('잔여 수량이 0인 상품입니다. 구매할 수 없습니다.');
       } else {

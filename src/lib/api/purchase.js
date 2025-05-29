@@ -2,8 +2,12 @@
 const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 /* const BASE_URL = `http://localhost:5005/api` */
 // 판매 정보 가져오기
-export async function fetchPurchase(shopId) {
+export async function fetchPurchase(shopId, accessToken) {
     const res = await fetch(`${BASE_URL}/purchase/${shopId}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
         next: { revalidate: 0 },
     });
 
