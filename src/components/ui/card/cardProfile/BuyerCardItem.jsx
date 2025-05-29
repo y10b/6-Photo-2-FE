@@ -1,6 +1,6 @@
 import Button from '@/components/common/Button';
 import CounterInput from '@/components/ui/input/CounterInput';
-import {useBuyerCardHandlers} from '@/utils/useBuyerCardHandlers';
+import {useBuyerCardHandlers} from '@/lib/useBuyerCardHandlers';
 
 const BuyerCardItem = ({card, quantity = 0, onQuantityChange, error}) => {
   const {handlePurchaseCheck} = useBuyerCardHandlers(card, quantity);

@@ -11,6 +11,7 @@ import {CounterInput} from '../ui/input';
 import gradeStyles from '@/utils/gradeStyles';
 import {useModal} from '@/components/modal/ModalContext';
 import {useRouter} from 'next/navigation';
+import useMediaQuery from '@/hooks/useMediaQuery';
 
 export default function SellCardRegistrationBottomSheet({
   isOpen,
@@ -27,6 +28,8 @@ export default function SellCardRegistrationBottomSheet({
   const [exchangeGenre, setExchangeGenre] = useState('');
   const [exchangeDescription, setExchangeDescription] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     if (isOpen && cardId) {
@@ -224,9 +227,13 @@ export default function SellCardRegistrationBottomSheet({
 
   return (
     <>
-      <ResponsiveModalWrapper onClose={onClose} variant="bottom">
+      <ResponsiveModalWrapper
+        onClose={onClose}
+        variant={isMobile ? 'full' : 'bottom'}
+        title={'수정하기'}
+      >
         <div
-          className="p-5 text-white min-h-[90vh]"
+          className="px-[15px] tablet:p-5 text-white min-h-[90vh]"
           style={{overflowY: 'auto'}}
         >
           {isLoading ? (
@@ -235,13 +242,15 @@ export default function SellCardRegistrationBottomSheet({
             </div>
           ) : cardDetails ? (
             <div>
-              <h2 className="font-baskin text-4 text-gray300 mb-10">
+              <h2 className="hidden tablet:block font-baskin text-4 text-gray300 mb-10">
                 나의 포토카드 판매하기
               </h2>
-              <p className="text-[32px] font-bold mb-5">{cardDetails.title}</p>
-              <div className="border-[1.5px] border-gray100 mb-12"></div>
-              <div className="flex gap-5 justify-between">
-                <div className="relative w-[342px] h-[256.5px] pc:w-110">
+              <p className="text-[24px] mb-[10px] tablet:text-[32px] font-bold tablet:mb-5">{cardDetails.title}</p>
+
+              <div className="mb-[26px] border-[1.5px] border-gray100 tablet:mb-12"></div>
+
+              <div className="tablet:flex tablet:gap-5 tablet:justify-between">
+                <div className="relative min-w-[345px] min-h-[258.5px] tablet:w-[342px] tablet:h-[256.5px] pc:w-110 ">
                   {cardDetails.imageUrl && (
                     <Image
                       src={cardDetails.imageUrl}
@@ -251,18 +260,18 @@ export default function SellCardRegistrationBottomSheet({
                     />
                   )}
                 </div>
-                <div className="tablet:w-[342px] pc:w-110">
+                <div className="mt-[20.25px] tablet:w-[342px] tablet:mt-0 pc:w-110">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-[15px]">
                       <p
                         className={`${
                           gradeStyles[cardDetails.cardGrade]
-                        } text-[18px] font-bold`}
+                        } text-[18px] font-normal`}
                       >
                         {cardDetails.cardGrade}
                       </p>
                       <div className="text-gray400">|</div>
-                      <p className="text-[16px] text-gray300 font-bold">
+                      <p className="text-[16px] text-gray300 font-normal">
                         {getGenreLabel(
                           cardDetails.cardGenre || cardDetails.genre,
                         )}
@@ -307,13 +316,13 @@ export default function SellCardRegistrationBottomSheet({
                 </div>
               </div>
 
-              <div className="mt-[80.5px]">
+              <div className="mt-30 tablet:mt-[80.5px]">
                 <p className="text-[22px] font-bold mb-[10px]">
                   교환 희망 정보
                 </p>
                 <div className="border-[1.5px] border-gray100 mb-[46px]"></div>
-                <div className="flex">
-                  <div className="w-full mr-5">
+                <div className="tablet:flex">
+                  <div className="mb-[34px] tablet:mb-0 w-full mr-5">
                     <label
                       htmlFor="exchangeGrade"
                       className="block text-4 font-bold mb-[10px]"
@@ -366,7 +375,7 @@ export default function SellCardRegistrationBottomSheet({
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-15 mb-15">
+              <div className="flex gap-3 mt-11 tablet:mt-15 mb-15">
                 <Button
                   role="button"
                   variant="outline"

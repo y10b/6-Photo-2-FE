@@ -25,13 +25,7 @@ export const fetchMyCards = async (params = {}) => {
 
     const url = `/api/mypage/idle-cards?${queryParams.toString()}`;
 
-    const token = localStorage.getItem('accessToken');
-
-    const response = await axiosInstance.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axiosInstance.get(url);
 
     return response.data;
   } catch (error) {
@@ -87,5 +81,39 @@ export const deleteShop = async shopId => {
     throw new Error(
       error.response?.data?.message || error.message || '알 수 없는 오류',
     );
+  }
+};
+
+// 판매 포토카드 조회
+import axios from 'axios';
+
+export const fetchMySalesCards = async (params = {}) => {
+  const {
+    filterType = '',
+    filterValue = '',
+    keyword = '',
+    page = 1,
+    take = 10,
+  } = params;
+
+  try {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      take: take.toString(),
+    });
+
+    if (filterType) queryParams.append('filterType', filterType);
+    if (filterValue) queryParams.append('filterValue', filterValue);
+    if (keyword) queryParams.append('keyword', keyword);
+
+    const url = `/api/mypage/sales?${queryParams.toString()}`;
+
+    const response = await axiosInstance.get(url);
+
+    return response.data;
+  } catch (error) {
+    console.error('판매 포토카드 조회 실패:', error);
+    const message = error.response?.data?.message || '판매 포토카드 조회 실패';
+    throw new Error(message);
   }
 };

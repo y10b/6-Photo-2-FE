@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react';
 import {usePathname, useRouter} from 'next/navigation';
 import {useAuth} from './AuthProvider';
 import {useModal} from '@/components/modal/ModalContext';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // 로그인된 사용자만 접근 가능한 경로
 const protectedPaths = [
@@ -69,11 +70,7 @@ export default function RouteGuard({children}) {
 
   // 리다이렉트 중이거나 인증 확인 중일 때는 컨텐츠를 표시하지 않음
   if (isLoading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <p>로딩 중...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return children;
