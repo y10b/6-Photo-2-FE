@@ -6,7 +6,6 @@ export async function postExchangeProposal({
   description,
   accessToken,
 }) {
-  // ✅ 요청 직전 프론트 콘솔 로그
   console.log('📦 프론트 요청 데이터:', {
     targetCardId,
     requestCardId,
