@@ -179,8 +179,9 @@ export default function SellCardRegistrationBottomSheet({
         button: {
           label: '마켓플레이스로 돌아가기',
           onClick: () => {
-            router.push('/market');
             closeModal();
+            onClose();
+            router.push(`/market`);
           },
         },
       });
