@@ -77,13 +77,6 @@ export default function PurchasePage() {
           const requestCard = exchange.requestCard || {};
           const photoCard = requestCard.photoCard || {};
 
-          // ✅ 여기에 추가
-          console.log(`📦 교환 요청 ID ${exchange.id}의 photoCard 정보`, {
-            photoCard,
-            grade: photoCard.grade,
-            genre: photoCard.genre,
-          });
-
           return {
             id: exchange.id,
             exchangeId: exchange.id,
@@ -93,10 +86,11 @@ export default function PurchasePage() {
             name: photoCard.name || '카드 이름',
             grade: photoCard.grade || 'COMMON',
             genre: photoCard.genre || '장르 없음',
-            description:
-              exchange.description || photoCard.description || '설명 없음',
+            description: exchange.description || photoCard.description || '설명 없음',
             status: exchange.status || 'REQUESTED',
             createdAt: exchange.createdAt || new Date().toISOString(),
+            nickname: exchange.userNickname || requestCard.user?.nickname || '프로여행러',
+            price: photoCard.price || 0, // 가격 정보 추가
           };
         });
 

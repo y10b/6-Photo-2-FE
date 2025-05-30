@@ -102,12 +102,19 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
 
             <div className="p-4">
               <p className="text-base font-bold mb-[6px]">
-                {card.name || '카드 이름'}
+                {card.name || '카드 이미지'}
               </p>
               <p className="text-sm text-blue mb-[2px]">
                 {card.grade || 'COMMON'} | {card.genre || '장르 없음'}
               </p>
-              <p className="text-sm text-gray400 mb-2">4 P 에 구매 | 유디</p>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-sm text-gray400">
+                  {card.price || '0'}P 에 구매
+                </p>
+                <p className="text-sm text-gray400">
+                  {card.nickname || '프로여행러'}
+                </p>
+              </div>
               <hr className="border-gray300 mb-2" />
               <p className="text-sm text-gray300 line-clamp-2 mb-4">
                 {card.description || '설명이 없습니다.'}
