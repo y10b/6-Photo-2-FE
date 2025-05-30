@@ -241,7 +241,7 @@ export default function MyGalleryPage() {
             ) : (
               <CardList
                 cards={displayCards}
-                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3"
+                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
               />
             )}
 
