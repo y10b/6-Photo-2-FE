@@ -41,6 +41,9 @@ export default function CreatePhotoCardPage() {
     if (name === 'initialQuantity' && +value > 10) {
       return '총 발행량은 10장 이하로 선택 가능합니다.';
     }
+    if (name === 'price' && +value > 1000000) {
+      return '가격은 1,000,000원 이하로 입력해 주세요.';
+    }
     return '';
   };
 

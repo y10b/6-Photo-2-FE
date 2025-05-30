@@ -195,8 +195,8 @@ export default function MySalesPage() {
                 }
                 placeholder="판매방법"
                 options={[
-                  {label: '판매', value: 'for_sale'},
-                  {label: '교환', value: 'exchange_only'},
+                  {label: '판매', value: '판매 중'},
+                  {label: '교환', value: '교환 제시 중'},
                 ]}
               />
             </div>
@@ -230,7 +230,7 @@ export default function MySalesPage() {
           ) : (
             <CardList
               cards={displayCards}
-              className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3"
+              className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
             />
           )}
 
