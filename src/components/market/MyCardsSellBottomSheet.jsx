@@ -83,10 +83,9 @@ export default function MyCardsSellBottomSheet({
 
   const allCards = data?.pages.flatMap(page => page.result) || [];
 
-  const handleCardClick = card => {
-    // console.log('MyCardsSellBottomSheet: Card clicked, ID:', cardId);
+  const handleCardClick = cardId => {
     if (onCardSelectedForSale) {
-      onCardSelectedForSale(card.userCardId);
+      onCardSelectedForSale(cardId);
     }
     onClose();
   };
