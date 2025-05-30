@@ -13,6 +13,7 @@ import CardList from '@/components/ui/card/cardOverview/CardList';
 import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 import {countFilterValues} from '@/utils/countFilterValues';
 import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
+import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 
 export default function MarketplacePage() {
   const [keyword, setKeyword] = useState('');
@@ -20,37 +21,17 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
-  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
 
-  // 브레이크포인트 감지
-  useEffect(() => {
-    const getIsMobileOrTablet = () => {
-      const pcMinWidth = parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          '--breakpoint-pc',
-        ),
-      );
-      return window.innerWidth < pcMinWidth;
-    };
-
-    const handleResize = () => {
-      setIsTabletOrMobile(getIsMobileOrTablet());
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // 무한스크롤 쿼리 (모든 디바이스에서 사용)
+  // 무한스크롤 쿼리
   const {
     data: infiniteData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isLoading,
   } = useInfiniteQuery({
     queryKey: ['marketCards', keyword, sort, filter],
     queryFn: ({pageParam = 1}) =>
@@ -78,7 +59,7 @@ export default function MarketplacePage() {
     }
   }, [inView, hasNextPage, isFetchingNextPage]);
 
-  // 필터 값 카운트 (기존 코드 유지)
+  // 필터 값 카운트
   useEffect(() => {
     fetchMarketCards({
       pageParam: 1,
@@ -89,7 +70,7 @@ export default function MarketplacePage() {
       const counts = countFilterValues(res.result);
       setFilterCounts(counts);
     });
-  }, []);
+  }, [filter]);
 
   // 검색어 핸들러
   const handleSearch = value => setKeyword(value);
@@ -112,6 +93,23 @@ export default function MarketplacePage() {
   const handleCloseSellRegistration = () => {
     setIsSellRegistrationOpen(false);
     setSelectedCardId(null);
+  };
+
+  // 카드 클릭 실행함수
+  // TODO: cardOverview에서 card 받아와야 함.
+  const handleCardClick = card => {
+    const isMyCard = card.nickname === user.nickname;
+    const path = isMyCard ? `` : `/purchase/${card.shopId}`;
+    router.push(path);
+  };
+
+  // 드롭다운 토글 핸들러
+  const handleDropdownChange = (type, value) => {
+    setFilter(prev =>
+      prev.type === type && prev.value === value
+        ? {type: '', value: ''}
+        : {type, value},
+    );
   };
 
   return (
@@ -188,16 +186,9 @@ export default function MarketplacePage() {
                   className="border-none !px-0 !gap-[10px]"
                   name="grade"
                   value={filter.type === 'grade' ? filter.value : ''}
-                  // 드롭다운 토글
-                  onChange={({target}) => {
-                    const isSameValue =
-                      filter.type === 'grade' && filter.value === target.value;
-                    setFilter(
-                      isSameValue
-                        ? {type: '', value: ''}
-                        : {type: 'grade', value: target.value},
-                    );
-                  }}
+                  onChange={({target}) =>
+                    handleDropdownChange('grade', target.value)
+                  }
                   placeholder="등급"
                   options={[
                     {label: 'COMMON', value: 'COMMON'},
@@ -213,16 +204,9 @@ export default function MarketplacePage() {
                   className="border-none !px-0 !gap-[10px]"
                   name="genre"
                   value={filter.type === 'genre' ? filter.value : ''}
-                  // 드롭다운 토글
-                  onChange={({target}) => {
-                    const isSameValue =
-                      filter.type === 'genre' && filter.value === target.value;
-                    setFilter(
-                      isSameValue
-                        ? {type: '', value: ''}
-                        : {type: 'genre', value: target.value},
-                    );
-                  }}
+                  onChange={({target}) =>
+                    handleDropdownChange('genre', target.value)
+                  }
                   placeholder="장르"
                   options={[
                     {label: '여행', value: 'TRAVEL'},
@@ -238,17 +222,9 @@ export default function MarketplacePage() {
                   className="border-none !px-0 !gap-[10px]"
                   name="soldOut"
                   value={filter.type === 'soldOut' ? filter.value : ''}
-                  // 드롭다운 토글
-                  onChange={({target}) => {
-                    const isSameValue =
-                      filter.type === 'soldOut' &&
-                      filter.value === target.value;
-                    setFilter(
-                      isSameValue
-                        ? {type: '', value: ''}
-                        : {type: 'soldOut', value: target.value},
-                    );
-                  }}
+                  onChange={({target}) =>
+                    handleDropdownChange('soldOut', target.value)
+                  }
                   placeholder="매진여부"
                   options={[
                     {label: '판매 중', value: 'false'},
@@ -269,12 +245,22 @@ export default function MarketplacePage() {
           </div>
 
           {/* 카드 목록 */}
-          <CardList
-            cards={cards}
-            className={`grid gap-4 ${
-              isTabletOrMobile ? 'grid-cols-2' : 'gap-20 grid-cols-3'
-            }`}
-          />
+          <div className="mt-6">
+            {isLoading ? (
+              <div className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3">
+                {Array.from({length: 6}).map((_, idx) => (
+                  <CardOverviewSkeleton key={idx} type="for_sale" />
+                ))}
+              </div>
+            ) : (
+              <CardList
+                cards={cards}
+                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3"
+                onCardClick={handleCardClick}
+              />
+            )}
+          </div>
+
           <div ref={loaderRef} className="h-10" />
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}
           <div className="tablet:hidden">
