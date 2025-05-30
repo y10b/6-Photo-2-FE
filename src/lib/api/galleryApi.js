@@ -1,4 +1,4 @@
-import axiosInstance from '@/api/axiosInstance';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 // 마이 갤러리 카드 조회
 export async function fetchMyGalleryCards({
@@ -10,98 +10,92 @@ export async function fetchMyGalleryCards({
   filterValue = '',
 }) {
   const token = localStorage.getItem('accessToken');
-
   const params = new URLSearchParams({
     page: pageParam,
     take,
     keyword,
     sort,
   });
-
   if (filterType && filterValue) {
     params.append('filterType', filterType);
     params.append('filterValue', filterValue);
   }
 
-  try {
-    const response = await axiosInstance.get(
-      `/api/mypage/idle-cards?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const res = await fetch(
+    `${BASE_URL}/api/mypage/idle-cards?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
-    return response.data;
-  } catch (error) {
-    console.error('마이갤러리 불러오기 실패:', error);
-    throw new Error(
-      error.response?.data?.message || error.message || '알 수 없는 오류',
-    );
+      next: {revalidate: 0},
+    },
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || '마이갤러리 불러오기 실패');
   }
+
+  return res.json();
 }
 
 // 포토카드 생성
 export async function createPhotoCard(data) {
-  try {
-    const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${BASE_URL}/api/mypage/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
 
-    const response = await axiosInstance.post('/api/mypage/create', data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error('포토카드 생성 실패:', error);
-    throw new Error(
-      error.response?.data?.message ||
-        error.message ||
-        '포토카드 생성에 실패했습니다',
-    );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || '포토카드 생성에 실패했습니다');
   }
+
+  return res.json();
 }
 
 // 이미지 업로드
 export async function uploadImage(file) {
+  const token = localStorage.getItem('accessToken');
   const formData = new FormData();
   formData.append('image', file);
 
-  try {
-    const response = await axiosInstance.post('/api/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  const res = await fetch(`${BASE_URL}/api/upload`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
 
-    const {imageUrl} = response.data;
-    // 업로드된 파일의 실제 접근 경로는 API의 baseURL에서 `/api` 제거한 경로
-    return `${axiosInstance.defaults.baseURL.replace('/api', '')}${imageUrl}`;
-  } catch (error) {
-    console.error('이미지 업로드 실패:', error);
-    throw new Error(
-      error.response?.data?.message || error.message || '이미지 업로드 실패',
-    );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || '이미지 업로드 실패');
   }
+
+  const {imageUrl} = await res.json();
+  return `${BASE_URL.replace('/api', '')}${imageUrl}`;
 }
 
 // 포토카드 생성 제한
 export async function fetchCardCreationQuota() {
-  try {
-    const response = await axiosInstance.get('/api/mypage/creation-quota', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      },
-    });
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${BASE_URL}/api/mypage/creation-quota`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    next: {revalidate: 0},
+  });
 
-    return response.data;
-  } catch (error) {
-    console.error('생성 가능 횟수 조회 실패:', error);
-    throw new Error(
-      error.response?.data?.message ||
-        error.message ||
-        '생성 가능 횟수 불러오기 실패',
-    );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || '생성 가능 횟수 불러오기 실패');
   }
+
+  return res.json();
 }
