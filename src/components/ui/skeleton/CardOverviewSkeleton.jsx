@@ -6,7 +6,7 @@ export default function CardOverviewSkeleton({type}) {
   const isExchange = type === 'exchange';
 
   return (
-    <div className="font-noto text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white">
+    <div className="font-noto text-[10px] tablet:text-base text-white w-[170px] tablet:w-[342px] pc:w-110 rounded-[2px] bg-gray500 px-[10px] tablet:px-5 pc:px-10 pt-[10px] tablet:pt-5 pc:pt-10 border border-white/10">
       <CardImageSkeleton />
       <CardInfoSkeleton type={type} />
       {isExchange && (
