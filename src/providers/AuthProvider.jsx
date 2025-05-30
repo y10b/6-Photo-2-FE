@@ -1,8 +1,8 @@
 'use client';
 
-import {signUp, signIn, signOut} from '@/api/auth.api';
-import {getUserInfo, updateUserInfo} from '@/api/user.api';
 import {createContext, useContext, useEffect, useState} from 'react';
+import {authService} from '../lib/api/auth-service';
+import {userService} from '../lib/api/user-service';
 
 const AuthContext = createContext({
   login: () => {},
@@ -29,16 +29,15 @@ export default function AuthProvider({children}) {
   // 사용자 정보 불러오기
   const getUser = async () => {
     try {
-      const userData = await getUserInfo();
+      const userData = await userService.getUserInfo();
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('사용자 정보를 가져오는데 실패했습니다:', error);
       setUser(null);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
@@ -47,14 +46,14 @@ export default function AuthProvider({children}) {
     if (password !== passwordConfirmation) {
       throw new Error('비밀번호가 일치하지 않습니다.');
     }
-    await signUp({email, nickname, password});
+    await authService.signUp({email, nickname, password});
     return true;
   };
 
   // 로그인
   const login = async (email, password) => {
     try {
-      const response = await signIn({email, password});
+      const response = await authService.signIn({email, password});
 
       if (response.accessToken) {
         localStorage.setItem('accessToken', response.accessToken);
@@ -71,7 +70,7 @@ export default function AuthProvider({children}) {
   // 로그아웃
   const logout = async () => {
     try {
-      await signOut();
+      await authService.signOut();
     } catch (error) {
       console.warn('서버 로그아웃 실패:', error);
     } finally {
@@ -85,9 +84,8 @@ export default function AuthProvider({children}) {
   // 사용자 정보 수정
   const updateUser = async userData => {
     try {
-      const updatedUser = await updateUserInfo(userData);
+      const updatedUser = await userService.updateUserInfo(userData);
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
     } catch (error) {
       console.error('사용자 정보 업데이트 실패:', error);
     }
@@ -99,7 +97,7 @@ export default function AuthProvider({children}) {
     if (token) {
       getUser();
     } else {
-      setLoading(false); // 토큰 없을 때도 로딩 종료
+      setLoading(false);
     }
   }, []);
 
