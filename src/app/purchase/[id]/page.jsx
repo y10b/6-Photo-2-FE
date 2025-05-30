@@ -86,10 +86,14 @@ export default function PurchasePage() {
             name: photoCard.name || '카드 이름',
             grade: photoCard.grade || 'COMMON',
             genre: photoCard.genre || '장르 없음',
-            description: exchange.description || photoCard.description || '설명 없음',
+            description:
+              exchange.description || photoCard.description || '설명 없음',
             status: exchange.status || 'REQUESTED',
             createdAt: exchange.createdAt || new Date().toISOString(),
-            nickname: exchange.userNickname || requestCard.user?.nickname || '프로여행러',
+            nickname:
+              exchange.userNickname ||
+              requestCard.user?.nickname ||
+              '프로여행러',
             price: photoCard.price || 0, // 가격 정보 추가
           };
         });

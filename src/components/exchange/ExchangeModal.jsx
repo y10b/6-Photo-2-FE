@@ -65,7 +65,7 @@ export default function ExchangeModal({myCards, targetCardId}) {
           onClick={() => setIsFilterOpen(true)}
           className="w-[45px] h-[45px] border border-white rounded flex items-center justify-center"
         >
-          <Image src="/icons/ic_filter.svg" alt="필터" width={20} height={20} />
+          <img src="/icons/ic_filter.svg" alt="필터" width={20} height={20} />
         </button>
         <SearchInput
           value={search}

@@ -115,3 +115,34 @@ export async function createExchangeRequest(exchangeData, accessToken) {
     throw error;
   }
 }
+
+/**
+ * 교환 요청을 취소합니다.
+ * @param {number} exchangeId - 취소할 교환 요청 ID
+ * @param {string} accessToken - 액세스 토큰
+ * @returns {Promise<Object>} - 취소된 교환 요청 데이터
+ */
+export async function cancelExchangeRequest(exchangeId, accessToken) {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${exchangeId}/cancel`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || '교환 요청 취소에 실패했습니다.');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('❌ 교환 요청 취소 실패:', error);
+    throw error;
+  }
+}

@@ -1,28 +1,35 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import Image from 'next/image';
 import Button from '@/components/common/Button';
 import {useAccessToken} from '@/hooks/useAccessToken';
 import {useModal} from '@/components/modal/ModalContext';
+import {useInView} from 'react-intersection-observer';
 
 export default function MyExchangeList({cards = [], onCancelExchange}) {
   const [loading, setLoading] = useState({});
   const [visibleCount, setVisibleCount] = useState(5);
   const accessToken = useAccessToken();
   const {openModal} = useModal();
+  const {ref: loaderRef, inView} = useInView({
+    threshold: 0.5,
+  });
 
   useEffect(() => {
-    console.log('MyExchangeList에 전달된 cards:', cards);
-  }, [cards]);
+    if (inView && visibleCount < cards.length) {
+      setVisibleCount(prev => prev + 5);
+    }
+  }, [inView, cards.length, visibleCount]);
 
   if (!cards.length) {
-    console.log('MyExchangeList: cards 배열이 비어있습니다.');
     return null;
   }
 
   const handleCancelExchange = async exchangeId => {
     if (loading[exchangeId]) return;
+    
+    console.log('취소 요청 시작:', exchangeId);
 
     openModal({
       type: 'alert',
@@ -33,9 +40,14 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
         onClick: async () => {
           try {
             setLoading(prev => ({...prev, [exchangeId]: true}));
+            console.log('취소 API 호출 시작:', exchangeId);
+            
+            // 로컬 테스트를 위해 URL 확인
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5005';
+            console.log('사용 중인 API 기본 URL:', baseUrl);
 
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${exchangeId}/reject`,
+              `${baseUrl}/api/exchange/${exchangeId}/cancel`,
               {
                 method: 'POST',
                 headers: {
@@ -45,8 +57,12 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
               },
             );
 
-            if (!response.ok) throw new Error('교환 취소 실패');
+            const responseData = await response.json();
+            console.log('취소 API 응답:', responseData);
 
+            if (!response.ok) throw new Error(responseData.message || '교환 취소 실패');
+
+            console.log('취소 성공, 부모 컴포넌트에 알림:', exchangeId);
             if (onCancelExchange) onCancelExchange(exchangeId);
 
             openModal({
@@ -61,7 +77,7 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
               type: 'fail',
               title: '교환 취소',
               result: '실패',
-              description: '교환 요청 취소 중 오류가 발생했습니다.',
+              description: error.message || '교환 요청 취소 중 오류가 발생했습니다.',
             });
           } finally {
             setLoading(prev => ({...prev, [exchangeId]: false}));
@@ -69,10 +85,6 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
         },
       },
     });
-  };
-
-  const handleShowMore = () => {
-    setVisibleCount(prev => prev + 5);
   };
 
   const visibleCards = cards.slice(0, visibleCount);
@@ -135,10 +147,8 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
         ))}
 
         {hasMoreCards && (
-          <div className="text-center mt-4">
-            <Button variant="outline" size="sm" onClick={handleShowMore}>
-              더 보기 ({cards.length - visibleCount}개 더)
-            </Button>
+          <div ref={loaderRef} className="h-10 flex items-center justify-center">
+            <div className="w-8 h-8 border-t-2 border-white rounded-full animate-spin"></div>
           </div>
         )}
       </div>
