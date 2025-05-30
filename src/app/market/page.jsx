@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
+import {useRouter} from 'next/navigation';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import {SearchInput} from '@/components/ui/input';
 import {fetchMarketCards} from '@/lib/api/marketApi';
@@ -16,7 +17,9 @@ import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistr
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 
 export default function MarketplacePage() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -77,9 +80,9 @@ export default function MarketplacePage() {
 
   const sortOptions = [
     {label: '최신순', value: 'latest'},
+    {label: '오래된순', value: 'oldest'},
     {label: '낮은 가격순', value: 'price-asc'},
     {label: '높은 가격순', value: 'price-desc'},
-    {label: '오래된순', value: 'oldest'},
   ];
 
   const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
@@ -97,9 +100,16 @@ export default function MarketplacePage() {
 
   // 카드 클릭 실행함수
   // TODO: cardOverview에서 card 받아와야 함.
+  const user =
+    typeof window !== 'undefined' && localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user'))
+      : {id: null, nickname: null};
+
   const handleCardClick = card => {
-    const isMyCard = card.nickname === user.nickname;
-    const path = isMyCard ? `` : `/purchase/${card.shopId}`;
+    console.log('user: ', user);
+    console.log('card: ', card);
+    const isMyCard = card?.nickname === user.nickname;
+    const path = isMyCard ? `sale/${card.shopId}` : `/purchase/${card.shopId}`;
     router.push(path);
   };
 
@@ -135,9 +145,9 @@ export default function MarketplacePage() {
           <div className="block tablet:hidden w-full mb-2">
             <SearchInput
               name="query"
-              value={keyword}
-              onChange={e => setKeyword(e.target.value)}
-              onSearch={handleSearch}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onSearch={() => handleSearch(inputValue)}
               placeholder="검색"
             />
           </div>
@@ -173,9 +183,9 @@ export default function MarketplacePage() {
               <div>
                 <SearchInput
                   name="query"
-                  value={keyword}
-                  onChange={e => setKeyword(e.target.value)}
-                  onSearch={handleSearch}
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onSearch={() => handleSearch(inputValue)}
                   placeholder="검색"
                   className="!w-[200px] pc:!w-[320px] !h-[45px] pc:!h-[50px]"
                 />
@@ -255,7 +265,7 @@ export default function MarketplacePage() {
             ) : (
               <CardList
                 cards={cards}
-                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3"
+                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
                 onCardClick={handleCardClick}
               />
             )}

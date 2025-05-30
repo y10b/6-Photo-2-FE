@@ -1,5 +1,6 @@
 import axiosInstance from '@/api/axiosInstance';
 
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 /**
  * 유저의 IDLE 포토카드 목록 조회 (중복 카드 그룹핑, 수량 계산)
  * GET /api/mypage/idle-cards
@@ -85,16 +86,17 @@ export const deleteShop = async shopId => {
 };
 
 // 판매 포토카드 조회
-export const fetchMySalesCards = async (params = {}) => {
-  const {
-    filterType = '',
-    filterValue = '',
-    keyword = '',
-    page = 1,
-    take = 10,
-  } = params;
 
+export const fetchMySalesCards = async ({
+  filterType = '',
+  filterValue = '',
+  keyword = '',
+  page = 1,
+  take = 10,
+}) => {
   try {
+    const token = localStorage.getItem('accessToken');
+
     const queryParams = new URLSearchParams({
       page: page.toString(),
       take: take.toString(),
@@ -104,15 +106,25 @@ export const fetchMySalesCards = async (params = {}) => {
     if (filterValue) queryParams.append('filterValue', filterValue);
     if (keyword) queryParams.append('keyword', keyword);
 
-    const url = `/api/mypage/sales?${queryParams.toString()}`;
+    const url = `${BASE_URL}/mypage/sales?${queryParams.toString()}`;
 
-    const response = await axiosInstance.get(url);
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      next: {revalidate: 0},
+    });
 
-    return response.data;
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const message = err.message || '판매 포토카드 조회 실패';
+      throw new Error(message);
+    }
+
+    return await res.json();
   } catch (error) {
     console.error('판매 포토카드 조회 실패:', error);
-    const message = error.response?.data?.message || '판매 포토카드 조회 실패';
-    throw new Error(message);
+    throw error;
   }
 };
 
