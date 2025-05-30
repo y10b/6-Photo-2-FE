@@ -41,7 +41,7 @@ export default function EditCardModal({isOpen, onClose}) {
             setShopDetails(shopItem);
             const processedInitialData = {
               ...shopItem,
-              price: shopItem.price || '',
+              price: shopItem.price,
               exchangeGrade: shopItem.exchangeGrade?.trim() || '',
               exchangeGenre: shopItem.exchangeGenre?.trim() || '',
               exchangeDescription: shopItem.exchangeDescription?.trim() || '',
@@ -82,9 +82,9 @@ export default function EditCardModal({isOpen, onClose}) {
             button: {
               label: '마켓플레이스로 돌아가기',
               onClick: () => {
-                router.push('/market');
                 closeModal();
                 onClose();
+                router.push('/market');
               },
             },
           });
@@ -111,8 +111,8 @@ export default function EditCardModal({isOpen, onClose}) {
   const hasChanges = useCallback(() => {
     if (!initialShopDetails) return false;
 
-    const initialPriceString = initialShopDetails.price || '';
-    const currentPriceString = sellingPrice || '';
+    const initialPriceString = initialShopDetails.price;
+    const currentPriceString = sellingPrice;
 
     if (
       sellingQuantity !== initialShopDetails.initialQuantity ||
@@ -209,7 +209,7 @@ export default function EditCardModal({isOpen, onClose}) {
           onClick: () => {
             closeModal();
             onClose();
-            router.refresh();
+            window.location.reload();
           },
         },
       });
