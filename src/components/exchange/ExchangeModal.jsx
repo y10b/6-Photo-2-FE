@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useModal} from '@/components/modal/ModalContext';
 import SearchInput from '@/components/ui/input/SearchInput';
 import CardList from '@/components/ui/card/cardOverview/CardList';
@@ -21,13 +21,23 @@ export default function ExchangeModal({myCards, targetCardId}) {
     filter,
   );
 
+  useEffect(() => {
+    console.log('🟡 ExchangeModal 받은 targetCardId:', targetCardId);
+  }, [targetCardId]);
+
   const handleCardClick = card => {
-    console.log('✅ 선택된 카드:', card?.userCardId);
+    const formattedCard = {
+      ...card,
+      userCardId: card.userCardId ?? card.id ?? card.cardId,
+    };
+
+    console.log('✅ 선택된 카드:', formattedCard);
+
     openModal({
       type: 'custom',
       content: (
         <ExchangeFullScreen
-          card={card}
+          card={formattedCard}
           targetCardId={targetCardId}
           onClose={closeModal}
         />

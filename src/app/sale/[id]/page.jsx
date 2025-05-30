@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import {useParams} from 'next/navigation';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
-import {fetchShopDetail} from '@/lib/api/shop'; 
+import {fetchShopDetail} from '@/lib/api/shop';
 
 function SalePage() {
   const {id} = useParams();
@@ -39,9 +39,9 @@ function SalePage() {
     name: shop.photoCard.name,
     grade: shop.photoCard.grade,
     genre: shop.photoCard.genre,
-    imageUrl:shop.photoCard.imageUrl,
+    imageUrl: shop.photoCard.imageUrl,
     description: shop.photoCard.description,
-    sellerNickname: shop.seller.nickname, 
+    sellerNickname: shop.seller.nickname,
     price: shop.price,
     remainingQuantity: shop.remainingQuantity,
     initialQuantity: shop.initialQuantity,
@@ -55,7 +55,7 @@ function SalePage() {
     },
   ];
 
-  const suggestedCards = []; 
+  const suggestedCards = [];
 
   return (
     <div className="mb-30 w-full">
@@ -70,3 +70,4 @@ function SalePage() {
 }
 
 export default SalePage;
+SalePage;

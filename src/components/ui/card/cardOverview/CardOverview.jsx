@@ -68,8 +68,8 @@ export default function CardOverview({card, onCardClick}) {
 
   // 클릭 핸들러는 useCallback으로 메모이제이션
   const handleClick = useCallback(() => {
-    if (onCardClick && id) onCardClick(id);
-  }, [onCardClick, id]);
+    if (onCardClick) onCardClick(card);
+  }, [onCardClick, card]);
 
   return (
     <div onClick={handleClick} className={containerClass}>

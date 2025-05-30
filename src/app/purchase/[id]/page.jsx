@@ -1,5 +1,6 @@
 'use client';
 
+import {useState, useEffect} from 'react';
 import {useParams} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
@@ -9,6 +10,8 @@ import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
 import {useAccessToken} from '@/hooks/useAccessToken';
+import MyExchangeList from '@/components/exchange/MyExchangeList';
+import {fetchMyExchangeRequests} from '@/lib/api/exchange';
 
 function getErrorMessage(purchaseError, cardError, purchaseData) {
   return (
@@ -32,6 +35,8 @@ function PurchaseSkeleton() {
 export default function PurchasePage() {
   const {id} = useParams();
   const accessToken = useAccessToken();
+  const [myProposals, setMyProposals] = useState([]);
+  const [isLoadingProposals, setIsLoadingProposals] = useState(false);
 
   const {
     data: purchaseData,
@@ -56,7 +61,66 @@ export default function PurchasePage() {
     enabled: !!accessToken,
   });
 
-  const isLoading = isLoadingPurchase || isLoadingCards;
+  const {data: myExchangeData, isLoading: isLoadingExchanges} = useQuery({
+    queryKey: ['myExchangeRequests', id],
+    queryFn: () => fetchMyExchangeRequests(id, accessToken),
+    enabled: !!id && !!accessToken,
+  });
+
+  useEffect(() => {
+    const loadExchangeProposals = async () => {
+      if (!myExchangeData?.data || !myExchangeData.data.length) return;
+      setIsLoadingProposals(true);
+
+      try {
+        const exchangeProposals = myExchangeData.data.map(exchange => {
+          const requestCard = exchange.requestCard || {};
+          const photoCard = requestCard.photoCard || {};
+
+          // ✅ 여기에 추가
+          console.log(`📦 교환 요청 ID ${exchange.id}의 photoCard 정보`, {
+            photoCard,
+            grade: photoCard.grade,
+            genre: photoCard.genre,
+          });
+
+          return {
+            id: exchange.id,
+            exchangeId: exchange.id,
+            requestCardId: exchange.requestCardId,
+            photoCardId: photoCard.id,
+            imageUrl: photoCard.imageUrl || '/logo.svg',
+            name: photoCard.name || '카드 이름',
+            grade: photoCard.grade || 'COMMON',
+            genre: photoCard.genre || '장르 없음',
+            description:
+              exchange.description || photoCard.description || '설명 없음',
+            status: exchange.status || 'REQUESTED',
+            createdAt: exchange.createdAt || new Date().toISOString(),
+          };
+        });
+
+        const sortedProposals = exchangeProposals.sort((a, b) => b.id - a.id);
+        setMyProposals(sortedProposals);
+      } catch (error) {
+        console.error('교환 요청 데이터 변환 중 오류:', error);
+      } finally {
+        setIsLoadingProposals(false);
+      }
+    };
+
+    loadExchangeProposals();
+  }, [myExchangeData, accessToken]);
+
+  const handleCancelExchange = exchangeId => {
+    setMyProposals(prev => prev.filter(card => card.exchangeId !== exchangeId));
+  };
+
+  const isLoading =
+    isLoadingPurchase ||
+    isLoadingCards ||
+    isLoadingExchanges ||
+    isLoadingProposals;
   const isError = isErrorPurchase || isErrorCards;
   const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
 
@@ -82,11 +146,24 @@ export default function PurchasePage() {
       <ExchangeInfoSection
         info={{
           description:
-            '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
-          grade: grade || 'COMMON',
-          genre: genre || '장르 없음',
+            purchaseData.exchangeDescription || '교환 희망 설명이 없습니다.',
+          grade: purchaseData.exchangeGrade || 'COMMON',
+          genre: purchaseData.exchangeGenre || '장르 없음',
           myCards: myCardData?.result || [],
+          targetCardId: id,
         }}
+        onSelect={(requestCardId, description) => {
+          const proposedCard = myCardData?.result.find(
+            card => card.id === requestCardId,
+          );
+          if (proposedCard) {
+            setMyProposals(prev => [...prev, proposedCard]);
+          }
+        }}
+      />
+      <MyExchangeList
+        cards={myProposals}
+        onCancelExchange={handleCancelExchange}
       />
     </div>
   );
