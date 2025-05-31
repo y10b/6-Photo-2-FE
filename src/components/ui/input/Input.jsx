@@ -1,26 +1,27 @@
-"use client";
-import { useState } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+'use client';
+import {useState} from 'react';
+import {AiOutlineEye, AiOutlineEyeInvisible} from 'react-icons/ai';
 
+//Textarea input 사용시
 export default function Input({
   label,
   name,
   value,
   onChange,
   error,
-  type = "text",
+  type = 'text',
   placeholder,
   isTextArea = false,
-  className = "",
+  className = '',
   ...rest
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isActive, setIsActive] = useState(false);
-  const isPassword = type === "password";
-  const inputType = isPassword && showPassword ? "text" : type;
+  const isPassword = type === 'password';
+  const inputType = isPassword && showPassword ? 'text' : type;
 
   // 일반 텍스트일 때 30자 제한 적용
-  const maxLength = type === "text" ? 30 : undefined;
+  const maxLength = type === 'text' ? 30 : undefined;
   const currentLength = value ? value.length : 0;
   const isOverLimit = maxLength && currentLength > maxLength;
 
@@ -28,7 +29,7 @@ export default function Input({
   const handleBlur = () => setIsActive(false);
 
   const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+    setShowPassword(prev => !prev);
   };
 
   return (
@@ -51,13 +52,13 @@ export default function Input({
           className={`p-5 border
               ${
                 error || isOverLimit
-                  ? "border-red"
+                  ? 'border-red'
                   : isActive
-                  ? "border-gray200"
-                  : "border-gray400"
+                  ? 'border-gray200'
+                  : 'border-gray400'
               }
-              ${isActive ? "bg-gray500" : "bg-black"}
-              text-white rounded-[2px] placeholder:text-white focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
+              ${isActive ? 'bg-gray500' : 'bg-black'}
+              text-white rounded-[2px] placeholder:text-white placeholder:font-noto focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
               ${className}`}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -76,14 +77,13 @@ export default function Input({
             className={`p-5 border
                 ${
                   error || isOverLimit
-                    ? "border-red"
+                    ? 'border-red'
                     : isActive
-                    ? "border-gray200"
-                    : "border-gray400"
+                    ? 'border-gray200'
+                    : 'border-gray400'
                 }
-                ${isActive ? "bg-gray500" : "bg-black"}
-                text-white rounded-[2px] placeholder:text-white focus:outline-none
-focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
+                ${isActive ? 'bg-gray500' : 'bg-black'}
+                text-white rounded-[2px] placeholder:text-white placeholder:font-noto focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
                 ${className}`}
             onFocus={handleFocus}
             onBlur={handleBlur}

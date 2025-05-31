@@ -4,7 +4,7 @@
 import {useEffect} from 'react';
 import {useModal} from '@/components/modal/ModalContext';
 import {useAuth} from '@/providers/AuthProvider';
-import {checkPointCooldown} from '@/api/user.api';
+import {userService} from '../../lib/api/user-service';
 import PointDrawModal from '@/components/common/PointDrawModal';
 
 export default function AppInitializer() {
@@ -14,7 +14,7 @@ export default function AppInitializer() {
   useEffect(() => {
     if (!user) return;
 
-    checkPointCooldown().then(data => {
+    userService.checkPointCooldown().then(data => {
       console.log('쿨타임 확인 결과:', data);
       if (!data.canDraw && data.remainSeconds > 0) {
         setTimeout(() => {
