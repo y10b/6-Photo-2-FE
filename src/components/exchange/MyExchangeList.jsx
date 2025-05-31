@@ -42,10 +42,12 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
         onClick: async () => {
           try {
             setLoading(prev => ({...prev, [exchangeId]: true}));
-            console.log('취소 API 호출 시작:', exchangeId);
+            // exchangeId가 숫자인지 확인하고 변환
+            const numericExchangeId = Number(exchangeId);
+            console.log('취소 API 호출 시작:', numericExchangeId);
             
             // API 함수 사용
-            const result = await cancelExchangeRequest(exchangeId, accessToken);
+            const result = await cancelExchangeRequest(numericExchangeId, accessToken);
             console.log('취소 API 응답:', result);
 
             console.log('취소 성공, 부모 컴포넌트에 알림:', exchangeId);
@@ -85,7 +87,9 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
 
   // 각 카드 렌더링 함수
   const renderCard = (card) => {
+    // exchangeId가 없으면 id를 사용하도록 수정
     const cardId = card.exchangeId || card.id;
+    console.log('카드 렌더링:', card, '사용할 ID:', cardId);
     return (
       <div key={cardId} className="bg-black border border-gray400 rounded-lg overflow-hidden">
         <div className="relative aspect-[1/1]">

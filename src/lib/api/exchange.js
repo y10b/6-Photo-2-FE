@@ -124,8 +124,12 @@ export async function createExchangeRequest(exchangeData, accessToken) {
  */
 export async function cancelExchangeRequest(exchangeId, accessToken) {
   try {
+    // exchangeId가 숫자인지 확인
+    const numericExchangeId = Number(exchangeId);
+    console.log(`🔄 교환 취소 API 호출: exchangeId=${numericExchangeId}`);
+    
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${exchangeId}/cancel`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${numericExchangeId}/cancel`,
       {
         method: 'POST',
         headers: {
@@ -137,10 +141,13 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('❌ 서버 응답 오류:', errorData);
       throw new Error(errorData.message || '교환 요청 취소에 실패했습니다.');
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('✅ 교환 취소 성공:', result);
+    return result;
   } catch (error) {
     console.error('❌ 교환 요청 취소 실패:', error);
     throw error;
