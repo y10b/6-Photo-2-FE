@@ -69,7 +69,11 @@ export default function PurchasePage() {
 
   useEffect(() => {
     const loadExchangeProposals = async () => {
-      if (!myExchangeData?.data || !myExchangeData.data.length) return;
+      if (!myExchangeData?.data) {
+        setMyProposals([]);
+        return;
+      }
+
       setIsLoadingProposals(true);
 
       try {
@@ -94,21 +98,26 @@ export default function PurchasePage() {
               exchange.userNickname ||
               requestCard.user?.nickname ||
               '프로여행러',
-            price: photoCard.price || 0, // 가격 정보 추가
+            price: photoCard.price || 0,
           };
         });
 
-        const sortedProposals = exchangeProposals.sort((a, b) => b.id - a.id);
+        // 최신순으로 정렬하고 취소되지 않은 교환만 표시
+        const sortedProposals = exchangeProposals
+          .filter(proposal => proposal.status !== 'CANCELLED')
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         setMyProposals(sortedProposals);
       } catch (error) {
         console.error('교환 요청 데이터 변환 중 오류:', error);
+        setMyProposals([]);
       } finally {
         setIsLoadingProposals(false);
       }
     };
 
     loadExchangeProposals();
-  }, [myExchangeData, accessToken]);
+  }, [myExchangeData]);
 
   const handleCancelExchange = exchangeId => {
     setMyProposals(prev => prev.filter(card => card.exchangeId !== exchangeId));
@@ -132,7 +141,13 @@ export default function PurchasePage() {
     );
   }
 
-  const {grade, genre} = purchaseData;
+  console.log('구매 데이터 전체 구조:', JSON.stringify(purchaseData, null, 2));
+  console.log('교환 관련 정보:', {
+    exchangeGrade: purchaseData.exchangeGrade,
+    exchangeGenre: purchaseData.exchangeGenre,
+    exchangeDescription: purchaseData.exchangeDescription,
+    listingType: purchaseData.listingType
+  });
 
   return (
     <div>
@@ -141,14 +156,17 @@ export default function PurchasePage() {
         photoCard={purchaseData}
         error={errorMessage}
       />
+
       <ExchangeInfoSection
         info={{
-          description:
-            purchaseData.exchangeDescription || '교환 희망 설명이 없습니다.',
-          grade: purchaseData.exchangeGrade || 'COMMON',
-          genre: purchaseData.exchangeGenre || '장르 없음',
+          cardId: purchaseData.photoCard?.id,
+          shopListingId: purchaseData.id,
           myCards: myCardData?.result || [],
           targetCardId: id,
+          exchangeGrade: null,
+          exchangeGenre: null,
+          exchangeDescription: null,
+          listingType: null
         }}
         onSelect={(requestCardId, description) => {
           const proposedCard = myCardData?.result.find(
@@ -159,6 +177,7 @@ export default function PurchasePage() {
           }
         }}
       />
+
       <MyExchangeList
         cards={myProposals}
         onCancelExchange={handleCancelExchange}

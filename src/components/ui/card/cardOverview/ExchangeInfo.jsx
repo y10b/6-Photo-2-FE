@@ -15,6 +15,8 @@ export default function ExchangeInfo({
   description,
   type,
   mobileOrTablet,
+  onClick, // ✅ 추가
+  isLoading, // ✅ 추가
 }) {
   return (
     <>
@@ -96,7 +98,12 @@ export default function ExchangeInfo({
       </p>
 
       {/* 버튼 */}
-      <ExchangeButtons type={type} mobileOrTablet={mobileOrTablet} />
+      <ExchangeButtons
+        type={type}
+        mobileOrTablet={mobileOrTablet}
+        onClick={onClick} // ✅ 전달
+        isLoading={isLoading} // ✅ 전달
+      />
     </>
   );
 }

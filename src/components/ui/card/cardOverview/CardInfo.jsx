@@ -15,6 +15,8 @@ export default function CardInfo(props) {
     createdAt,
     quantityTotal,
     description,
+    onClick, // ✅ 추가
+    isLoading, // ✅ 추가
   } = props;
 
   const isExchange = ['exchange_btn1', 'exchange_btn2'].includes(type);
@@ -40,6 +42,8 @@ export default function CardInfo(props) {
           description={description}
           type={type}
           mobileOrTablet={mobileOrTablet}
+          onClick={onClick} // ✅ 전달
+          isLoading={isLoading} // ✅ 전달
         />
       ) : (
         <MarketInfo

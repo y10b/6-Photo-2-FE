@@ -62,9 +62,15 @@ export async function fetchMyExchangeRequests(targetCardId, accessToken) {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ 교환 요청 목록 조회 실패:', errorText);
-      throw new Error('교환 요청 목록을 가져오는데 실패했습니다.');
+      const errorData = await response.json();
+      console.error('❌ 교환 요청 목록 조회 실패:', errorData);
+      
+      // 권한 관련 에러 메시지 처리
+      if (errorData.message && errorData.message.includes('권한')) {
+        return { data: [] }; // 권한이 없는 경우 빈 배열 반환
+      }
+      
+      throw new Error(errorData.message || '교환 요청 목록을 가져오는데 실패했습니다.');
     }
 
     const data = await response.json();
@@ -78,7 +84,8 @@ export async function fetchMyExchangeRequests(targetCardId, accessToken) {
     return data;
   } catch (error) {
     console.error('❌ 교환 요청 목록 조회 오류:', error);
-    throw error;
+    // 에러가 발생해도 UI가 깨지지 않도록 빈 배열 반환
+    return { data: [] };
   }
 }
 
@@ -150,6 +157,42 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
     return result;
   } catch (error) {
     console.error('❌ 교환 요청 취소 실패:', error);
+    throw error;
+  }
+}
+
+/**
+ * 판매 게시글에 대한 교환 제안 목록을 가져옵니다.
+ * @param {number} shopId - 판매 게시글 ID
+ * @param {string} accessToken - 액세스 토큰
+ * @returns {Promise<Object>} - 교환 제안 목록 데이터
+ */
+export async function fetchShopExchangeRequests(shopId, accessToken) {
+  try {
+    console.log(`🔍 판매 게시글 교환 요청 목록 조회 시작: shopId=${shopId}`);
+    
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/shop/${shopId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ 판매 게시글 교환 요청 목록 조회 실패:', errorText);
+      throw new Error('교환 요청 목록을 가져오는데 실패했습니다.');
+    }
+
+    const result = await response.json();
+    console.log('✅ 판매 게시글 교환 요청 목록 조회 결과:', result);
+    return result;
+  } catch (error) {
+    console.error('판매 게시글 교환 요청 목록 조회 오류:', error);
     throw error;
   }
 }

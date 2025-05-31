@@ -1,8 +1,14 @@
+// components/ui/card/cardOverview/ExchangeButtons.jsx
 import React from 'react';
 import clsx from 'clsx';
 import Button from '@/components/common/Button';
 
-export default function ExchangeButtons({type, mobileOrTablet, onClick, isLoading}) {
+export default function ExchangeButtons({
+  type,
+  mobileOrTablet,
+  onClick,
+  isLoading,
+}) {
   if (type === 'exchange_btn1') {
     return (
       <div
@@ -11,8 +17,8 @@ export default function ExchangeButtons({type, mobileOrTablet, onClick, isLoadin
           'tablet:mt-[25px] pc:mt-10 flex justify-center',
         )}
       >
-        <Button 
-          role="cancel-exchange" 
+        <Button
+          role="cancel-exchange"
           variant="outline"
           onClick={onClick}
           disabled={isLoading}
@@ -31,11 +37,20 @@ export default function ExchangeButtons({type, mobileOrTablet, onClick, isLoadin
           'tablet:mt-[25px] pc:mt-10 flex justify-between',
         )}
       >
-        <Button role="proposal" variant="outline" onClick={() => onClick && onClick('reject')}>
+        <Button
+          role="proposal"
+          variant="outline"
+          onClick={() => onClick?.('reject')}
+          disabled={isLoading}
+        >
           <span className="tablet:hidden">거절</span>
           <span className="hidden tablet:inline">거절하기</span>
         </Button>
-        <Button role="proposal" onClick={() => onClick && onClick('accept')}>
+        <Button
+          role="proposal"
+          onClick={() => onClick?.('accept')}
+          disabled={isLoading}
+        >
           <span className="tablet:hidden">승인</span>
           <span className="hidden tablet:inline">승인하기</span>
         </Button>

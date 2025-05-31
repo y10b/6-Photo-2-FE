@@ -7,15 +7,27 @@ export default function useFilteredCards(myCards, search, filter) {
   useEffect(() => {
     const counts = {grade: {}, genre: {}};
     const mapped = myCards.map(card => {
+      console.log('매핑할 카드 데이터:', card);
+      
       const grade = card.grade ?? card.cardGrade;
       const genre = card.genre ?? card.cardGenre;
       const name = card.name ?? card.title ?? '';
+      const userCardId = card.userCardId;
+      const photoCardId = card.photoCardId;
 
       counts.grade[grade] = (counts.grade[grade] || 0) + 1;
       counts.genre[genre] = (counts.genre[genre] || 0) + 1;
 
+      console.log('매핑된 ID 정보:', {
+        userCardId,
+        photoCardId,
+        final: userCardId
+      });
+
       return {
-        userCardId: card.userCardId ?? card.id,
+        id: userCardId, // userCardId를 id로 사용
+        userCardId: userCardId,
+        photoCardId: photoCardId,
         title: name,
         cardGrade: grade,
         cardGenre: genre,
@@ -25,7 +37,7 @@ export default function useFilteredCards(myCards, search, filter) {
         quantityTotal: card.initialQuantity ?? card.quantityTotal ?? 1,
         imageUrl: card.imageUrl ?? '/images/fallback.png',
         description: card.description ?? '',
-        status: card.status ?? 'UNKNOWN',
+        status: card.status ?? card.saleStatus ?? 'IDLE',
         type: 'exchange_big',
       };
     });
