@@ -111,7 +111,9 @@ export default function PointDrawModal() {
                       src={`/images/box${num}.png`}
                       alt={`랜덤박스-${num}`}
                       fill
+                      sizes="(max-width: 768px) 100vw, 98px"
                       className="object-contain"
+                      priority
                     />
                   </div>
                 </button>
@@ -138,7 +140,9 @@ export default function PointDrawModal() {
                   src="/images/point-lg.png"
                   alt="포인트 그림"
                   fill
+                  sizes="(max-width: 768px) 100vw, 240px"
                   className="object-contain"
+                  priority
                 />
               </div>
             </div>
