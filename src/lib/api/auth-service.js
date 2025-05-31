@@ -1,31 +1,30 @@
-import { defaultFetch, cookieFetch, tokenFetch } from '@/lib/fetchClient';
+import {defaultFetch, cookieFetch, tokenFetch} from '@/lib/fetchClient';
 
 export const authService = {
   /**
    * 회원가입 - 인증 필요 없음
    */
-  signUp: ({ email, nickname, password }) =>
+  signUp: ({email, nickname, password}) =>
     defaultFetch('/auth/signup', {
       method: 'POST',
-      body: JSON.stringify({ email, nickname, password }),
+      body: JSON.stringify({email, nickname, password}),
     }),
 
   /**
    * 로그인 - 쿠키 인증 사용 + accessToken 저장
    */
-  signIn: async ({ email, password }) => {
+  signIn: async ({email, password}) => {
     const res = await cookieFetch('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({email, password}),
     });
-
-    if (res.accessToken) {
-      localStorage.setItem('accessToken', res.accessToken);
+    if (!res.accessToken) {
+      throw new Error('로그인 실패: accessToken이 없습니다.');
     }
+    localStorage.setItem('accessToken', res.accessToken);
     if (res.user) {
       localStorage.setItem('user', JSON.stringify(res.user));
     }
-
     return res;
   },
 

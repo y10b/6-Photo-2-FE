@@ -42,28 +42,20 @@ export default function AuthProvider({children}) {
   };
 
   // 회원가입
-  const register = async (nickname, email, password, passwordConfirmation) => {
-    if (password !== passwordConfirmation) {
-      throw new Error('비밀번호가 일치하지 않습니다.');
-    }
+  const register = async ({nickname, email, password}) => {
     await authService.signUp({email, nickname, password});
     return true;
   };
 
   // 로그인
-  const login = async (email, password) => {
+  const login = async ({email, password}) => {
     try {
       const response = await authService.signIn({email, password});
-
-      if (response.accessToken) {
-        localStorage.setItem('accessToken', response.accessToken);
-        await getUser();
-      }
-
+      await getUser();
       return true;
     } catch (error) {
       console.error('AuthProvider 로그인 실패:', error);
-      return false;
+      throw new Error('로그인에 실패했습니다.');
     }
   };
 
