@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useMemo} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
@@ -9,6 +9,7 @@ import CardList from '@/components/ui/card/cardOverview/CardList';
 import {fetchMyCards} from '@/lib/api/shop';
 import Image from 'next/image';
 import {SearchInput} from '../ui/input';
+import {useDebounce} from '@/hooks/useDebounce';
 
 export default function MyCardsSellBottomSheet({
   isOpen,
@@ -19,19 +20,19 @@ export default function MyCardsSellBottomSheet({
   const [inputValue, setInputValue] = useState('');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterCounts, setFilterCounts] = useState(null);
   const debounceTimeoutRef = useRef(null);
+  const debouncedKeyword = useDebounce(inputValue);
 
   const {ref: loaderRef, inView} = useInView({threshold: 0.1});
 
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading} =
     useInfiniteQuery({
-      queryKey: ['marketIDLECards', keyword, filter],
+      queryKey: ['marketIDLECards', debouncedKeyword, filter],
       queryFn: ({pageParam = 1}) =>
         fetchMyCards({
           page: pageParam,
           take: 10,
-          keyword,
+          keyword: debouncedKeyword,
           filterType: filter.type,
           filterValue: filter.value,
         }),
@@ -50,8 +51,8 @@ export default function MyCardsSellBottomSheet({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  useEffect(() => {
-    if (!data) return;
+  const filterCounts = useMemo(() => {
+    if (!data) return null;
     const allCards = data.pages.flatMap(page => page.result);
     const counts = {grade: {}, genre: {}};
 
@@ -60,7 +61,7 @@ export default function MyCardsSellBottomSheet({
       counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
     });
 
-    setFilterCounts(counts);
+    return counts;
   }, [data]);
 
   const handleSearch = value => {
