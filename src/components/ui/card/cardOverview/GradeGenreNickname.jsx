@@ -8,6 +8,7 @@ export default function GradeGenreNickname({
   cardGenre,
   nickname,
   mobileOrTablet,
+  showNickname = true, // ✅ 새 prop
 }) {
   return (
     <div
@@ -26,7 +27,7 @@ export default function GradeGenreNickname({
           <span className="font-normal text-gray400">|</span>
           <p className="font-normal text-gray300">{cardGenre}</p>
         </div>
-        <p className="underline">{nickname}</p>
+        {showNickname && <p className="underline">{nickname}</p>}
       </div>
     </div>
   );

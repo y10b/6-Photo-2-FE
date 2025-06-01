@@ -1,61 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import {useState} from 'react';
-import {Input} from '@/components/ui/input';
-import {useModal} from '@/components/modal/ModalContext';
 import Button from '@/components/common/Button';
 import Image from 'next/image';
 import GoogleButton from '@/components/common/GoogleButton';
+import {AuthInput} from '@/components/ui/input';
+import {useModal} from '@/components/modal/ModalContext';
 import {useAuth} from '@/providers/AuthProvider';
 import {useRouter} from 'next/navigation';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {LoginSchema} from '@/schemas/login.schema';
 
 export default function LoginPage() {
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
+  const {
+    register,
+    handleSubmit,
+    formState: {errors, isValid},
+  } = useForm({
+    resolver: zodResolver(LoginSchema),
+    mode: 'onChange',
   });
 
-  const [errors, setErrors] = useState({});
   const {openModal} = useModal();
   const {login} = useAuth();
   const router = useRouter();
 
-  const handleChange = e => {
-    const {name, value} = e.target;
-    setForm(prev => ({...prev, [name]: value}));
-
-    // 입력 시 해당 필드의 에러 제거
-    if (errors[name]) {
-      setErrors(prev => ({...prev, [name]: ''}));
-    }
-  };
-
-  const validate = () => {
-    const newErrors = {};
-
-    if (!form.email) {
-      newErrors.email = '이메일을 입력해주세요.';
-    } else if (!form.email.includes('@')) {
-      newErrors.email = '올바른 이메일 형식이 아닙니다.';
-    }
-    if (!form.password) {
-      newErrors.password = '비밀번호를 입력해주세요.';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
+  const onSubmit = async data => {
     try {
-      const success = await login(form.email, form.password);
-
+      const success = await login(data);
       if (success) {
-        router.push('/market'); // 모달 없이 바로 이동
+        router.push('/market');
       } else {
         throw new Error('로그인 실패');
       }
@@ -64,9 +39,7 @@ export default function LoginPage() {
         type: 'alert',
         title: '로그인 실패',
         description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
-        button: {
-          label: '확인',
-        },
+        button: {label: '확인'},
       });
     }
   };
@@ -74,8 +47,6 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     window.location.href = 'http://localhost:5005/auth/google';
   };
-
-  const isFormValid = form.email && form.password;
 
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -95,32 +66,30 @@ export default function LoginPage() {
         </div>
 
         {/* 로그인 폼 */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-8 w-full">
-            <Input
+            <AuthInput
               label="이메일"
               name="email"
               type="email"
-              value={form.email}
-              onChange={handleChange}
               placeholder="이메일을 입력해 주세요"
-              error={errors.email}
+              {...register('email')}
+              error={errors.email?.message}
             />
 
-            <Input
+            <AuthInput
               label="비밀번호"
               name="password"
               type="password"
-              value={form.password}
-              onChange={handleChange}
               placeholder="비밀번호를 입력해 주세요"
-              error={errors.password}
+              {...register('password')}
+              error={errors.password?.message}
             />
           </div>
 
           <Button
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isValid}
             role="default"
             variant="primary"
             fullWidth={true}

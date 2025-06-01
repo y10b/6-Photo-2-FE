@@ -4,9 +4,8 @@ import {useEffect, useState} from 'react';
 import Image from 'next/image';
 import Button from './Button';
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
-import {checkPointCooldown, drawPoint} from '@/api/user.api';
+import {userService} from '../../lib/api/user-service';
 import {useAuth} from '@/providers/AuthProvider';
-import {useAccessToken} from '@/hooks/useAccessToken';
 
 export default function PointDrawModal() {
   const [selectedBox, setSelectedBox] = useState(null);
@@ -14,18 +13,20 @@ export default function PointDrawModal() {
   const queryClient = useQueryClient();
   const {user} = useAuth();
 
+  // 쿨타임 조회
   const {data: cooldownData, refetch: refetchCooldown} = useQuery({
     queryKey: ['pointCooldown'],
-    queryFn: checkPointCooldown,
+    queryFn: userService.checkPointCooldown,
   });
 
+  // 뽑기 요청
   const {
     mutate,
     data: drawResult,
     isPending,
     isSuccess,
   } = useMutation({
-    mutationFn: drawPoint,
+    mutationFn: userService.drawPoint,
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['pointCooldown']});
       refetchCooldown();
@@ -34,6 +35,7 @@ export default function PointDrawModal() {
     },
   });
 
+  // 타이머 설정
   useEffect(() => {
     if (!cooldownData) return;
 
@@ -109,7 +111,9 @@ export default function PointDrawModal() {
                       src={`/images/box${num}.png`}
                       alt={`랜덤박스-${num}`}
                       fill
+                      sizes="(max-width: 768px) 100vw, 98px"
                       className="object-contain"
+                      priority
                     />
                   </div>
                 </button>
@@ -136,7 +140,9 @@ export default function PointDrawModal() {
                   src="/images/point-lg.png"
                   alt="포인트 그림"
                   fill
+                  sizes="(max-width: 768px) 100vw, 240px"
                   className="object-contain"
+                  priority
                 />
               </div>
             </div>
@@ -165,29 +171,15 @@ export default function PointDrawModal() {
             <Button
               role="dev"
               onClick={async () => {
-                const token = useAccessToken();
-
-                const res = await fetch(
-                  'http://localhost:5005/api/users/reset-point-cooldown',
-                  {
-                    method: 'PATCH',
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                      'Content-Type': 'application/json',
-                    },
-                  },
-                );
-
-                if (!res.ok) {
-                  const text = await res.text();
-                  console.error('❌ 초기화 실패:', text);
+                try {
+                  await userService.resetPointCooldown();
+                  queryClient.invalidateQueries(['pointCooldown']);
+                  refetchCooldown();
+                  alert('쿨타임이 초기화되었습니다!');
+                } catch (err) {
+                  console.error('❌ 초기화 실패:', err);
                   alert('쿨타임 초기화 실패');
-                  return;
                 }
-
-                queryClient.invalidateQueries(['pointCooldown']);
-                refetchCooldown();
-                alert('쿨타임이 초기화되었습니다!');
               }}
             >
               🔧 쿨타임 초기화 (개발용)
