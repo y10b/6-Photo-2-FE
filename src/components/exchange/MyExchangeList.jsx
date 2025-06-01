@@ -64,15 +64,25 @@ export default function MyExchangeList({cards = [], onCancelExchange}) {
             
             // 오류 메시지 처리 개선
             let errorMessage = '교환 요청 취소 중 오류가 발생했습니다.';
-            if (error.message && error.message.includes('이미 처리된 교환 요청')) {
-              errorMessage = '이미 처리된 교환 요청은 취소할 수 없습니다.';
+            if (error.message) {
+              if (error.message.includes('이미 처리된 교환 요청')) {
+                errorMessage = '이미 처리된 교환 요청은 취소할 수 없습니다.';
+              } else if (error.message.includes('이미 수락된')) {
+                errorMessage = '이미 수락된 교환 요청은 취소할 수 없습니다.';
+              } else if (error.message.includes('이미 거절된')) {
+                errorMessage = '이미 거절된 교환 요청은 취소할 수 없습니다.';
+              } else if (error.message.includes('본인이 요청한 교환만')) {
+                errorMessage = '본인이 요청한 교환만 취소할 수 있습니다.';
+              } else if (error.message.includes('존재하지 않는')) {
+                errorMessage = '존재하지 않는 교환 요청입니다.';
+              }
             }
             
             openModal({
               type: 'fail',
               title: '교환 취소',
               result: '실패',
-              description: error.message || errorMessage,
+              description: errorMessage,
             });
           } finally {
             setLoading(prev => ({...prev, [exchangeId]: false}));
