@@ -10,9 +10,8 @@ import Textarea from '@/components/ui/input/TextboxInput';
 import {CounterInput} from '../ui/input';
 import gradeStyles from '@/utils/gradeStyles';
 import {useModal} from '@/components/modal/ModalContext';
-import {useRouter} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import {useParams} from 'next/navigation';
 
 export default function EditCardModal({isOpen, onClose}) {
   const {openModal, closeModal} = useModal();
@@ -21,139 +20,113 @@ export default function EditCardModal({isOpen, onClose}) {
 
   const [shopDetails, setShopDetails] = useState(null);
   const [initialShopDetails, setInitialShopDetails] = useState(null);
-
   const [sellingQuantity, setSellingQuantity] = useState(1);
   const [sellingPrice, setSellingPrice] = useState('');
   const [exchangeGrade, setExchangeGrade] = useState('');
   const [exchangeGenre, setExchangeGenre] = useState('');
   const [exchangeDescription, setExchangeDescription] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  useEffect(() => {
-    if (isOpen && id) {
-      setIsLoading(true);
-      fetchShopDetail(Number(id))
-        .then(response => {
-          const shopItem = response.shop || response;
-          if (shopItem) {
-            setShopDetails(shopItem);
-            const processedInitialData = {
-              ...shopItem,
-              price: shopItem.price,
-              exchangeGrade: shopItem.exchangeGrade?.trim() || '',
-              exchangeGenre: shopItem.exchangeGenre?.trim() || '',
-              exchangeDescription: shopItem.exchangeDescription?.trim() || '',
-            };
-            setInitialShopDetails(processedInitialData);
+  const resetState = () => {
+    setShopDetails(null);
+    setInitialShopDetails(null);
+    setSellingQuantity(1);
+    setSellingPrice('');
+    setExchangeGrade('');
+    setExchangeGenre('');
+    setExchangeDescription('');
+    setIsLoading(false);
+  };
 
-            setSellingQuantity(shopItem.initialQuantity || 1);
-            setSellingPrice(shopItem.price || '');
-            setExchangeGrade(shopItem.exchangeGrade || '');
-            setExchangeGenre(shopItem.exchangeGenre || '');
-            setExchangeDescription(shopItem.exchangeDescription || '');
-          } else {
-            setShopDetails(null);
-            setInitialShopDetails(null);
-            openModal({
-              type: 'alert',
-              title: '판매글 정보 불러오기 실패',
-              description: '해당 판매글 정보를 불러오는 데 실패했습니다.',
-              button: {
-                label: '확인',
-                onClick: () => {
-                  closeModal();
-                  onClose();
-                },
-              },
-            });
-          }
-        })
-        .catch(error => {
-          setShopDetails(null);
-          setInitialShopDetails(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isOpen || !id) return;
+
+      setIsLoading(true);
+
+      try {
+        const {shop: shopItem} = await fetchShopDetail(Number(id));
+        if (shopItem) {
+          const {
+            price,
+            exchangeGrade,
+            exchangeGenre,
+            exchangeDescription,
+            initialQuantity,
+          } = shopItem;
+          setShopDetails(shopItem);
+          setInitialShopDetails({
+            ...shopItem,
+            price,
+            exchangeGrade: exchangeGrade?.trim() || '',
+            exchangeGenre: exchangeGenre?.trim() || '',
+            exchangeDescription: exchangeDescription?.trim() || '',
+          });
+          setSellingQuantity(initialQuantity || 1);
+          setSellingPrice(price || '');
+          setExchangeGrade(exchangeGrade || '');
+          setExchangeGenre(exchangeGenre || '');
+          setExchangeDescription(exchangeDescription || '');
+        } else {
           openModal({
             type: 'alert',
             title: '판매글 정보 불러오기 실패',
-            description: `판매글 정보를 불러오는 중 오류가 발생했습니다: ${
-              error.message || '알 수 없는 오류'
-            }`,
+            description: '해당 판매글 정보를 불러오는 데 실패했습니다.',
             button: {
-              label: '마켓플레이스로 돌아가기',
+              label: '확인',
               onClick: () => {
                 closeModal();
                 onClose();
-                router.push('/market');
               },
             },
           });
-        })
-        .finally(() => {
-          setIsLoading(false);
+        }
+      } catch (error) {
+        openModal({
+          type: 'alert',
+          title: '판매글 정보 불러오기 실패',
+          description: `판매글 정보를 불러오는 중 오류가 발생했습니다: ${
+            error.message || '알 수 없는 오류'
+          }`,
+          button: {
+            label: '마켓플레이스로 돌아가기',
+            onClick: () => {
+              closeModal();
+              onClose();
+              router.push('/market');
+            },
+          },
         });
-    } else if (!isOpen) {
-      setShopDetails(null);
-      setInitialShopDetails(null);
-      setSellingQuantity(1);
-      setSellingPrice('');
-      setExchangeGrade('');
-      setExchangeGenre('');
-      setExchangeDescription('');
-      setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchData();
+    } else {
+      resetState();
     }
-  }, [isOpen, id, openModal, closeModal, onClose, router]);
+  }, [isOpen, id]);
 
-  const handleQuantityChange = useCallback(newVal => {
-    setSellingQuantity(newVal);
-  }, []);
+  const handleQuantityChange = useCallback(setSellingQuantity, []);
 
+  // 입력값 변화 감지(변화한 값이 없으면 button 비활성화)
   const hasChanges = useCallback(() => {
     if (!initialShopDetails) return false;
 
-    const initialPriceString = initialShopDetails.price;
-    const currentPriceString = sellingPrice;
-
-    if (
+    const changed =
       sellingQuantity !== initialShopDetails.initialQuantity ||
-      currentPriceString !== initialPriceString
-    ) {
-      return true;
-    }
+      sellingPrice !== initialShopDetails.price ||
+      exchangeGrade.trim() !==
+        (initialShopDetails.exchangeGrade || '').trim() ||
+      exchangeGenre.trim() !==
+        (initialShopDetails.exchangeGenre || '').trim() ||
+      exchangeDescription.trim() !==
+        (initialShopDetails.exchangeDescription || '').trim();
 
-    const initialExchangeGrade = initialShopDetails.exchangeGrade?.trim() || '';
-    const initialExchangeGenre = initialShopDetails.exchangeGenre?.trim() || '';
-    const initialExchangeDescription =
-      initialShopDetails.exchangeDescription?.trim() || '';
-
-    const currentExchangeGrade = exchangeGrade?.trim() || '';
-    const currentExchangeGenre = exchangeGenre?.trim() || '';
-    const currentExchangeDescription = exchangeDescription?.trim() || '';
-
-    const initialHasExchangeInfo =
-      initialExchangeGrade ||
-      initialExchangeGenre ||
-      initialExchangeDescription;
-    const currentHasExchangeInfo =
-      currentExchangeGrade ||
-      currentExchangeGenre ||
-      currentExchangeDescription;
-
-    if (initialHasExchangeInfo !== currentHasExchangeInfo) {
-      return true;
-    }
-
-    if (currentHasExchangeInfo) {
-      if (
-        currentExchangeGrade !== initialExchangeGrade ||
-        currentExchangeGenre !== initialExchangeGenre ||
-        currentExchangeDescription !== initialExchangeDescription
-      ) {
-        return true;
-      }
-    }
-
-    return false;
+    return changed;
   }, [
     initialShopDetails,
     sellingQuantity,
@@ -164,42 +137,30 @@ export default function EditCardModal({isOpen, onClose}) {
   ]);
 
   const handleEditSubmit = async () => {
-    if (!sellingQuantity || !sellingPrice || sellingPrice === 0) {
+    if (!sellingQuantity || !sellingPrice || sellingPrice === '0') {
       openModal({
         type: 'alert',
         title: '입력 오류',
         description: '판매 수량과 가격을 입력해주세요.',
-        button: {
-          label: '확인',
-          onClick: closeModal,
-        },
+        button: {label: '확인', onClick: closeModal},
       });
       return;
     }
 
-    const hasExchangeInfo =
-      exchangeGrade || exchangeGenre || exchangeDescription;
-
     const updatedData = {
       initialQuantity: sellingQuantity,
       price: Number(sellingPrice),
+      listingType:
+        exchangeGrade || exchangeGenre || exchangeDescription
+          ? 'FOR_SALE_AND_TRADE'
+          : 'FOR_SALE',
+      exchangeGrade: exchangeGrade || null,
+      exchangeGenre: exchangeGenre || null,
+      exchangeDescription: exchangeDescription || null,
     };
-
-    if (hasExchangeInfo) {
-      updatedData.listingType = 'FOR_SALE_AND_TRADE';
-      updatedData.exchangeGrade = exchangeGrade;
-      updatedData.exchangeGenre = exchangeGenre;
-      updatedData.exchangeDescription = exchangeDescription;
-    } else {
-      updatedData.listingType = 'FOR_SALE';
-      updatedData.exchangeGrade = null;
-      updatedData.exchangeGenre = null;
-      updatedData.exchangeDescription = null;
-    }
 
     try {
       await updateShop(Number(id), updatedData);
-
       openModal({
         type: 'success',
         title: '수정 완료',
@@ -218,12 +179,7 @@ export default function EditCardModal({isOpen, onClose}) {
         type: 'fail',
         title: '수정 실패',
         description: error.message || '수정 중 오류가 발생했습니다.',
-        button: {
-          label: '닫기',
-          onClick: () => {
-            closeModal();
-          },
-        },
+        button: {label: '닫기', onClick: closeModal},
       });
     }
   };
@@ -242,14 +198,11 @@ export default function EditCardModal({isOpen, onClose}) {
     {label: '사물', value: 'OBJECT'},
   ];
 
-  const getGenreLabel = genreValue => {
-    const foundGenre = genreOptions.find(option => option.value === genreValue);
-    return foundGenre ? foundGenre.label : genreValue;
-  };
+  const getGenreLabel = genreValue =>
+    genreOptions.find(option => option.value === genreValue)?.label ||
+    genreValue;
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   const isSubmitDisabled = isLoading || !initialShopDetails || !hasChanges();
 
