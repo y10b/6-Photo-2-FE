@@ -97,13 +97,15 @@ export default function ExchangeInfoSection({info, onSelect}) {
             exchangeDescription: shopData.exchangeDescription || '교환 희망 설명이 없습니다.',
             exchangeGrade: shopData.exchangeGrade || 'COMMON',
             exchangeGenre: shopData.exchangeGenre || '장르 없음',
-            listingType: shopData.listingType
+            listingType: shopData.listingType,
+            photoCardId: shopData.photoCardId,
+            userCardId: shopData.photoCardId  // photoCardId를 userCardId로 사용
           };
 
           console.log('가공된 교환 정보:', processedInfo);
           setExchangeInfo(processedInfo);
 
-          // 교환 제안 목록 조회 - 판매글의 photoCardId 사용
+          // 교환 제안 목록 조회
           if (shopData.photoCardId) {
             await fetchExchangeRequests(shopData.photoCardId);
           }
@@ -129,12 +131,18 @@ export default function ExchangeInfoSection({info, onSelect}) {
   }, [info?.shopListingId]);
 
   const handleOpenModal = () => {
+    if (!exchangeInfo?.userCardId) {
+      console.error('교환할 카드 ID가 없습니다.');
+      return;
+    }
+
     openModal({
       type: 'responsive',
       variant: 'bottom',
       children: <ExchangeModal 
         myCards={info.myCards} 
-        targetCardId={info.shopListingId}
+        targetCardId={exchangeInfo.userCardId}
+        shopListingId={info.shopListingId}
       />,
     });
   };

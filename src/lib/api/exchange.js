@@ -3,40 +3,53 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export async function postExchangeProposal({
   targetCardId,
   requestCardId,
+  shopListingId,
   description,
   accessToken,
 }) {
-  console.log('📦 프론트 요청 데이터:', {
-    targetCardId,
-    requestCardId,
-    description,
-  });
+  try {
+    // 요청 데이터 유효성 검사
+    if (!targetCardId || !requestCardId || !shopListingId) {
+      throw new Error('필수 정보가 누락되었습니다.');
+    }
 
-  const response = await fetch(`${BASE_URL}/api/exchange`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      targetCardId,
-      requestCardId,
-      description,
-    }),
-  });
+    // 숫자로 변환
+    const numericTargetCardId = Number(targetCardId);
+    const numericRequestCardId = Number(requestCardId);
+    const numericShopListingId = Number(shopListingId);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('❌ 서버 응답 오류:', errorData);
-    throw new Error(errorData.message || '교환 제안 실패');
+    if (isNaN(numericTargetCardId) || isNaN(numericRequestCardId) || isNaN(numericShopListingId)) {
+      throw new Error('ID는 숫자여야 합니다.');
+    }
+
+    const response = await fetch(`${BASE_URL}/api/exchange`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        targetCardId: numericTargetCardId,
+        requestCardId: numericRequestCardId,
+        shopListingId: numericShopListingId,
+        description: description || '',
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || '교환 제안 실패');
+    }
+
+    return {
+      success: true,
+      data
+    };
+  } catch (error) {
+    console.error('교환 요청 API 오류:', error);
+    throw error;
   }
-
-  const result = await response.json();
-
-  // ✅ 서버 응답 성공 시 프론트 로그 추가
-  console.log('✅ 서버 응답 결과:', result);
-
-  return result;
 }
 
 /**

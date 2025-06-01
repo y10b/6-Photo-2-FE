@@ -9,7 +9,7 @@ import Image from 'next/image';
 import ExchangeFullScreen from './ExchangeFullScreen';
 import useFilteredCards from '@/hooks/useFilteredCards';
 
-export default function ExchangeModal({myCards, targetCardId}) {
+export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
   const {closeModal, openModal} = useModal();
   const [search, setSearch] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -24,7 +24,19 @@ export default function ExchangeModal({myCards, targetCardId}) {
   );
 
   useEffect(() => {
-    console.log('🟡 ExchangeModal 받은 targetCardId:', targetCardId);
+    if (!targetCardId) {
+      console.error('교환할 카드 ID가 없습니다.');
+      alert('교환할 카드 정보가 없습니다.');
+      closeModal();
+      return;
+    }
+
+    if (!shopListingId) {
+      console.error('판매글 ID가 없습니다.');
+      alert('판매글 정보가 없습니다.');
+      closeModal();
+      return;
+    }
 
     // 내가 요청한 교환 목록 조회
     const fetchMyExchangeRequests = async () => {
@@ -59,87 +71,60 @@ export default function ExchangeModal({myCards, targetCardId}) {
       }
     };
 
-    if (targetCardId) {
-      fetchMyExchangeRequests();
-    }
-  }, [targetCardId]);
+    fetchMyExchangeRequests();
+  }, [targetCardId, shopListingId, closeModal]);
 
   const handleCardClick = async card => {
-    // 디버깅을 위한 로깅 추가
-    console.log('선택된 카드 전체 데이터:', card);
-    console.log('카드 ID 정보:', {
-      userCardId: card.userCardId,
-      photoCardId: card.photoCardId,
-      id: card.id
-    });
-    
-    // 이미 교환 요청한 카드인지 확인
-    const isAlreadyRequested = myExchangeRequests.some(
-      request => request.requestCardId === card.userCardId
-    );
-
-    if (isAlreadyRequested) {
-      alert('이미 교환 요청한 카드입니다.');
-      return;
-    }
-
-    console.log('선택된 원본 카드 데이터:', card);
-    
+    if (isLoading) return;
     setIsLoading(true);
-    
+
     try {
-      const cardId = card.userCardId;
-      console.log('카드 상태 확인에 사용할 ID:', cardId);
-      
-      if (!cardId) {
-        throw new Error('카드 ID가 없습니다.');
-      }
-      
-      // 카드 상태 재확인
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cards/${cardId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('카드 정보를 가져오는데 실패했습니다.');
-      }
-      
-      const cardData = await response.json();
-      console.log('서버에서 받은 카드 데이터:', cardData);
-      
-      // 카드 상태가 saleStatus 또는 status 필드에 있을 수 있음
-      const cardStatus = cardData.saleStatus || cardData.status;
-      
-      if (cardStatus !== 'IDLE') {
-        alert('현재 교환할 수 없는 카드입니다. 잠시 후 다시 시도해주세요.');
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('로그인이 필요합니다.');
         return;
       }
+
+      // 카드 상태 확인
+      const cardResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/cards/${card.userCardId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!cardResponse.ok) {
+        throw new Error('카드 정보를 가져오는데 실패했습니다.');
+      }
+
+      const cardData = await cardResponse.json();
       
+      // 카드 상태 확인
+      if (cardData.status && cardData.status !== 'IDLE') {
+        throw new Error('이미 거래 중이거나 교환할 수 없는 상태의 카드입니다.');
+      }
+
       const formattedCard = {
         ...card,
-        userCardId: cardId,
-        photoCardId: card.photoCardId,
-        status: 'IDLE',
-        type: 'exchange_big'
+        status: cardData.status,
       };
-
-      console.log('포맷팅된 카드 데이터:', formattedCard);
 
       openModal({
         type: 'custom',
         content: (
           <ExchangeFullScreen
             card={formattedCard}
-            targetCardId={targetCardId}
+            targetCardId={targetCardId}  // photoCardId 전달
+            shopListingId={shopListingId}  // 판매글 ID 전달
             onClose={closeModal}
           />
         ),
       });
     } catch (error) {
       console.error('카드 상태 확인 중 오류:', error);
-      alert('카드 상태를 확인하는 중 오류가 발생했습니다.');
+      alert(error.message || '카드 상태를 확인하는 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
