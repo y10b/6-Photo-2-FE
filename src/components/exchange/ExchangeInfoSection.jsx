@@ -5,44 +5,71 @@ import Button from '@/components/common/Button';
 import {useModal} from '@/components/modal/ModalContext';
 import ExchangeModal from './ExchangeModal';
 import Image from 'next/image';
+import { fetchMyExchangeRequests, fetchMyOfferedCardsForShop } from '@/lib/api/exchange';
 
 export default function ExchangeInfoSection({info, onSelect}) {
   const [exchangeInfo, setExchangeInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [myExchangeRequests, setMyExchangeRequests] = useState([]);
+  const [myOfferedCards, setMyOfferedCards] = useState([]);
   const {openModal} = useModal();
 
   // 교환 제안 목록 조회
-  const fetchExchangeRequests = async (cardId) => {
+  const fetchExchangeRequests = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) return;
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/card/${cardId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
+      // 내가 보낸 교환 요청 목록 조회
+      const response = await fetchMyExchangeRequests(accessToken);
+      console.log('교환 제안 목록 조회 결과:', response);
 
-      if (!response.ok) {
-        throw new Error('교환 제안 목록을 가져오는데 실패했습니다.');
-      }
-
-      const data = await response.json();
-      console.log('교환 제안 목록 조회 결과:', data);
-
-      if (data.success && Array.isArray(data.data)) {
-        // 요청 상태인 교환만 필터링
-        const validRequests = data.data.filter(
-          request => request.status === 'REQUESTED'
+      if (response.success && response.data) {
+        // 현재 판매글에 대한 교환 요청만 필터링
+        const currentShopRequests = response.data.filter(
+          request => request.shopListingId === info.shopListingId && request.status === 'REQUESTED'
         );
-        setMyExchangeRequests(validRequests);
+
+        // 교환 요청 데이터 가공
+        const processedRequests = currentShopRequests.map(request => ({
+          id: request.id,
+          requestCardId: request.requestCardId,
+          targetCardId: request.targetCardId,
+          shopListingId: request.shopListingId,
+          description: request.description,
+          status: request.status,
+          createdAt: request.createdAt,
+          requestCard: {
+            imageUrl: request.requestCard?.photoCard?.imageUrl,
+            name: request.requestCard?.photoCard?.name,
+            grade: request.requestCard?.photoCard?.grade,
+            genre: request.requestCard?.photoCard?.genre,
+            user: request.requestCard?.user
+          }
+        }));
+
+        console.log('처리된 교환 요청 목록:', processedRequests);
+        setMyExchangeRequests(processedRequests);
       }
     } catch (error) {
       console.error('교환 제안 목록 조회 실패:', error);
+    }
+  };
+
+  // 내가 제시한 카드 목록 조회
+  const fetchOfferedCards = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken || !info.shopListingId) return;
+
+      const response = await fetchMyOfferedCardsForShop(info.shopListingId, accessToken);
+      console.log('제시 카드 목록 조회 결과:', response);
+
+      if (response.success) {
+        setMyOfferedCards(response.data);
+      }
+    } catch (error) {
+      console.error('제시 카드 목록 조회 실패:', error);
     }
   };
 
@@ -105,10 +132,11 @@ export default function ExchangeInfoSection({info, onSelect}) {
           console.log('가공된 교환 정보:', processedInfo);
           setExchangeInfo(processedInfo);
 
-          // 교환 제안 목록 조회
-          if (shopData.photoCardId) {
-            await fetchExchangeRequests(shopData.photoCardId);
-          }
+          // 교환 제안 목록과 제시 카드 목록 조회
+          await Promise.all([
+            fetchExchangeRequests(),
+            fetchOfferedCards()
+          ]);
         } else {
           console.log('교환 불가능한 판매글');
           setExchangeInfo(null);
@@ -178,32 +206,35 @@ export default function ExchangeInfoSection({info, onSelect}) {
       <h3 className="text-white text-[24px] font-bold mb-2">교환 희망 정보</h3>
       <hr className="border-t border-gray200 mb-5" />
       
-      {/* 내가 요청한 교환 목록 */}
-      {myExchangeRequests.length > 0 && (
+      {/* 내가 제시한 교환 카드 목록 */}
+      {myOfferedCards.length > 0 && (
         <div className="mb-8">
           <h4 className="text-white text-[18px] font-bold mb-4">내가 제시한 교환 카드</h4>
           <div className="grid grid-cols-2 gap-4">
-            {myExchangeRequests.map(request => (
-              <div key={request.id} className="bg-gray800 rounded-lg p-4">
+            {myOfferedCards.map(card => (
+              <div key={card.id} className="bg-gray800 rounded-lg p-4">
                 <div className="aspect-w-4 aspect-h-3 mb-2">
                   <img
-                    src={request.requestCard.imageUrl}
-                    alt={request.requestCard.name}
+                    src={card.photoCard.imageUrl}
+                    alt={card.photoCard.name}
                     className="object-cover rounded-lg w-full h-full"
                   />
                 </div>
                 <p className="text-white font-bold text-sm truncate">
-                  {request.requestCard.name}
+                  {card.photoCard.name}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-yellow300 text-xs">
-                    {request.requestCard.grade}
+                    {card.photoCard.grade}
                   </span>
                   <span className="text-gray400 text-xs">|</span>
                   <span className="text-gray300 text-xs">
-                    {request.requestCard.genre}
+                    {card.photoCard.genre}
                   </span>
                 </div>
+                <p className="text-gray400 text-xs mt-2">
+                  제시일: {new Date(card.createdAt).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>

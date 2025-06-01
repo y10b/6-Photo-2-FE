@@ -194,15 +194,18 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
                 >
                   <div className="aspect-w-4 aspect-h-3 mb-2">
                     <img
-                      src={request.imageUrl}
-                      alt={request.name}
-                      className="object-cover rounded"
+                      src={request.requestCard.imageUrl}
+                      alt={request.requestCard.name}
+                      className="object-cover rounded w-full h-full"
                     />
                   </div>
-                  <p className="text-sm font-bold truncate">{request.name}</p>
-                  <p className="text-xs text-gray-400">
-                    {request.grade} | {request.genre}
-                  </p>
+                  <p className="text-sm font-bold truncate">{request.requestCard.name}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-yellow-300 text-xs">{request.requestCard.grade}</span>
+                    <span className="text-gray-400 text-xs">|</span>
+                    <span className="text-gray-300 text-xs">{request.requestCard.genre}</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">교환 제안일: {new Date(request.createdAt).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>

@@ -53,18 +53,16 @@ export async function postExchangeProposal({
 }
 
 /**
- * 특정 카드에 대한 내 교환 요청 목록을 가져옵니다.
- * @param {string} targetCardId - 교환 대상 카드 ID
+ * 내가 보낸 교환 요청 목록을 조회합니다.
  * @param {string} accessToken - 액세스 토큰
  * @returns {Promise<Object>} - 교환 요청 목록 데이터
  */
-export async function fetchMyExchangeRequests(targetCardId, accessToken) {
+export const fetchMyExchangeRequests = async (accessToken) => {
+  console.log('🔍 내가 보낸 교환 요청 목록 조회 시작');
+
   try {
-    console.log(`🔍 교환 요청 목록 조회 시작: targetCardId=${targetCardId}`);
-    
-    // 백엔드 API 엔드포인트 호출
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/card/${targetCardId}`,
+      `${BASE_URL}/api/exchange/my-requests`,
       {
         method: 'GET',
         headers: {
@@ -75,32 +73,19 @@ export async function fetchMyExchangeRequests(targetCardId, accessToken) {
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       console.error('❌ 교환 요청 목록 조회 실패:', errorData);
-      
-      // 권한 관련 에러 메시지 처리
-      if (errorData.message && errorData.message.includes('권한')) {
-        return { data: [] }; // 권한이 없는 경우 빈 배열 반환
-      }
-      
       throw new Error(errorData.message || '교환 요청 목록을 가져오는데 실패했습니다.');
     }
 
     const data = await response.json();
     console.log('✅ 교환 요청 목록 조회 성공:', data);
-    
-    // 응답 데이터 구조 자세히 로깅
-    if (data.data && data.data.length > 0) {
-      console.log('📊 첫 번째 교환 요청 데이터 구조:', JSON.stringify(data.data[0], null, 2));
-    }
-    
     return data;
   } catch (error) {
-    console.error('❌ 교환 요청 목록 조회 오류:', error);
-    // 에러가 발생해도 UI가 깨지지 않도록 빈 배열 반환
-    return { data: [] };
+    console.error('❌ 교환 요청 목록 조회 실패:', error);
+    return { success: false, data: [] };
   }
-}
+};
 
 /**
  * 교환 요청을 생성합니다.
@@ -209,3 +194,88 @@ export async function fetchShopExchangeRequests(shopId, accessToken) {
     throw error;
   }
 }
+
+/**
+ * 특정 판매글에 대해 내가 보낸 교환 요청을 조회합니다.
+ * @param {number} shopListingId - 판매글 ID
+ * @param {string} accessToken - 액세스 토큰
+ * @returns {Promise<Object>} - 교환 요청 목록 데이터
+ */
+export const fetchMyExchangeRequestsForShop = async (shopListingId, accessToken) => {
+  console.log('🔍 판매글에 대한 내 교환 요청 조회 시작:', {shopListingId});
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/exchange/shop/${shopListingId}/my-requests`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ 교환 요청 조회 실패:', errorData);
+      throw new Error(errorData.message || '교환 요청을 가져오는데 실패했습니다.');
+    }
+
+    const data = await response.json();
+    console.log('✅ 교환 요청 조회 성공:', data);
+    return data;
+  } catch (error) {
+    console.error('❌ 교환 요청 조회 실패:', error);
+    return { success: false, data: [] };
+  }
+};
+
+/**
+ * 특정 판매글에 대해 내가 제시한 교환 카드 목록을 조회합니다.
+ * @param {number} shopListingId - 판매글 ID
+ * @param {string} accessToken - 액세스 토큰
+ * @returns {Promise<Object>} - 교환 제시 카드 목록 데이터
+ */
+export const fetchMyOfferedCardsForShop = async (shopListingId, accessToken) => {
+  console.log('🔍 판매글에 대한 내가 제시한 카드 목록 조회 시작:', {shopListingId});
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/exchange/shop/${shopListingId}/my-cards`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ 제시 카드 목록 조회 실패:', errorData);
+      throw new Error(errorData.message || '제시한 카드 목록을 가져오는데 실패했습니다.');
+    }
+
+    const data = await response.json();
+    console.log('✅ 제시 카드 목록 조회 성공:', data);
+    return {
+      success: true,
+      data: data.data.map(card => ({
+        id: card.id,
+        photoCard: {
+          imageUrl: card.photoCard.imageUrl,
+          name: card.photoCard.name,
+          grade: card.photoCard.grade,
+          genre: card.photoCard.genre
+        },
+        status: card.status,
+        createdAt: card.createdAt
+      }))
+    };
+  } catch (error) {
+    console.error('❌ 제시 카드 목록 조회 실패:', error);
+    return { success: false, data: [] };
+  }
+};

@@ -77,36 +77,39 @@ export default function PurchasePage() {
       setIsLoadingProposals(true);
 
       try {
+        console.log('교환 요청 원본 데이터:', myExchangeData.data);
+
         const exchangeProposals = myExchangeData.data.map(exchange => {
+          // requestCard 객체에서 필요한 정보 추출
           const requestCard = exchange.requestCard || {};
           const photoCard = requestCard.photoCard || {};
+          const user = requestCard.user || {};
 
           return {
             id: exchange.id,
             exchangeId: exchange.id,
             requestCardId: exchange.requestCardId,
-            photoCardId: photoCard.id,
+            targetCardId: exchange.targetCardId,
             imageUrl: photoCard.imageUrl || '/logo.svg',
             name: photoCard.name || '카드 이름',
             grade: photoCard.grade || 'COMMON',
             genre: photoCard.genre || '장르 없음',
-            description:
-              exchange.description || photoCard.description || '설명 없음',
+            description: exchange.description || photoCard.description || '설명 없음',
             status: exchange.status || 'REQUESTED',
             createdAt: exchange.createdAt || new Date().toISOString(),
-            nickname:
-              exchange.userNickname ||
-              requestCard.user?.nickname ||
-              '프로여행러',
+            nickname: user.nickname || '프로여행러',
             price: photoCard.price || 0,
           };
         });
 
+        console.log('변환된 교환 제안 데이터:', exchangeProposals);
+
         // 최신순으로 정렬하고 취소되지 않은 교환만 표시
         const sortedProposals = exchangeProposals
-          .filter(proposal => proposal.status !== 'CANCELLED')
+          .filter(proposal => proposal.status === 'REQUESTED')
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+        console.log('필터링 및 정렬된 교환 제안:', sortedProposals);
         setMyProposals(sortedProposals);
       } catch (error) {
         console.error('교환 요청 데이터 변환 중 오류:', error);
@@ -120,6 +123,7 @@ export default function PurchasePage() {
   }, [myExchangeData]);
 
   const handleCancelExchange = exchangeId => {
+    console.log('교환 취소:', exchangeId);
     setMyProposals(prev => prev.filter(card => card.exchangeId !== exchangeId));
   };
 
@@ -163,10 +167,10 @@ export default function PurchasePage() {
           shopListingId: purchaseData.id,
           myCards: myCardData?.result || [],
           targetCardId: id,
-          exchangeGrade: null,
-          exchangeGenre: null,
-          exchangeDescription: null,
-          listingType: null
+          exchangeGrade: purchaseData.exchangeGrade,
+          exchangeGenre: purchaseData.exchangeGenre,
+          exchangeDescription: purchaseData.exchangeDescription,
+          listingType: purchaseData.listingType
         }}
         onSelect={(requestCardId, description) => {
           const proposedCard = myCardData?.result.find(
@@ -178,10 +182,13 @@ export default function PurchasePage() {
         }}
       />
 
-      <MyExchangeList
-        cards={myProposals}
-        onCancelExchange={handleCancelExchange}
-      />
+      {/* 교환 요청 목록이 있을 때만 MyExchangeList 표시 */}
+      {myProposals.length > 0 && (
+        <MyExchangeList
+          cards={myProposals}
+          onCancelExchange={handleCancelExchange}
+        />
+      )}
     </div>
   );
 }
