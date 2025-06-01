@@ -1,37 +1,47 @@
 'use client';
 
-import {useEffect, useState} from 'react';
 import {useParams} from 'next/navigation';
+import {useQuery} from '@tanstack/react-query';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
-import {fetchShopDetail} from '@/lib/api/shop'; 
+import {fetchShopDetail} from '@/lib/api/shop';
+import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
+import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
 
-function SalePage() {
+function SaleSkeleton() {
+  return (
+    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
+      <TransactionSkeleton type="seller" />
+      <ExchangeInfoSkeleton />
+    </div>
+  );
+}
+
+export default function SalePage() {
   const {id} = useParams();
-  const [shopData, setShopData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchShopDetail(id);
-        setShopData(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: shopData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['shopDetail', id],
+    queryFn: () => fetchShopDetail(id),
+    enabled: !!id,
+  });
 
-    if (id) {
-      loadData();
-    }
-  }, [id]);
+  if (isLoading) return <SaleSkeleton />;
 
-  if (loading) return <div>로딩 중...</div>;
-  if (error) return <div>에러 발생: {error}</div>;
-  if (!shopData) return <div>데이터가 없습니다.</div>;
+  if (isError)
+    return (
+      <div className="text-center text-red-500 mt-10">
+        에러 발생: {error?.message || '알 수 없는 에러'}
+      </div>
+    );
+
+  if (!shopData)
+    return <div className="text-center mt-10">데이터가 없습니다.</div>;
 
   const {shop, isSeller} = shopData;
 
@@ -39,9 +49,9 @@ function SalePage() {
     name: shop.photoCard.name,
     grade: shop.photoCard.grade,
     genre: shop.photoCard.genre,
-    imageUrl:shop.photoCard.imageUrl,
+    imageUrl: shop.photoCard.imageUrl,
     description: shop.photoCard.description,
-    sellerNickname: shop.seller.nickname, 
+    sellerNickname: shop.seller.nickname,
     price: shop.price,
     remainingQuantity: shop.remainingQuantity,
     initialQuantity: shop.initialQuantity,
@@ -55,7 +65,7 @@ function SalePage() {
     },
   ];
 
-  const suggestedCards = []; 
+  const suggestedCards = [];
 
   return (
     <div className="mb-30 w-full">
@@ -68,5 +78,3 @@ function SalePage() {
     </div>
   );
 }
-
-export default SalePage;
