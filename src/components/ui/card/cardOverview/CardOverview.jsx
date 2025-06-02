@@ -21,8 +21,13 @@ export default function CardOverview({card, onCardClick}) {
   } = card;
 
   // 조건들은 useMemo로 메모이제이션
-
   const isExchangeBig = useMemo(() => type === 'exchange_big', [type]);
+
+  // exchange 관련 타입인지 확인
+  const isExchangeType = useMemo(
+    () => ['exchange_btn1', 'exchange_btn2', 'exchange_big'].includes(type),
+    [type],
+  );
 
   // containerClass도 useMemo로 계산
   const containerClass = useMemo(() => {
@@ -45,8 +50,9 @@ export default function CardOverview({card, onCardClick}) {
       <CardImage
         imageUrl={imageUrl}
         title={title}
-        saleStatus={saleStatus}
+        saleStatus={isExchangeType ? undefined : saleStatus} // exchange 타입일 때는 saleStatus를 전달하지 않음
         isExchangeBig={isExchangeBig}
+        type={type}
       />
       <CardInfo
         type={type}

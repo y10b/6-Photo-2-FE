@@ -48,14 +48,29 @@ export default function CardImage({
   title,
   saleStatus, // 'sale' | 'exchange' | 'soldout'
   isExchangeBig = false,
+  type, // 카드 타입
 }) {
-  const isSoldOut = useMemo(() => saleStatus === 'soldout', [saleStatus]);
+  // exchange 관련 타입인지 확인
+  const isExchangeType = useMemo(
+    () => ['exchange_btn1', 'exchange_btn2', 'exchange_big'].includes(type),
+    [type],
+  );
+
+  // exchange 타입이 아닐 경우에만 saleStatus 사용
+  const isSoldOut = useMemo(
+    () => !isExchangeType && saleStatus === 'soldout',
+    [isExchangeType, saleStatus],
+  );
+
   const isForSale = useMemo(
-    () => saleStatus === 'sale' || saleStatus === 'exchange',
-    [saleStatus],
+    () =>
+      !isExchangeType && (saleStatus === 'sale' || saleStatus === 'exchange'),
+    [isExchangeType, saleStatus],
   );
 
   const saleStatusText = useMemo(() => {
+    if (isExchangeType) return '';
+
     switch (saleStatus) {
       case 'exchange':
         return '교환 제시 대기 중';
@@ -64,7 +79,7 @@ export default function CardImage({
       default:
         return '';
     }
-  }, [saleStatus]);
+  }, [isExchangeType, saleStatus]);
 
   return (
     <div className={getImageContainerClass(isExchangeBig)}>
@@ -80,7 +95,7 @@ export default function CardImage({
         onContextMenu={e => e.preventDefault()}
       />
       {isSoldOut && <SoldOutOverlay />}
-      {isForSale && !isSoldOut && <SaleStatusBadge status={saleStatusText} />}
+      {isForSale && <SaleStatusBadge status={saleStatusText} />}
     </div>
   );
 }
