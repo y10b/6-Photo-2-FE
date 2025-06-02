@@ -40,6 +40,13 @@ export default function SellCardRegistrationBottomSheet({
     setIsLoading(false);
   };
 
+  const gradePriceLimits = {
+    COMMON: {min: 100, max: 1000},
+    RARE: {min: 1000, max: 3000},
+    SUPER_RARE: {min: 3000, max: 5000},
+    LEGENDARY: {min: 5000, max: 10000},
+  };
+
   const showResultModal = (isSuccess, titleText) => {
     const modalType = isSuccess ? 'success' : 'fail';
     openModal({
@@ -108,6 +115,23 @@ export default function SellCardRegistrationBottomSheet({
       return;
     }
 
+    const price = Number(sellingPrice);
+    const grade = cardDetails.cardGrade?.toUpperCase(); 
+    const limits = gradePriceLimits[grade];
+
+    if (!limits || price < limits.min || price > limits.max) {
+      openModal({
+        type: 'alert',
+        title: '가격 오류',
+        description: `${grade} 등급은 ${limits.min}P ~ ${limits.max}P 사이로만 설정할 수 있어요.`,
+        button: {
+          label: '확인',
+          onClick: () => closeModal(),
+        },
+      });
+      return;
+    }
+
     const listingType =
       exchangeGrade || exchangeGenre || exchangeDescription
         ? 'FOR_SALE_AND_TRADE'
@@ -116,7 +140,7 @@ export default function SellCardRegistrationBottomSheet({
     const saleData = {
       photoCardId: Number(cardDetails.photoCardId),
       quantity: Number(sellingQuantity),
-      price: Number(sellingPrice),
+      price,
       listingType,
       ...(listingType === 'FOR_SALE_AND_TRADE' && {
         exchangeGrade,

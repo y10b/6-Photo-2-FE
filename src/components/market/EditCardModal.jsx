@@ -137,6 +137,33 @@ export default function EditCardModal({isOpen, onClose}) {
   ]);
 
   const handleEditSubmit = async () => {
+    const gradePriceLimits = {
+      COMMON: {min: 100, max: 1000},
+      RARE: {min: 1000, max: 3000},
+      SUPER_RARE: {min: 3000, max: 5000},
+      LEGENDARY: {min: 5000, max: 10000},
+    };
+
+    const grade = shopDetails?.photoCard?.grade;
+    const price = Number(sellingPrice);
+    const limits = gradePriceLimits[grade];
+
+    if (grade && gradePriceLimits[grade]) {
+      const {min, max} = gradePriceLimits[grade];
+      if (price < min || price > max) {
+        openModal({
+          type: 'alert',
+          title: '가격 오류',
+          description: `${grade} 등급은 ${limits.min}P ~ ${limits.max}P 사이로만 설정할 수 있어요.`,
+          button: {
+            label: '확인',
+            onClick: () => closeModal(),
+          },
+        });
+        return;
+      }
+    }
+
     if (!sellingQuantity || !sellingPrice || sellingPrice === '0') {
       openModal({
         type: 'alert',
