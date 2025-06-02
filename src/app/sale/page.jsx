@@ -50,7 +50,7 @@ export default function MySalesPage() {
     queryFn: () =>
       fetchMySalesCards({
         pageParam: currentPage,
-        take: 4,
+        take: 6,
         keyword,
         sort,
         filterType: filter.type,
@@ -72,6 +72,12 @@ export default function MySalesPage() {
         ? {type: '', value: ''}
         : {type, value},
     );
+  };
+
+  // 카드 클릭 실행 함수
+  const handleCardClick = card => {
+    const path = `/sale/${card.shopIds[0]}`;
+    router.push(path);
   };
 
   return (
@@ -195,8 +201,8 @@ export default function MySalesPage() {
                 }
                 placeholder="판매방법"
                 options={[
-                  {label: '판매', value: '판매 중'},
-                  {label: '교환', value: '교환 제시 중'},
+                  {label: '판매', value: 'sale'},
+                  {label: '교환', value: 'exchange'},
                 ]}
               />
             </div>
@@ -231,6 +237,7 @@ export default function MySalesPage() {
             <CardList
               cards={displayCards}
               className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
+              onCardClick={handleCardClick}
             />
           )}
 
