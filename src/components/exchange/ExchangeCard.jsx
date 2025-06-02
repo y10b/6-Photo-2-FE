@@ -5,7 +5,8 @@ import {formatCardGrade} from '@/utils/formatCardGrade';
 import {useModal} from '@/components/modal/ModalContext';
 import {useRouter} from 'next/navigation';
 
-export default function ExchangeCard({proposal}) {
+// type 속성 추가
+export default function ExchangeCard({proposal, type = 'exchange_btn2'}) {
   const {openModal, closeModal} = useModal();
   const router = useRouter();
 
@@ -103,6 +104,21 @@ export default function ExchangeCard({proposal}) {
     ? new Date(proposal.createdAt).toLocaleDateString()
     : '';
   const description = proposal.description || '교환 제안 메시지가 없습니다.';
+
+  // CardOverview 형식으로 변환된 객체 생성 (type 속성 포함)
+  const cardData = {
+    type,
+    title: proposal.name || '카드 이름',
+    cardGrade: proposal.grade || 'COMMON',
+    cardGenre: proposal.genre || '장르',
+    nickname: proposal.userNickname || '사용자',
+    imageUrl: proposal.imageUrl || '',
+    createdAt: proposal.createdAt,
+    description,
+    id: proposal.id,
+    // 원본 proposal 데이터도 포함
+    originalProposal: proposal,
+  };
 
   return (
     <div className="bg-gray800 rounded-lg p-4 border border-gray600">
