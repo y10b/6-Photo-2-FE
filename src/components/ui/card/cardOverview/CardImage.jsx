@@ -64,7 +64,9 @@ export default function CardImage({
 
   const isForSale = useMemo(
     () =>
-      !isExchangeType && (saleStatus === 'sale' || saleStatus === 'exchange'),
+      !isExchangeType &&
+      type !== 'market' && // 마켓 플레이스에서는 뱃지 안 뜨도록
+      (saleStatus === 'sale' || saleStatus === 'exchange'),
     [isExchangeType, saleStatus],
   );
 

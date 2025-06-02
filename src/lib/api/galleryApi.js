@@ -1,62 +1,42 @@
+import {tokenFetch} from '@/lib/fetchClient';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-// 마이 갤러리 카드 조회
-export async function fetchMyGalleryCards({
-  pageParam = 1,
-  take = 12,
-  keyword = '',
-  sort = 'latest',
+// 마이갤러리 카드 목록 조회
+export const fetchMyGalleryCards = async ({
   filterType = '',
   filterValue = '',
-}) {
-  const token = localStorage.getItem('accessToken');
-  const params = new URLSearchParams({
-    page: pageParam,
-    take,
-    keyword,
-    sort,
-  });
-  if (filterType && filterValue) {
-    params.append('filterType', filterType);
-    params.append('filterValue', filterValue);
+  keyword = '',
+  page = 1,
+  take = 12,
+}) => {
+  try {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      take: take.toString(),
+    });
+
+    if (filterType) queryParams.append('filterType', filterType);
+    if (filterValue) queryParams.append('filterValue', filterValue);
+    if (keyword) queryParams.append('keyword', keyword);
+
+    const url = `/api/mypage/idle-cards?${queryParams.toString()}`;
+    const data = await tokenFetch(url, {cache: 'no-store'});
+    return data;
+  } catch (error) {
+    console.error('마이갤러리 카드 조회 실패:', error);
+    throw new Error(error.message || '마이갤러리 카드 조회 실패');
   }
-
-  const res = await fetch(
-    `${BASE_URL}/api/mypage/idle-cards?${params.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      next: {revalidate: 0},
-    },
-  );
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || '마이갤러리 불러오기 실패');
-  }
-
-  return res.json();
-}
+};
 
 // 포토카드 생성
 export async function createPhotoCard(data) {
-  const token = localStorage.getItem('accessToken');
-  const res = await fetch(`${BASE_URL}/api/mypage/create`, {
+  return tokenFetch('/api/mypage/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || '포토카드 생성에 실패했습니다');
-  }
-
-  return res.json();
 }
 
 // 이미지 업로드
@@ -82,20 +62,7 @@ export async function uploadImage(file) {
   return `${BASE_URL.replace('/api', '')}${imageUrl}`;
 }
 
-// 포토카드 생성 제한
+// 포토카드 생성 가능 여부 조회
 export async function fetchCardCreationQuota() {
-  const token = localStorage.getItem('accessToken');
-  const res = await fetch(`${BASE_URL}/api/mypage/creation-quota`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    next: {revalidate: 0},
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || '생성 가능 횟수 불러오기 실패');
-  }
-
-  return res.json();
+  return tokenFetch('/api/mypage/creation-quota');
 }

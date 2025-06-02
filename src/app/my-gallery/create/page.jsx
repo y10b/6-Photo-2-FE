@@ -1,6 +1,7 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useForm, Controller} from 'react-hook-form';
+import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {
   Input,
@@ -18,79 +19,41 @@ import NoHeader from '@/components/layout/NoHeader';
 
 export default function CreatePhotoCardPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    imageUrl: '',
-    grade: '',
-    genre: '',
-    price: '',
-    initialQuantity: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [imageFile, setImageFile] = useState(null);
-  const [isFormValid, setIsFormValid] = useState(false);
   const [remainingQuota, setRemainingQuota] = useState(0);
+  const [imageFile, setImageFile] = useState(null);
 
-  const validate = (name, value) => {
-    if (!value.trim()) return '필수 입력 항목입니다.';
-    if (name === 'name' && value.length > 30) {
-      return '포토카드 이름은 최대 30자까지 입력 가능합니다.';
-    }
-    if (name === 'initialQuantity' && +value > 10) {
-      return '총 발행량은 10장 이하로 선택 가능합니다.';
-    }
-    if (name === 'price' && +value > 1000000) {
-      return '가격은 1,000,000원 이하로 입력해 주세요.';
-    }
-    return '';
-  };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    control,
+    formState: {errors, isValid},
+  } = useForm({mode: 'onChange'});
 
-  const handleChange = e => {
-    const {name, value} = e.target;
-    setForm(prev => ({...prev, [name]: value}));
-    if (touched[name]) {
-      const error = validate(name, value);
-      setErrors(prev => ({...prev, [name]: error}));
+  const onSubmit = async data => {
+    try {
+      const result = await createPhotoCard({
+        ...data,
+        price: Number(data.price),
+        initialQuantity: Number(data.initialQuantity),
+      });
+      router.push('/my-gallery');
+    } catch (error) {
+      console.error('카드 생성 실패:', error);
     }
-  };
-
-  const handleBlur = e => {
-    const {name, value} = e.target;
-    setTouched(prev => ({...prev, [name]: true}));
-    const error = validate(name, value);
-    setErrors(prev => ({...prev, [name]: error}));
   };
 
   const handleImageChange = async file => {
     if (!file) return;
-
     try {
       const imageUrl = await uploadImage(file);
       setImageFile(file);
-      setForm(prev => ({
-        ...prev,
-        imageUrl,
-      }));
+      setValue('imageUrl', imageUrl, {shouldValidate: true});
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
     }
   };
-
-  useEffect(() => {
-    const allFilled = Object.entries(form).every(([key, value]) => {
-      if (key === 'imageUrl') return !!imageFile;
-      return value.trim() !== '';
-    });
-
-    const allValid = Object.entries(form).every(([key, value]) => {
-      if (key === 'imageUrl') return !!imageFile;
-      return validate(key, value) === '';
-    });
-
-    setIsFormValid(allFilled && allValid);
-  }, [form, imageFile]);
 
   useEffect(() => {
     fetchCardCreationQuota()
@@ -98,24 +61,11 @@ export default function CreatePhotoCardPage() {
       .catch(err => console.error('생성 가능 횟수 조회 실패:', err));
   }, []);
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-
-    try {
-      const result = await createPhotoCard({
-        ...form,
-        price: Number(form.price),
-        initialQuantity: Number(form.initialQuantity),
-      });
-
-      router.push('/my-gallery');
-    } catch (error) {}
-  };
-
   return (
     <div className="max-w-[1480px] mx-auto px-4">
-      {/* 모바일 헤더 */}
       <NoHeader title="포토카드 생성" />
+
+      {/* 모바일 헤더 */}
       <div className="tablet:hidden px-4 mt-2 mb-4 flex items-baseline text-white">
         <span className="text-main text-[32px] leading-none">
           {remainingQuota}
@@ -132,7 +82,7 @@ export default function CreatePhotoCardPage() {
           포토카드 생성
         </h1>
         <div className="flex items-end mb-5">
-          <span className="text-main  text-[40px] leading-none self-end">
+          <span className="text-main text-[40px] leading-none self-end">
             {remainingQuota}
           </span>
           <span className="text-white text-[28px] leading-none self-end">
@@ -148,99 +98,100 @@ export default function CreatePhotoCardPage() {
 
       <div className="flex justify-center">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="space-y-4 w-full max-w-[520px]"
         >
           <Input
             label="포토카드 이름"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
             placeholder="포토카드 이름을 입력해 주세요"
-            error={errors.name}
-            required
+            {...register('name', {
+              required: '필수 입력 항목입니다.',
+              maxLength: {value: 30, message: '최대 30자까지 입력 가능합니다.'},
+            })}
+            error={errors.name?.message}
           />
-          <DropdownInput
-            label="등급"
+
+          <Controller
             name="grade"
-            value={form.grade}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={[
-              {label: 'COMMON', value: 'COMMON'},
-              {label: 'RARE', value: 'RARE'},
-              {label: 'SUPER_RARE', value: 'SUPER_RARE'},
-              {label: 'LEGENDARY', value: 'LEGENDARY'},
-            ]}
-            error={errors.grade}
-            required
+            control={control}
+            rules={{required: '필수 입력 항목입니다.'}}
+            render={({field}) => (
+              <DropdownInput
+                label="등급"
+                options={[
+                  {label: 'COMMON', value: 'COMMON'},
+                  {label: 'RARE', value: 'RARE'},
+                  {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                  {label: 'LEGENDARY', value: 'LEGENDARY'},
+                ]}
+                {...field}
+                error={errors.grade?.message}
+              />
+            )}
           />
-          <DropdownInput
-            label="장르"
+
+          <Controller
             name="genre"
-            value={form.genre}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={[
-              {label: '여행', value: 'TRAVEL'},
-              {label: '풍경', value: 'LANDSCAPE'},
-              {label: '인물', value: 'PORTRAIT'},
-              {label: '사물', value: 'OBJECT'},
-            ]}
-            error={errors.genre}
-            required
+            control={control}
+            rules={{required: '필수 입력 항목입니다.'}}
+            render={({field}) => (
+              <DropdownInput
+                label="장르"
+                options={[
+                  {label: '여행', value: 'TRAVEL'},
+                  {label: '풍경', value: 'LANDSCAPE'},
+                  {label: '인물', value: 'PORTRAIT'},
+                  {label: '사물', value: 'OBJECT'},
+                ]}
+                {...field}
+                error={errors.genre?.message}
+              />
+            )}
           />
+
           <Input
             label="가격"
-            name="price"
             type="number"
-            min="1"
-            value={form.price}
-            onChange={handleChange}
-            onBlur={handleBlur}
             placeholder="가격을 입력해 주세요"
-            error={errors.price}
-            required
+            {...register('price', {
+              required: '필수 입력 항목입니다.',
+              max: {value: 100000, message: '10만 원 이하로 입력해 주세요.'},
+            })}
+            error={errors.price?.message}
           />
+
           <Input
             label="발행량"
-            name="initialQuantity"
             type="number"
-            min="1"
-            max="10"
-            value={form.initialQuantity}
-            onChange={handleChange}
-            onBlur={handleBlur}
             placeholder="총 발행량을 입력해 주세요"
-            error={errors.initialQuantity}
-            required
+            {...register('initialQuantity', {
+              required: '필수 입력 항목입니다.',
+              max: {
+                value: 10,
+                message: '총 발행량은 10장 이하로 선택 가능합니다.',
+              },
+            })}
+            error={errors.initialQuantity?.message}
           />
+
           <UploadInput
             label="이미지 URL"
-            name="imageUrl"
             onChange={handleImageChange}
-            error={errors.imageUrl}
+            error={errors.imageUrl?.message}
           />
+
           <TextboxInput
             label="설명"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            onBlur={handleBlur}
             placeholder="카드 설명을 입력해 주세요"
-            error={errors.description}
-            required
+            {...register('description', {required: '필수 입력 항목입니다.'})}
+            error={errors.description?.message}
           />
+
           <Button
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isValid}
             className="w-full"
-            style={{
-              position: 'relative',
-              zIndex: 9999,
-              pointerEvents: 'auto',
-            }}
+            style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}
           >
             생성하기
           </Button>
