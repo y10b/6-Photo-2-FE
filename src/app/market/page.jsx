@@ -99,17 +99,14 @@ export default function MarketplacePage() {
   };
 
   // 카드 클릭 실행함수
-  // TODO: cardOverview에서 card 받아와야 함.
   const user =
     typeof window !== 'undefined' && localStorage.getItem('user')
       ? JSON.parse(localStorage.getItem('user'))
       : {id: null, nickname: null};
 
   const handleCardClick = card => {
-    console.log('user: ', user);
-    console.log('card: ', card);
     const isMyCard = card?.nickname === user.nickname;
-    const path = isMyCard ? `sale/${card.shopId}` : `/purchase/${card.shopId}`;
+    const path = isMyCard ? `/sale/${card.shopId}` : `/purchase/${card.shopId}`;
     router.push(path);
   };
 

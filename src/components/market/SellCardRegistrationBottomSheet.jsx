@@ -20,6 +20,7 @@ export default function SellCardRegistrationBottomSheet({
 }) {
   const {openModal, closeModal} = useModal();
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const [cardDetails, setCardDetails] = useState(null);
   const [sellingQuantity, setSellingQuantity] = useState(1);
@@ -29,127 +30,85 @@ export default function SellCardRegistrationBottomSheet({
   const [exchangeDescription, setExchangeDescription] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const resetForm = () => {
+    setCardDetails(null);
+    setSellingQuantity(1);
+    setSellingPrice('');
+    setExchangeGrade('');
+    setExchangeGenre('');
+    setExchangeDescription('');
+    setIsLoading(false);
+  };
+
+  const showResultModal = (isSuccess, titleText) => {
+    const modalType = isSuccess ? 'success' : 'fail';
+    openModal({
+      type: modalType,
+      title: '판매 등록',
+      result: isSuccess ? '성공' : '실패',
+      description: `[${cardDetails?.cardGrade} | ${
+        cardDetails?.title
+      }] ${sellingQuantity}장 판매 등록에 ${
+        isSuccess ? '성공' : '실패'
+      }했습니다.`,
+      button: {
+        label: '마켓플레이스로 돌아가기',
+        onClick: () => {
+          closeModal();
+          onClose();
+          router.push('/market');
+        },
+      },
+    });
+  };
+
+  const loadCardDetails = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchMyCards({page: 1, take: 1000});
+      const cards = response.result || response;
+      const foundCard = cards.find(card => card.userCardId === cardId);
+      if (foundCard) {
+        setCardDetails(foundCard);
+        setSellingQuantity(1);
+        setExchangeGrade('');
+        setExchangeGenre('');
+        setExchangeDescription('');
+      } else {
+        showResultModal(false);
+      }
+    } catch (error) {
+      showResultModal(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen && cardId) {
-      setIsLoading(true);
-      fetchMyCards({page: 1, take: 1000})
-        .then(response => {
-          const cards = response.result || response;
-          const foundCard = cards.find(card => card.userCardId === cardId);
-          if (foundCard) {
-            setCardDetails(foundCard);
-            setSellingQuantity(1);
-            setExchangeGrade('');
-            setExchangeGenre('');
-            setExchangeDescription('');
-          } else {
-            setCardDetails(null);
-            openModal({
-              type: 'fail',
-              title: '판매 등록',
-              result: '실패',
-              description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-              button: {
-                label: '마켓플레이스로 돌아가기',
-                onClick: () => {
-                  router.push('/market');
-                  closeModal();
-                },
-              },
-            });
-          }
-        })
-        .catch(error => {
-          setCardDetails(null);
-          openModal({
-            type: 'fail',
-            title: '판매 등록',
-            result: '실패',
-            description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-            button: {
-              label: '마켓플레이스로 돌아가기',
-              onClick: () => {
-                router.push('/market');
-                closeModal();
-              },
-            },
-          });
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+      loadCardDetails();
     } else {
-      setCardDetails(null);
-      setSellingQuantity(1);
-      setSellingPrice('');
-      setExchangeGrade('');
-      setExchangeGenre('');
-      setExchangeDescription('');
-      setIsLoading(false);
+      resetForm();
     }
-  }, [isOpen, cardId, openModal]);
+  }, [isOpen, cardId]);
 
   const handleQuantityChange = useCallback(newVal => {
     setSellingQuantity(newVal);
   }, []);
 
   const handleRegisterSale = async () => {
-    if (!cardDetails) {
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
-      return;
-    }
     if (
-      !sellingQuantity ||
+      !cardDetails ||
       sellingQuantity <= 0 ||
-      sellingQuantity > cardDetails.quantityLeft
+      sellingQuantity > cardDetails.quantityLeft ||
+      !sellingPrice ||
+      sellingPrice <= 0
     ) {
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
-      return;
-    }
-    if (!sellingPrice || sellingPrice <= 0) {
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
+      showResultModal(false);
       return;
     }
 
-    const currentListingType =
+    const listingType =
       exchangeGrade || exchangeGenre || exchangeDescription
         ? 'FOR_SALE_AND_TRADE'
         : 'FOR_SALE';
@@ -158,48 +117,20 @@ export default function SellCardRegistrationBottomSheet({
       photoCardId: Number(cardDetails.photoCardId),
       quantity: Number(sellingQuantity),
       price: Number(sellingPrice),
-      listingType: currentListingType,
-      ...(currentListingType === 'FOR_SALE_AND_TRADE' && {
+      listingType,
+      ...(listingType === 'FOR_SALE_AND_TRADE' && {
         exchangeGrade,
         exchangeGenre,
         exchangeDescription,
       }),
     };
 
-    console.log('판매 등록 데이터:', saleData);
-
     try {
       await registerSale(saleData);
-
-      openModal({
-        type: 'success',
-        title: '판매 등록',
-        result: '성공',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 성공했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            closeModal();
-            onClose();
-            router.push(`/market`);
-          },
-        },
-      });
+      showResultModal(true);
     } catch (error) {
       console.error('판매 등록 실패:', error);
-      openModal({
-        type: 'fail',
-        title: '판매 등록',
-        result: '실패',
-        description: `[${cardDetails.cardGrade} | ${cardDetails.title}] ${sellingQuantity}장 판매 등록에 실패했습니다.`,
-        button: {
-          label: '마켓플레이스로 돌아가기',
-          onClick: () => {
-            router.push('/market');
-            closeModal();
-          },
-        },
-      });
+      showResultModal(false);
     }
   };
 
@@ -217,14 +148,11 @@ export default function SellCardRegistrationBottomSheet({
     {label: '사물', value: 'OBJECT'},
   ];
 
-  const getGenreLabel = genreValue => {
-    const foundGenre = genreOptions.find(option => option.value === genreValue);
-    return foundGenre ? foundGenre.label : genreValue;
-  };
+  const getGenreLabel = genreValue =>
+    genreOptions.find(option => option.value === genreValue)?.label ||
+    genreValue;
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <>
