@@ -3,6 +3,8 @@
 import React, {useEffect, useState, useMemo} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
+import {useModal} from '@/components/modal/ModalContext';
+import {useRouter} from 'next/navigation';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
 import ResponsiveModalWrapper from '@/components/modal/ResponsiveModalWrapper';
 import CardList from '@/components/ui/card/cardOverview/CardList';
@@ -19,6 +21,13 @@ export default function MyCardsSellBottomSheet({
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const router = useRouter();
+  const {openModal} = useModal();
+  // 회원 비회원 여부 확인
+  const user =
+    typeof window !== 'undefined' && localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user'))
+      : null;
 
   const {ref: loaderRef, inView} = useInView({threshold: 0.1});
 
@@ -33,6 +42,7 @@ export default function MyCardsSellBottomSheet({
           filterType: filter.type,
           filterValue: filter.value,
         }),
+      enabled: isOpen && !!user, // 비회원일 때 api 요청 안 보내도록
       getNextPageParam: lastPage => {
         return lastPage.currentPage < lastPage.totalPages
           ? lastPage.currentPage + 1
@@ -47,12 +57,31 @@ export default function MyCardsSellBottomSheet({
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
-    if (isOpen) {
-      setInputValue('');
-      setKeyword('');
-      setFilter({type: '', value: ''});
+    if (!isOpen) return;
+
+    const storedUser =
+      typeof window !== 'undefined' && localStorage.getItem('user')
+        ? JSON.parse(localStorage.getItem('user'))
+        : null;
+
+    if (!storedUser) {
+      openModal({
+        type: 'alert',
+        title: '로그인이 필요합니다.',
+        description:
+          '로그인 하시겠습니까?\n다양한 서비스를 편리하게 이용하실 수 있습니다.',
+        button: {
+          label: '확인',
+          onClick: () => router.push('/auth/login'),
+        },
+      });
+      return;
     }
-  }, [isOpen]);
+
+    setInputValue('');
+    setKeyword('');
+    setFilter({type: '', value: ''});
+  }, [isOpen, openModal, router])
 
   const allCards = data?.pages.flatMap(page => page.result) || [];
 
@@ -103,7 +132,8 @@ export default function MyCardsSellBottomSheet({
     );
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !user) return null;
+
 
   return (
     <ResponsiveModalWrapper onClose={onClose} variant="bottom">
