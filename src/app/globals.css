@@ -47,6 +47,18 @@
   --noto: 'Noto Sans KR';
 }
 
+/* Chrome, Safari, Edge, Opera에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number'] {
+  -moz-appearance: textfield !important;
+}
+
 @theme inline {
   /* 색상 */
   --color-black: var(--black);
@@ -141,4 +153,22 @@ body {
   background: var(--black);
   color: var(--white);
   font-family: var(--noto) sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--gray400);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--gray300);
 }

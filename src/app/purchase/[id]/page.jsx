@@ -1,97 +1,105 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {useParams} from 'next/navigation';
-import NoHeader from '@/components/layout/NoHeader';
-import CardProfile from '@/components/ui/card/cardProfile/CardProfile';
+import {useEffect} from 'react';
+import {useParams, useRouter} from 'next/navigation';
+import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
-import Image from 'next/image';
+import CardDetailSection from '@/components/common/TransactionSection';
+import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
+import {useAccessToken} from '@/hooks/useAccessToken';
+
+function getErrorMessage(purchaseError, cardError, purchaseData) {
+  return (
+    purchaseError?.message ||
+    cardError?.message ||
+    (purchaseData?.remainingQuantity === 0
+      ? '잔여 수량이 0인 상품입니다. 구매할 수 없습니다.'
+      : null)
+  );
+}
+
+function PurchaseSkeleton() {
+  return (
+    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
+      <TransactionSkeleton type="buyer" />
+      <ExchangeInfoSkeleton />
+    </div>
+  );
+}
 
 export default function PurchasePage() {
   const {id} = useParams();
+  const router = useRouter();
+  const accessToken = useAccessToken();
 
-  const [photoCard, setPhotoCard] = useState(null);
-  const [myCards, setMyCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    data: purchaseData,
+    isLoading: isLoadingPurchase,
+    isError: isErrorPurchase,
+    error: purchaseError,
+  } = useQuery({
+    queryKey: ['purchase', id],
+    queryFn: () => fetchPurchase(id, accessToken),
+    enabled: !!id && !!accessToken,
+  });
 
-  const loadData = async shopId => {
-    try {
-      const [purchaseData, myCardData] = await Promise.all([
-        fetchPurchase(shopId),
-        fetchMyCards({
-          filterType: 'status',
-          filterValue: 'IDLE,LISTED',
-        }),
-      ]);
+  const {
+    data: myCardData,
+    isLoading: isLoadingCards,
+    isError: isErrorCards,
+    error: cardError,
+  } = useQuery({
+    queryKey: ['myCards', id],
+    queryFn: () =>
+      fetchMyCards({filterType: 'status', filterValue: 'IDLE,LISTED'}),
+    enabled: !!accessToken,
+  });
 
-      setPhotoCard(purchaseData);
-      setMyCards(myCardData.result);
-
-      if (purchaseData.remainingQuantity === 0) {
-        setError('잔여 수량이 0인 상품입니다. 구매할 수 없습니다.');
-      } else {
-        setError(null);
-      }
-    } catch (err) {
-      setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // 판매자인 경우 판매 상세 페이지로 리다이렉트
   useEffect(() => {
-    if (id) {
-      setIsLoading(true);
-      loadData(id);
+    if (purchaseData && purchaseData.isSeller) {
+      router.replace(`/sale/${id}`);
     }
-  }, [id]);
+  }, [purchaseData, id, router]);
 
-  /* 이후 스켈레톤 UI 고려 */
-  if (isLoading) {
-    return <div>로딩중...</div>;
+  const isLoading = isLoadingPurchase || isLoadingCards;
+  const isError = isErrorPurchase || isErrorCards;
+  const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
+
+  if (isLoading) return <PurchaseSkeleton />;
+
+  // 판매자인 경우 로딩 상태 유지 (리다이렉트 될 것이므로)
+  if (purchaseData && purchaseData.isSeller) {
+    return <PurchaseSkeleton />;
   }
 
-  if (!photoCard) {
+  if (isError || !purchaseData) {
     return (
       <div className="text-white text-center mt-10">
-        포토카드를 찾을 수 없습니다.
+        {errorMessage || '포토카드를 찾을 수 없습니다.'}
       </div>
     );
   }
 
-  const {name, imageUrl, grade, genre} = photoCard;
+  const {grade, genre} = purchaseData;
 
   return (
-    <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">
-      <NoHeader title="마켓플레이스" />
-
-      <section className="mt-5 mb-[26px] tablet:mb-12 pc:mb-[70px]">
-        <h3 className="mb-[10px] tablet:mb-5 font-bold text-2xl text-white">
-          {name}
-        </h3>
-        <hr className="border-2 border-gray100" />
-      </section>
-
-      <section className="flex flex-col tablet:flex-row gap-5 pc:gap-20 mb-30">
-        <div className="w-[345px] tablet:w-[342px] pc:w-240 h-[258.75px] tablet:h-[256.5px] pc:h-180 relative">
-          <Image src={imageUrl} alt={name} fill className="object-cover" />
-        </div>
-
-        <div className="w-full tablet:flex-1">
-          <CardProfile type="buyer" cards={[photoCard]} error={error} />
-        </div>
-      </section>
-
+    <div>
+      <CardDetailSection
+        type="buyer"
+        photoCard={purchaseData}
+        error={errorMessage}
+      />
       <ExchangeInfoSection
         info={{
           description:
             '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
           grade: grade || 'COMMON',
           genre: genre || '장르 없음',
-          myCards,
+          myCards: myCardData?.result || [],
         }}
       />
     </div>

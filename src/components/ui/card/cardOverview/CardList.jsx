@@ -1,10 +1,11 @@
-import Card from "./CardOverview";
+'use client';
+import Card from './CardOverview';
 
-export default function CardList({ cards, className }) {
+export default function CardList({cards, className = '', onCardClick}) {
   return (
-    <div className={`${className}`}>
+    <div className={className}>
       {cards.map((card, index) => (
-        <Card key={index} card={card} />
+        <Card key={card.id || index} card={card} onCardClick={onCardClick} />
       ))}
     </div>
   );

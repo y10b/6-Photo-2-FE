@@ -1,8 +1,7 @@
 'use client';
 
-import {useEffect, useState, useMemo, useCallback} from 'react';
-import {useQuery, useInfiniteQuery} from '@tanstack/react-query';
-import {useInView} from 'react-intersection-observer';
+import {useEffect, useState, useCallback} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
 import Image from 'next/image';
 import Button from '@/components/common/Button';
@@ -18,6 +17,9 @@ import {
 import {countFilterValues} from '@/utils/countFilterValues';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
+import NoHeader from '@/components/layout/NoHeader';
+import ToastMessage from '@/components/common/ToastMessage';
+import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 
 export default function MyGalleryPage() {
   const router = useRouter();
@@ -30,111 +32,76 @@ export default function MyGalleryPage() {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
-  const [remainingQuota, setRemainingQuota] = useState(3);
-
-  // 디바이스 유형 판별 함수
-  const checkDeviceType = useCallback(() => {
-    const pcMinWidth = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue(
-        '--breakpoint-pc',
-      ),
-    );
-    return window.innerWidth < pcMinWidth;
-  }, []);
-
-  // 디바이스 리사이징 감지
-  useEffect(() => {
-    const handleResize = () => setIsTabletOrMobile(checkDeviceType());
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [checkDeviceType]);
+  const [showToast, setShowToast] = useState(false);
 
   // 필터 카운트 계산
-  useEffect(() => {
-    fetchMyGalleryCards({
-      pageParam: 1,
-      take: 1000,
-      keyword: '',
-      sort: 'latest',
-    }).then(res => {
-      const counts = countFilterValues(res.result);
-      setFilterCounts(counts);
-      fetchCardCreationQuota()
-        .then(res => {
-          setRemainingQuota(res.remainingQuota);
-        })
-        .catch(err => {
-          console.error('생성 가능 횟수 조회 실패:', err);
-        });
-    });
-  }, []);
-
-  // 무한 스크롤 쿼리 (데스크탑용)
-  const {
-    data: infiniteData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['myGallery', keyword, sort, filter],
-    queryFn: ({pageParam = 1}) =>
+  const {data: filterData} = useQuery({
+    queryKey: ['filterCardCounts'],
+    queryFn: () =>
       fetchMyGalleryCards({
-        pageParam,
-        take: 12,
-        keyword,
-        sort,
-        filterType: filter.type,
-        filterValue: filter.value,
+        pageParam: 1,
+        take: 1000,
+        keyword: '',
+        sort: 'latest',
       }),
-    getNextPageParam: lastPage =>
-      lastPage.currentPage < lastPage.totalPages
-        ? lastPage.currentPage + 1
-        : undefined,
-    enabled: !isTabletOrMobile,
   });
 
-  // 페이지네이션 쿼리 (모바일/태블릿용)
-  const {data: pageData} = useQuery({
+  useEffect(() => {
+    if (filterData) {
+      const counts = countFilterValues(filterData.result);
+      setFilterCounts(counts);
+    }
+  }, [filterData]);
+
+  // 생성 제한 횟수 가져오기
+  const {data: quotaData} = useQuery({
+    queryKey: ['cardQuota'],
+    queryFn: fetchCardCreationQuota,
+  });
+  const remainingQuota = quotaData?.remainingQuota ?? 0;
+
+  // 페이지네이션 쿼리
+  const {data: data, isLoading} = useQuery({
     queryKey: ['myGalleryPage', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMyGalleryCards({
         pageParam: currentPage,
-        take: 4,
+        take: 6,
         keyword,
         sort,
         filterType: filter.type,
         filterValue: filter.value,
       }),
-    enabled: isTabletOrMobile,
   });
 
-  // 전체 응답 객체
-  const responseData = isTabletOrMobile ? pageData : infiniteData?.pages?.[0];
-  const nickname = responseData?.nickname;
-  const totalCount = responseData?.totalCount ?? 0;
-
-  // 실제 카드 배열만 추출
-  const displayCards = isTabletOrMobile
-    ? pageData?.result ?? []
-    : infiniteData?.pages.flatMap(p => p.result) ?? [];
-
-  // 무한 스크롤 트리거
-  const {ref: loaderRef, inView} = useInView({threshold: 0.8});
-
-  useEffect(() => {
-    if (!isTabletOrMobile && inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, isTabletOrMobile, hasNextPage, isFetchingNextPage]);
+  const nickname = data?.nickname;
+  const totalCount = data?.totalCount ?? 0;
+  const displayCards = data?.result ?? [];
 
   // 검색어 변경 핸들러
   const handleSearch = value => setKeyword(value);
 
+  // 드롭다운 토글 핸들러
+  const handleDropdownChange = (type, value) => {
+    setFilter(prev =>
+      prev.type === type && prev.value === value
+        ? {type: '', value: ''}
+        : {type, value},
+    );
+  };
+
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
+        {showToast && (
+          <ToastMessage
+            message="이번달 모든 생성 기회를 소진했어요"
+            onClose={() => setShowToast(false)}
+          />
+        )}
+        <div className="block tablet:hidden">
+          <NoHeader title="마이갤러리" />
+        </div>
         {/* 데스크탑/태블릿 헤더 */}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] text-white">
@@ -149,14 +116,20 @@ export default function MyGalleryPage() {
               variant="primary"
               fullWidth={false}
               disabled={remainingQuota === 0}
-              onClick={() => router.push('/my-gallery/create')}
+              onClick={() => {
+                if (remainingQuota === 0) {
+                  setShowToast(true);
+                } else {
+                  router.push('/my-gallery/create');
+                }
+              }}
             >
               포토카드 생성하기 ({remainingQuota}/3)
             </Button>
           </div>
         </div>
 
-        <hr className="border-2 border-gray200 mt-5 mb-10" />
+        <hr className="hidden tablet:block border-2 border-gray200 mt-5 mb-10" />
         {/* 유저 정보, 수량 */}
         <p className="text-white text-sm mb-[15px] tablet:text-xl pc:text-2xl tablet:mb-5">
           {nickname}님이 보유한 포토카드{' '}
@@ -219,21 +192,19 @@ export default function MyGalleryPage() {
                 />
               </div>
 
-              {/* TODO: 필터 중복 선택 가능하도록 수정해야 함. */}
-              {/* TODO: 드롭다운 메뉴 너비/폰트 조정해야 함. */}
               <div className="tablet:ml-[30px] pc:ml-[60px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="grade"
                   value={filter.type === 'grade' ? filter.value : ''}
                   onChange={({target}) =>
-                    setFilter({type: 'grade', value: target.value})
+                    handleDropdownChange('grade', target.value)
                   }
                   placeholder="등급"
                   options={[
                     {label: 'COMMON', value: 'COMMON'},
                     {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
                     {label: 'LEGENDARY', value: 'LEGENDARY'},
                   ]}
                 />
@@ -241,11 +212,11 @@ export default function MyGalleryPage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="genre"
                   value={filter.type === 'genre' ? filter.value : ''}
                   onChange={({target}) =>
-                    setFilter({type: 'genre', value: target.value})
+                    handleDropdownChange('genre', target.value)
                   }
                   placeholder="장르"
                   options={[
@@ -259,24 +230,26 @@ export default function MyGalleryPage() {
             </div>
           </div>
 
-          <div>
-            <CardList
-              cards={displayCards}
-              className={`grid ${
-                isTabletOrMobile ? 'grid-cols-2' : 'grid-cols-3'
-              } gap-4`}
-              onCardClick={card => router.push()} // 카드 상세 페이지로 이동
-            />
-
-            {isTabletOrMobile ? (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={pageData?.totalPages ?? 1}
-                onPageChange={setCurrentPage}
-              />
+          {/* 카드 목록 */}
+          <div className="mt-6">
+            {isLoading ? (
+              <div className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3">
+                {Array.from({length: 6}).map((_, idx) => (
+                  <CardOverviewSkeleton key={idx} type="for_sale" />
+                ))}
+              </div>
             ) : (
-              <div ref={loaderRef} className="h-10" />
+              <CardList
+                cards={displayCards}
+                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
+              />
             )}
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={data?.totalPages ?? 1}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}
@@ -296,7 +269,13 @@ export default function MyGalleryPage() {
                 variant="primary"
                 fullWidth
                 className="w-full h-full"
-                onClick={() => {}} // TODO: 포토카드 생성페이지와 연결
+                onClick={() => {
+                  if (remainingQuota === 0) {
+                    setShowToast(true);
+                  } else {
+                    router.push('/my-gallery/create');
+                  }
+                }}
               >
                 나의 포토카드 생성하기
               </Button>

@@ -7,6 +7,7 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import NotificationModal from './NotificationModal';
 import ProfileModal from './ProfileModal';
 import ProfileMobileModal from './ProfileMobileModal';
+import {useNotificationQuery} from '@/hooks/useNotificationQuery';
 
 const Header = () => {
   // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
@@ -97,12 +98,21 @@ const Header = () => {
                   className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px] cursor-pointer"
                   onClick={() => setIsNotificationActive(prev => !prev)}
                 >
-                  <Image
-                    className="object-cover"
-                    src={'/icons/ic_alarm_default.svg'}
-                    fill
-                    alt="알림"
-                  />
+                  {hasUnread ? (
+                    <Image
+                      className="object-cover"
+                      src={'/icons/ic_alarm.png'}
+                      fill
+                      alt="알림"
+                    />
+                  ) : (
+                    <Image
+                      className="object-cover"
+                      src={'/icons/ic_alarm_default.svg'}
+                      fill
+                      alt="알림"
+                    />
+                  )}
                 </figure>
                 {isNotificationActive && (
                   <NotificationModal isActive={setIsNotificationActive} />

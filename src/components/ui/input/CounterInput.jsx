@@ -1,5 +1,5 @@
-"use client";
-import { useState } from "react";
+'use client';
+import {useState} from 'react';
 
 export default function CounterInput({
   initialValue = 1,
@@ -7,9 +7,9 @@ export default function CounterInput({
   max = 999,
   onChange,
   maxText,
-  width = "w-[176px]", // 기본 너비 조정
-  height = "h-[50px]", // 기본 높이 조정
-  className = "",
+  width = 'w-[176px]', // 기본 너비 조정
+  height = 'h-[50px]', // 기본 높이 조정
+  className = '',
   showMaxInfo = true, // 최대값 정보 표시 여부를 제어하는 prop 추가
 }) {
   const [value, setValue] = useState(initialValue);
@@ -44,7 +44,7 @@ export default function CounterInput({
           −
         </button>
 
-        <span className="text-white text-[20px] font-[400] flex-1 text-center">
+        <span className="text-white text-[18px] font-[400] flex-1 text-center">
           {value}
         </span>
 
@@ -60,12 +60,14 @@ export default function CounterInput({
 
       {/* showMaxInfo prop으로 최대값 정보 표시 여부를 제어 */}
       {showMaxInfo && max && (
-        <div className="ml-5 flex flex-col justify-start">
+        <div className="ml-[15px] pc:ml-5 tablet:ml-3 flex flex-col justify-start">
           <div className="flex items-center text-white">
-            <span className="text-[20px] font-[700]">/ {max}</span>
+            <span className="text-[18px] pc:text-[20px] tablet:text-[18px] font-[700]">
+              / {max}
+            </span>
           </div>
           {maxText && (
-            <div className="text-gray200 text-[14px] font-[300]">
+            <div className="text-[12px] text-gray200 pc:text-[14px] tablet:text-[12px] font-[300]">
               최대 {maxText}
             </div>
           )}

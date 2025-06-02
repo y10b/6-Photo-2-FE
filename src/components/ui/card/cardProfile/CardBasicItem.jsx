@@ -22,9 +22,9 @@ const CardBasicItem = ({card, gradeStyles}) => {
           <p className="text-gray300">{genre}</p>
         </div>
         {/* 이후 변경 예정 */}
-        <Link href="/" className="underline font-bold text-[18px] pc:text-2xl">
+        <p className="underline font-bold text-[18px] pc:text-2xl">
           {sellerNickname}
-        </Link>
+        </p>
       </div>
 
       <hr className="my-[30px] text-gray400" />

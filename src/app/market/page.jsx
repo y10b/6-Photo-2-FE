@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
+import {useRouter} from 'next/navigation';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
 import {SearchInput} from '@/components/ui/input';
 import {fetchMarketCards} from '@/lib/api/marketApi';
@@ -12,42 +13,28 @@ import Button from '@/components/common/Button';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 import {countFilterValues} from '@/utils/countFilterValues';
+import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
+import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 
 export default function MarketplacePage() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCounts, setFilterCounts] = useState(null);
-  const [isTabletOrMobile, setIsTabletOrMobile] = useState(false);
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
+  const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState(null);
 
-  // 브레이크포인트 감지
-  useEffect(() => {
-    const getIsMobileOrTablet = () => {
-      const pcMinWidth = parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          '--breakpoint-pc',
-        ),
-      );
-      return window.innerWidth < pcMinWidth;
-    };
-
-    const handleResize = () => {
-      setIsTabletOrMobile(getIsMobileOrTablet());
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // 무한스크롤 쿼리 (모든 디바이스에서 사용)
+  // 무한스크롤 쿼리
   const {
     data: infiniteData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isLoading,
   } = useInfiniteQuery({
     queryKey: ['marketCards', keyword, sort, filter],
     queryFn: ({pageParam = 1}) =>
@@ -86,23 +73,56 @@ export default function MarketplacePage() {
       const counts = countFilterValues(res.result);
       setFilterCounts(counts);
     });
-  }, []);
+  }, [filter]);
 
+  // 검색어 핸들러
   const handleSearch = value => setKeyword(value);
 
   const sortOptions = [
     {label: '최신순', value: 'latest'},
+    {label: '오래된순', value: 'oldest'},
     {label: '낮은 가격순', value: 'price-asc'},
     {label: '높은 가격순', value: 'price-desc'},
-    {label: '오래된순', value: 'oldest'},
   ];
 
   const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
 
+  const handleCardSelectedForSale = cardId => {
+    setSelectedCardId(cardId);
+    setIsMyCardsSellOpen(false);
+    setIsSellRegistrationOpen(true);
+  };
+
+  const handleCloseSellRegistration = () => {
+    setIsSellRegistrationOpen(false);
+    setSelectedCardId(null);
+  };
+
+  // 카드 클릭 실행함수
+  const user =
+    typeof window !== 'undefined' && localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user'))
+      : {id: null, nickname: null};
+
+  const handleCardClick = card => {
+    const isMyCard = card?.nickname === user.nickname;
+    const path = isMyCard ? `/sale/${card.shopId}` : `/purchase/${card.shopId}`;
+    router.push(path);
+  };
+
+  // 드롭다운 토글 핸들러
+  const handleDropdownChange = (type, value) => {
+    setFilter(prev =>
+      prev.type === type && prev.value === value
+        ? {type: '', value: ''}
+        : {type, value},
+    );
+  };
+
   return (
     <>
       <div className="max-w-[1480px] mx-auto">
-        {/* 데스크탑/태블릿 헤더 */}
+        {/* 데스크탑/태블릿 헤더*/}
         <div className="hidden tablet:flex justify-between items-center">
           <h1 className="font-baskin text-[48px] pc:text-[62px] font-bold text-white">
             마켓플레이스
@@ -122,9 +142,9 @@ export default function MarketplacePage() {
           <div className="block tablet:hidden w-full mb-2">
             <SearchInput
               name="query"
-              value={keyword}
-              onChange={e => setKeyword(e.target.value)}
-              onSearch={handleSearch}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onSearch={() => handleSearch(inputValue)}
               placeholder="검색"
             />
           </div>
@@ -144,7 +164,7 @@ export default function MarketplacePage() {
             </button>
             <div>
               <DropdownInput
-                className="!w-[130px] !h-[35px]" //TODO: 정렬 드롭다운이 솔드아웃 스티커보다 위로 나오게 수정
+                className="!w-[130px] !h-[35px]"
                 name="sort"
                 value={sort}
                 onChange={({target}) => setSort(target.value)}
@@ -160,29 +180,27 @@ export default function MarketplacePage() {
               <div>
                 <SearchInput
                   name="query"
-                  value={keyword}
-                  onChange={e => setKeyword(e.target.value)}
-                  onSearch={handleSearch}
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onSearch={() => handleSearch(inputValue)}
                   placeholder="검색"
-                  className="!w-[160px] pc:!w-[320px]"
+                  className="!w-[200px] pc:!w-[320px] !h-[45px] pc:!h-[50px]"
                 />
               </div>
 
-              {/* TODO: 필터 중복 선택 가능하도록 수정해야 함. */}
-              {/* TODO: 드롭다운 메뉴 너비/폰트 조정해야 함. */}
               <div className="tablet:ml-[30px] pc:ml-[60px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="grade"
                   value={filter.type === 'grade' ? filter.value : ''}
                   onChange={({target}) =>
-                    setFilter({type: 'grade', value: target.value})
+                    handleDropdownChange('grade', target.value)
                   }
                   placeholder="등급"
                   options={[
                     {label: 'COMMON', value: 'COMMON'},
                     {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER_RARE', value: 'SUPER_RARE'},
+                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
                     {label: 'LEGENDARY', value: 'LEGENDARY'},
                   ]}
                 />
@@ -190,11 +208,11 @@ export default function MarketplacePage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="genre"
                   value={filter.type === 'genre' ? filter.value : ''}
                   onChange={({target}) =>
-                    setFilter({type: 'genre', value: target.value})
+                    handleDropdownChange('genre', target.value)
                   }
                   placeholder="장르"
                   options={[
@@ -208,15 +226,15 @@ export default function MarketplacePage() {
 
               <div className="tablet:ml-[25px] pc:ml-[45px]">
                 <DropdownInput
-                  className="border-none !px-0"
+                  className="border-none !px-0 !gap-[10px]"
                   name="soldOut"
                   value={filter.type === 'soldOut' ? filter.value : ''}
                   onChange={({target}) =>
-                    setFilter({type: 'soldOut', value: target.value})
+                    handleDropdownChange('soldOut', target.value)
                   }
                   placeholder="매진여부"
                   options={[
-                    {label: '판매중', value: 'false'},
+                    {label: '판매 중', value: 'false'},
                     {label: '품절', value: 'true'},
                   ]}
                 />
@@ -232,13 +250,24 @@ export default function MarketplacePage() {
               />
             </div>
           </div>
+
           {/* 카드 목록 */}
-          <CardList
-            cards={cards}
-            className={`grid gap-4 ${
-              isTabletOrMobile ? 'grid-cols-2' : 'gap-20 grid-cols-3'
-            }`}
-          />
+          <div className="mt-6">
+            {isLoading ? (
+              <div className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3">
+                {Array.from({length: 6}).map((_, idx) => (
+                  <CardOverviewSkeleton key={idx} type="for_sale" />
+                ))}
+              </div>
+            ) : (
+              <CardList
+                cards={cards}
+                className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
+                onCardClick={handleCardClick}
+              />
+            )}
+          </div>
+
           <div ref={loaderRef} className="h-10" />
           {/* 모바일 하단 고정 바 + 필터 바텀시트 */}
           <div className="tablet:hidden">
@@ -270,6 +299,14 @@ export default function MarketplacePage() {
       <MyCardsSellBottomSheet
         isOpen={isMyCardsSellOpen}
         onClose={() => setIsMyCardsSellOpen(false)}
+        onCardSelectedForSale={handleCardSelectedForSale}
+      />
+
+      {/* SellCardRegistrationBottomSheet 컴포넌트 렌더링 추가 */}
+      <SellCardRegistrationBottomSheet
+        isOpen={isSellRegistrationOpen}
+        onClose={handleCloseSellRegistration}
+        cardId={selectedCardId}
       />
     </>
   );

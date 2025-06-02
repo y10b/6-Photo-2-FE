@@ -2,7 +2,7 @@ export function countFilterValues(cards) {
   const counts = {
     grade: {},
     genre: {},
-    method: {},
+    method: {sale: 0, exchange: 0},
     soldOut: {},
   };
 
@@ -14,9 +14,8 @@ export function countFilterValues(cards) {
     counts.genre[card.cardGenre] = (counts.genre[card.cardGenre] || 0) + 1;
 
     // 판매 방식
-    if (card.saleMethod) {
-      counts.method[card.saleMethod] =
-        (counts.method[card.saleMethod] || 0) + 1;
+    if (card.saleStatus === 'sale' || card.saleStatus === 'exchange') {
+      counts.method[card.saleStatus]++;
     }
 
     // 매진 여부

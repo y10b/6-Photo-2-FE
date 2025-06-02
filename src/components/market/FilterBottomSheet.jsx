@@ -15,6 +15,10 @@ const fullTabConfig = {
     label: '장르',
     options: ['TRAVEL', 'LANDSCAPE', 'PORTRAIT', 'OBJECT'],
   },
+  method: {
+    label: '판매 방법',
+    options: ['for_sale', 'exchange_only'],
+  },
   soldOut: {
     label: '매진 여부',
     options: ['false', 'true'],
@@ -31,6 +35,8 @@ const labelMap = {
   LANDSCAPE: '풍경',
   PORTRAIT: '인물',
   OBJECT: '사물',
+  for_sale: '판매',
+  exchange_only: '교환',
   true: '판매 완료',
   false: '판매 중',
 };
@@ -40,7 +46,7 @@ export default function FilterBottomSheet({
   onClose,
   onApply,
   filterCounts,
-  tabs = ['grade', 'genre', 'soldOut'],
+  tabs = ['grade', 'genre', 'method', 'soldOut'],
   selectedFilter = {type: '', value: ''},
 }) {
   const resolvedTabs = tabs.map(type => ({
@@ -70,6 +76,8 @@ export default function FilterBottomSheet({
   const handleApply = () => {
     if (selectedValues.length > 0) {
       onApply({type: selectedTab, value: selectedValues.join(',')});
+    } else {
+      onApply({type: '', value: ''});
     }
     setSelectedValues([]);
     onClose();
@@ -109,7 +117,11 @@ export default function FilterBottomSheet({
         </div>
 
         {/* 탭 */}
-        <div className="flex h-[52px] text-sm gap-6 mx-6">
+        <div
+          className={`flex h-[52px] text-sm mx-6 ${
+            resolvedTabs.length === 4 ? 'justify-between' : 'gap-6'
+          }`}
+        >
           {resolvedTabs.map(tab => {
             const isActive = selectedTab === tab.type;
             const selectedCount = isActive ? selectedValues.length : 0;
@@ -121,7 +133,7 @@ export default function FilterBottomSheet({
                   isActive
                     ? 'text-white border-b-1 border-white'
                     : 'text-gray400'
-                }`}
+                }${resolvedTabs.length === 4 ? 'px-2' : 'px-4'}`}
                 onClick={() => {
                   setSelectedTab(tab.type);
                   setSelectedValues([]);
@@ -129,7 +141,7 @@ export default function FilterBottomSheet({
               >
                 {tab.label}
                 {selectedCount > 0 && (
-                  <span className="ml-[6px]">{selectedCount}</span>
+                  <span className="ml-[4px]">{selectedCount}</span>
                 )}
               </button>
             );
@@ -197,10 +209,16 @@ export default function FilterBottomSheet({
             role="filter"
             variant="primary"
           >
-            {selectedValues.reduce(
-              (acc, value) => acc + (filterCounts?.[selectedTab]?.[value] || 0),
-              0,
-            )}
+            {(selectedValues.length > 0
+              ? selectedValues.reduce(
+                  (acc, value) =>
+                    acc + (filterCounts?.[selectedTab]?.[value] || 0),
+                  0,
+                )
+              : Object.values(filterCounts?.[selectedTab] || {}).reduce(
+                  (acc, count) => acc + count,
+                  0,
+                )) || 0}
             개 포토보기
           </Button>
         </div>

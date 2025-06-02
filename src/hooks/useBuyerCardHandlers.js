@@ -36,7 +36,7 @@ export const useBuyerCardHandlers = (card, quantity) => {
                                 label: '마이갤러리에서 확인하기',
                                 onClick: () => {
                                     closeModal();
-                                    router.push('/my-gallary');
+                                    router.push('/my-gallery');
                                 },
                             },
                         });

@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import {useModal} from '@/components/modal/ModalContext';
 
-export default function DesktopModal({children, onClose}) {
+export default function DesktopModal({children, onClose}) { 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 배경 */}
@@ -13,13 +12,13 @@ export default function DesktopModal({children, onClose}) {
         <div
           className="
           relative z-10
-          w-[1160px] h-[1000px] 
-          bg-[#161616] rounded-xs text-white 
+          w-[1160px] h-[1000px]
+          bg-[#161616] rounded-xs text-white
           pt-15 pb-10 px-15"
         >
           {/* 닫기 버튼 */}
           <button
-            onClick={onClose}
+            onClick={onClose} 
             className="absolute top-[30px] right-[30px]"
             aria-label="닫기"
           >

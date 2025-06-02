@@ -22,9 +22,11 @@ const ProfileModal = () => {
           <Link href={'/market'}>마켓플레이스</Link>
         </li>
         <li className="cursor-pointer">
-          <Link href={'/my-gallery'}>마켓갤러리</Link>
+          <Link href={'/my-gallery'}>마이갤러리</Link>
         </li>
-        <li className="cursor-pointer">판매 중인 포토카드</li>
+        <li className="cursor-pointer">
+          <Link href={'/sale'}>판매중인 포토카드</Link>
+        </li>
       </ul>
     </div>
   );
