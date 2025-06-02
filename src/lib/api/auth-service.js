@@ -14,18 +14,30 @@ export const authService = {
    * 로그인 - 쿠키 인증 사용 + accessToken 저장
    */
   signIn: async ({email, password}) => {
-    const res = await cookieFetch('/auth/signin', {
-      method: 'POST',
-      body: JSON.stringify({email, password}),
-    });
-    if (!res.accessToken) {
-      throw new Error('로그인 실패: accessToken이 없습니다.');
+    try {
+      const res = await cookieFetch('/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({email, password}),
+      });
+
+      if (!res.accessToken) {
+        throw new Error('로그인 실패: accessToken이 없습니다.');
+      }
+
+      localStorage.setItem('accessToken', res.accessToken);
+      if (res.user) {
+        localStorage.setItem('user', JSON.stringify(res.user));
+      }
+
+      return res;
+    } catch (error) {
+      // 백엔드 에러 메시지 추출
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        '로그인에 실패했습니다.';
+      throw new Error(errorMessage);
     }
-    localStorage.setItem('accessToken', res.accessToken);
-    if (res.user) {
-      localStorage.setItem('user', JSON.stringify(res.user));
-    }
-    return res;
   },
 
   /**

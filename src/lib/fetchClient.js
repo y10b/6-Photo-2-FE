@@ -1,8 +1,4 @@
-const baseURL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.REACT_APP_API_BASE_URL ||
-  'http://localhost:5005';
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 /**
  * 기본 fetch 클라이언트 - 인증이 필요 없는 일반 요청용
@@ -31,7 +27,12 @@ export const defaultFetch = async (url, options = {}) => {
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch { }
+    throw new Error(message);
   }
 
   return response.json();
@@ -61,9 +62,13 @@ export const cookieFetch = async (url, options = {}) => {
   };
 
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
-
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch { }
+    throw new Error(message);
   }
 
   return response.json();
@@ -83,10 +88,10 @@ export const tokenFetch = async (url, options = {}) => {
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
-      ...(accessToken && {Authorization: `Bearer ${accessToken}`}),
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
     },
     // 페이지 방문마다 재검증 (ISR 패턴)
-    next: {revalidate: 60}, // 60초마다 재검증
+    next: { revalidate: 60 }, // 60초마다 재검증
   };
 
   const mergedOptions = {
@@ -98,7 +103,12 @@ export const tokenFetch = async (url, options = {}) => {
     },
   };
 
-  const response = await fetch(`${baseURL}${url}`, mergedOptions);
+  // URL이 http:// 또는 https://로 시작하면 그대로 사용, 아니면 baseURL 추가
+  const fullUrl = url.startsWith('http://') || url.startsWith('https://')
+    ? url
+    : `${baseURL}${url}`;
+
+  const response = await fetch(fullUrl, mergedOptions);
 
   if (response.status === 401 && typeof window !== 'undefined') {
     // 토큰 만료 처리 - 리프레시 토큰으로 새 토큰 요청 로직
@@ -107,12 +117,12 @@ export const tokenFetch = async (url, options = {}) => {
       const refreshToken = localStorage.getItem('refreshToken');
       const refreshResponse = await fetch(`${baseURL}/auth/refresh`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({refreshToken}),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
       });
 
       if (refreshResponse.ok) {
-        const {accessToken: newAccessToken} = await refreshResponse.json();
+        const { accessToken: newAccessToken } = await refreshResponse.json();
         localStorage.setItem('accessToken', newAccessToken);
 
         // 새 토큰으로 원래 요청 재시도
@@ -129,7 +139,12 @@ export const tokenFetch = async (url, options = {}) => {
       throw new Error('Token refresh failed');
     }
   } else if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch { }
+    throw new Error(message);
   }
 
   return response.json();
@@ -159,7 +174,12 @@ export const dynamicFetch = async (url, options = {}) => {
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch { }
+    throw new Error(message);
   }
 
   return response.json();

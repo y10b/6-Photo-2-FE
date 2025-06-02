@@ -32,6 +32,21 @@ export default function Input({
     setShowPassword(prev => !prev);
   };
 
+  // 숫자 입력 시 음수 방지 핸들러
+  const handleChange = e => {
+    if (type === 'number') {
+      // 음수 입력 방지
+      const newValue = e.target.value;
+      if (newValue && Number(newValue) < 0) {
+        e.target.value = Math.abs(Number(newValue)).toString();
+      }
+    }
+
+    if (onChange) {
+      onChange(e);
+    }
+  };
+
   return (
     <div className="w-full font-noto">
       {label && (
@@ -70,10 +85,11 @@ export default function Input({
             id={name}
             name={name}
             value={value}
-            onChange={onChange}
+            onChange={handleChange}
             type={inputType}
             placeholder={placeholder}
             maxLength={maxLength} // 일반 텍스트일 때만 30자 제한
+            min={type === 'number' ? 0 : undefined} // 숫자 타입일 때 최소값 0 설정
             className={`p-5 border
                 ${
                   error || isOverLimit
@@ -84,9 +100,19 @@ export default function Input({
                 }
                 ${isActive ? 'bg-gray500' : 'bg-black'}
                 text-white rounded-[2px] placeholder:text-white placeholder:font-noto focus:outline-none focus:ring-1 h-[55px] w-full pc:h-[60px] text-[14px] font-[300] pc:text-[16px]
+                ${type === 'number' ? 'appearance-none' : ''}
                 ${className}`}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            style={
+              type === 'number'
+                ? {
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'textfield',
+                    appearance: 'textfield',
+                  }
+                : {}
+            }
             {...rest}
           />
 

@@ -1,12 +1,14 @@
 'use client';
 
-import {useParams} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
 import {fetchShopDetail} from '@/lib/api/shop';
+import {fetchExchangeProposals} from '@/lib/api/exchange';
 import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import {useEffect} from 'react';
 
 function SaleSkeleton() {
   return (
@@ -19,24 +21,45 @@ function SaleSkeleton() {
 
 export default function SalePage() {
   const {id} = useParams();
+  const router = useRouter();
 
   const {
     data: shopData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isLoadingShop,
+    isError: isErrorShop,
+    error: shopError,
   } = useQuery({
     queryKey: ['shopDetail', id],
     queryFn: () => fetchShopDetail(id),
     enabled: !!id,
   });
 
-  if (isLoading) return <SaleSkeleton />;
+  const {
+    data: exchangeProposals,
+    isLoading: isLoadingProposals,
+    isError: isErrorProposals,
+    error: proposalsError,
+  } = useQuery({
+    queryKey: ['exchangeProposals', id],
+    queryFn: () => fetchExchangeProposals(id),
+    enabled: !!id && !!shopData?.isSeller,
+  });
 
-  if (isError)
+  // 교환 제안 목록 데이터 처리
+  const proposals = exchangeProposals?.data || [];
+
+  useEffect(() => {
+    if (!isLoadingShop && shopData && !shopData.isSeller) {
+      router.push(`/purchase/${id}`);
+    }
+  }, [isLoadingShop, shopData, router, id]);
+
+  if (isLoadingShop) return <SaleSkeleton />;
+
+  if (isErrorShop)
     return (
       <div className="text-center text-red-500 mt-10">
-        에러 발생: {error?.message || '알 수 없는 에러'}
+        에러 발생: {shopError?.message || '알 수 없는 에러'}
       </div>
     );
 
@@ -61,20 +84,24 @@ export default function SalePage() {
     {
       grade: shop.exchangeGrade ?? '',
       genre: shop.exchangeGenre ?? '',
-      description: shop.exchangeDescription ?? '교환 희망 안함',
+      description: shop.exchangeDescription ?? '',
     },
   ];
-
-  const suggestedCards = [];
 
   return (
     <div className="mb-30 w-full">
       <CardDetailSection
-        type={isSeller ? 'seller' : 'buyer'}
+        type="seller"
         photoCard={photoCard}
         exchangeCard={exchangeCard}
       />
-      <ExchangeSuggest cards={suggestedCards} />
+      {shopData?.isSeller && (
+        <ExchangeSuggest
+          proposals={proposals}
+          isLoading={isLoadingProposals}
+          error={isErrorProposals ? proposalsError?.message : null}
+        />
+      )}
     </div>
   );
 }

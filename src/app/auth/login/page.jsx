@@ -38,14 +38,17 @@ export default function LoginPage() {
       openModal({
         type: 'alert',
         title: '로그인 실패',
-        description: '이메일 또는 비밀번호가\n올바르지 않습니다.',
+        description:
+          error?.message ||
+          '로그인 중 오류가 발생했습니다.\n다시 시도해주세요.',
         button: {label: '확인'},
       });
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:5005/auth/google';
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    window.location.href = `${baseURL}/auth/google`;
   };
 
   return (

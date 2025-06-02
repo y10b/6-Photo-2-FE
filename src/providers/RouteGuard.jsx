@@ -9,7 +9,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 // 로그인된 사용자만 접근 가능한 경로
 const protectedPaths = [
   // 추가 보호 경로들...
-  '/market',
+  '/sale',
+  '/purchase',
+  '/my-gallery',
 ];
 
 // 미인증 사용자만 접근 가능한 경로
@@ -17,6 +19,7 @@ const publicPaths = [
   '/',
   '/auth/login',
   '/auth/signup',
+  '/market',
   // 추가 공개 경로들...
 ];
 

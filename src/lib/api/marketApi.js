@@ -5,12 +5,12 @@ export const fetchMarketCards = async ({
   filterValue = '',
   keyword = '',
   sort = 'latest',
-  page = 1,
+  pageParam = 1,
   take = 12,
 }) => {
   try {
     const queryParams = new URLSearchParams({
-      page: page.toString(),
+      page: pageParam.toString(),
       take: take.toString(),
       sort,
       keyword,

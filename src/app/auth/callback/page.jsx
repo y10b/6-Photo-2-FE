@@ -17,7 +17,7 @@ export default function OAuthCallback() {
     if (token) {
       localStorage.setItem('accessToken', token);
       getUser().then(() => {
-        router.push('/market');
+        router.replace('/market'); // URL에서 ?token=... 제거
       });
     } else {
       router.push('/auth/login');

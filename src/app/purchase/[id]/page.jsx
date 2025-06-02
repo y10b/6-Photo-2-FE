@@ -1,6 +1,7 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {useParams} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
@@ -11,7 +12,7 @@ import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
 import {useAccessToken} from '@/hooks/useAccessToken';
 import MyExchangeList from '@/components/exchange/MyExchangeList';
-import {fetchMyExchangeRequests} from '@/lib/api/exchange';
+import {Router} from 'next/router';
 
 function getErrorMessage(purchaseError, cardError, purchaseData) {
   return (
@@ -36,7 +37,6 @@ export default function PurchasePage() {
   const {id} = useParams();
   const accessToken = useAccessToken();
   const [myProposals, setMyProposals] = useState([]);
-  const [isLoadingProposals, setIsLoadingProposals] = useState(false);
 
   const {
     data: purchaseData,
@@ -61,81 +61,24 @@ export default function PurchasePage() {
     enabled: !!accessToken,
   });
 
-  const {data: myExchangeData, isLoading: isLoadingExchanges} = useQuery({
-    queryKey: ['myExchangeRequests', id],
-    queryFn: () => fetchMyExchangeRequests(id, accessToken),
-    enabled: !!id && !!accessToken,
-  });
-
+  // 판매자인 경우 판매 상세 페이지로 리다이렉트
   useEffect(() => {
-    const loadExchangeProposals = async () => {
-      if (!myExchangeData?.data) {
-        setMyProposals([]);
-        return;
-      }
+    if (purchaseData && purchaseData.isSeller) {
+      Router.replace(`/sale/${id}`);
+    }
+  }, [purchaseData, id, Router]);
 
-      setIsLoadingProposals(true);
+  const isLoading = isLoadingPurchase || isLoadingCards;
 
-      try {
-        console.log('교환 요청 원본 데이터:', myExchangeData.data);
-
-        const exchangeProposals = myExchangeData.data.map(exchange => {
-          // requestCard 객체에서 필요한 정보 추출
-          const requestCard = exchange.requestCard || {};
-          const photoCard = requestCard.photoCard || {};
-          const user = requestCard.user || {};
-
-          return {
-            id: exchange.id,
-            exchangeId: exchange.id,
-            requestCardId: exchange.requestCardId,
-            targetCardId: exchange.targetCardId,
-            imageUrl: photoCard.imageUrl || '/logo.svg',
-            name: photoCard.name || '카드 이름',
-            grade: photoCard.grade || 'COMMON',
-            genre: photoCard.genre || '장르 없음',
-            description: exchange.description || photoCard.description || '설명 없음',
-            status: exchange.status || 'REQUESTED',
-            createdAt: exchange.createdAt || new Date().toISOString(),
-            nickname: user.nickname || '프로여행러',
-            price: photoCard.price || 0,
-          };
-        });
-
-        console.log('변환된 교환 제안 데이터:', exchangeProposals);
-
-        // 최신순으로 정렬하고 취소되지 않은 교환만 표시
-        const sortedProposals = exchangeProposals
-          .filter(proposal => proposal.status === 'REQUESTED')
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        console.log('필터링 및 정렬된 교환 제안:', sortedProposals);
-        setMyProposals(sortedProposals);
-      } catch (error) {
-        console.error('교환 요청 데이터 변환 중 오류:', error);
-        setMyProposals([]);
-      } finally {
-        setIsLoadingProposals(false);
-      }
-    };
-
-    loadExchangeProposals();
-  }, [myExchangeData]);
-
-  const handleCancelExchange = exchangeId => {
-    console.log('교환 취소:', exchangeId);
-    setMyProposals(prev => prev.filter(card => card.exchangeId !== exchangeId));
-  };
-
-  const isLoading =
-    isLoadingPurchase ||
-    isLoadingCards ||
-    isLoadingExchanges ||
-    isLoadingProposals;
   const isError = isErrorPurchase || isErrorCards;
   const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
 
   if (isLoading) return <PurchaseSkeleton />;
+
+  // 판매자인 경우 로딩 상태 유지 (리다이렉트 될 것이므로)
+  if (purchaseData && purchaseData.isSeller) {
+    return <PurchaseSkeleton />;
+  }
 
   if (isError || !purchaseData) {
     return (
@@ -150,7 +93,7 @@ export default function PurchasePage() {
     exchangeGrade: purchaseData.exchangeGrade,
     exchangeGenre: purchaseData.exchangeGenre,
     exchangeDescription: purchaseData.exchangeDescription,
-    listingType: purchaseData.listingType
+    listingType: purchaseData.listingType,
   });
 
   return (
@@ -170,7 +113,7 @@ export default function PurchasePage() {
           exchangeGrade: purchaseData.exchangeGrade,
           exchangeGenre: purchaseData.exchangeGenre,
           exchangeDescription: purchaseData.exchangeDescription,
-          listingType: purchaseData.listingType
+          listingType: purchaseData.listingType,
         }}
         onSelect={(requestCardId, description) => {
           const proposedCard = myCardData?.result.find(

@@ -1,4 +1,82 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { tokenFetch } from '@/lib/fetchClient';
+
+const BASE_URL = `http://localhost:5005`;
+
+/**
+ * 판매글에 대한 교환 제안 목록 조회
+ * GET /api/exchange/:shopId
+ */
+export const fetchExchangeProposals = async (shopId) => {
+  try {
+    // 백엔드 API 경로에 맞게 수정
+    const url = `${BASE_URL}/api/exchange/${shopId}`;
+    console.log('요청 URL:', url);
+
+    // fetch API를 직접 사용하여 테스트
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+
+    if (!response.ok) {
+      console.error('응답 상태:', response.status, response.statusText);
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('교환 제안 목록 조회 실패:', error);
+    throw new Error(error.message || '교환 제안 목록을 불러올 수 없습니다');
+  }
+};
+
+/**
+ * 교환 제안 거절
+ * @param {string} proposalId - 교환 제안 ID
+ * @returns {Promise<Object>} 처리 결과
+ */
+export const rejectExchangeProposal = async (proposalId) => {
+  if (!proposalId) {
+    throw new Error('교환 제안 ID가 필요합니다');
+  }
+
+  try {
+    const data = await tokenFetch(`/api/exchange/${proposalId}/reject`, {
+      method: 'POST',
+    });
+    return data;
+  } catch (error) {
+    console.error('교환 제안 거절 실패:', error);
+    throw new Error(error.message || '교환 제안을 거절할 수 없습니다');
+  }
+};
+
+/**
+ * 교환 제안하기
+ * @param {Object} proposalData - 교환 제안 데이터
+ * @returns {Promise<Object>} 처리 결과
+ */
+export const createExchangeProposal = async (proposalData) => {
+  if (!proposalData || !proposalData.shopId || !proposalData.cardId) {
+    throw new Error('교환 제안에 필요한 데이터가 부족합니다');
+  }
+
+  try {
+    const data = await tokenFetch('/api/exchange', {
+      method: 'POST',
+      body: JSON.stringify(proposalData),
+    });
+    return data;
+  } catch (error) {
+    console.error('교환 제안 생성 실패:', error);
+    throw new Error(error.message || '교환 제안을 생성할 수 없습니다');
+  }
+};
+
 
 export async function postExchangeProposal({
   targetCardId,
@@ -132,7 +210,7 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
     // exchangeId가 숫자인지 확인
     const numericExchangeId = Number(exchangeId);
     console.log(`🔄 교환 취소 API 호출: exchangeId=${numericExchangeId}`);
-    
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${numericExchangeId}/cancel`,
       {
@@ -168,7 +246,7 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
 export async function fetchShopExchangeRequests(shopId, accessToken) {
   try {
     console.log(`🔍 판매 게시글 교환 요청 목록 조회 시작: shopId=${shopId}`);
-    
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/shop/${shopId}`,
       {
@@ -202,7 +280,7 @@ export async function fetchShopExchangeRequests(shopId, accessToken) {
  * @returns {Promise<Object>} - 교환 요청 목록 데이터
  */
 export const fetchMyExchangeRequestsForShop = async (shopListingId, accessToken) => {
-  console.log('🔍 판매글에 대한 내 교환 요청 조회 시작:', {shopListingId});
+  console.log('🔍 판매글에 대한 내 교환 요청 조회 시작:', { shopListingId });
 
   try {
     const response = await fetch(
@@ -238,7 +316,7 @@ export const fetchMyExchangeRequestsForShop = async (shopListingId, accessToken)
  * @returns {Promise<Object>} - 교환 제시 카드 목록 데이터
  */
 export const fetchMyOfferedCardsForShop = async (shopListingId, accessToken) => {
-  console.log('🔍 판매글에 대한 내가 제시한 카드 목록 조회 시작:', {shopListingId});
+  console.log('🔍 판매글에 대한 내가 제시한 카드 목록 조회 시작:', { shopListingId });
 
   try {
     const response = await fetch(
