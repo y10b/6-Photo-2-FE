@@ -1,6 +1,7 @@
 'use client';
 
-import {useParams} from 'next/navigation';
+import {useEffect} from 'react';
+import {useParams, useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
 import CardDetailSection from '@/components/common/TransactionSection';
@@ -31,6 +32,7 @@ function PurchaseSkeleton() {
 
 export default function PurchasePage() {
   const {id} = useParams();
+  const router = useRouter();
   const accessToken = useAccessToken();
 
   const {
@@ -56,11 +58,23 @@ export default function PurchasePage() {
     enabled: !!accessToken,
   });
 
+  // 판매자인 경우 판매 상세 페이지로 리다이렉트
+  useEffect(() => {
+    if (purchaseData && purchaseData.isSeller) {
+      router.replace(`/sale/${id}`);
+    }
+  }, [purchaseData, id, router]);
+
   const isLoading = isLoadingPurchase || isLoadingCards;
   const isError = isErrorPurchase || isErrorCards;
   const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
 
   if (isLoading) return <PurchaseSkeleton />;
+
+  // 판매자인 경우 로딩 상태 유지 (리다이렉트 될 것이므로)
+  if (purchaseData && purchaseData.isSeller) {
+    return <PurchaseSkeleton />;
+  }
 
   if (isError || !purchaseData) {
     return (
