@@ -20,6 +20,7 @@ import gradeStyles from '@/utils/gradeStyles';
 import NoHeader from '@/components/layout/NoHeader';
 import ToastMessage from '@/components/common/ToastMessage';
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
+import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
 
 export default function MyGalleryPage() {
   const router = useRouter();
@@ -33,6 +34,8 @@ export default function MyGalleryPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showToast, setShowToast] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState(null);
+  const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
 
   // 필터 카운트 계산
   const {data: filterData} = useQuery({
@@ -88,6 +91,12 @@ export default function MyGalleryPage() {
         ? {type: '', value: ''}
         : {type, value},
     );
+  };
+
+  // 카드 클릭 핸들러
+  const handleCardClick = card => {
+    setSelectedCardId(card.userCardId);
+    setIsSellRegistrationOpen(true);
   };
 
   return (
@@ -241,6 +250,7 @@ export default function MyGalleryPage() {
             ) : (
               <CardList
                 cards={displayCards}
+                onCardClick={handleCardClick}
                 className="grid gap-4 pc:gap-20 grid-cols-2 pc:grid-cols-3 justify-items-center"
               />
             )}
@@ -283,6 +293,14 @@ export default function MyGalleryPage() {
           </div>
         </div>
       </div>
+      <SellCardRegistrationBottomSheet
+        isOpen={isSellRegistrationOpen}
+        onClose={() => {
+          setIsSellRegistrationOpen(false);
+          setSelectedCardId(null);
+        }}
+        cardId={selectedCardId}
+      />
     </>
   );
 }
