@@ -13,7 +13,7 @@ const ProfileModal = () => {
         <div className="flex items-center justify-between">
           <p className="text-[12px] font-[300] text-gray300">보유 포인트</p>
           <p className="text-[12px] font-[400] text-main">
-            {user.pointBalance} P
+            {user.pointBalance.toLocaleString()} P
           </p>
         </div>
       </div>
