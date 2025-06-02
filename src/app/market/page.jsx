@@ -15,6 +15,7 @@ import MyCardsSellBottomSheet from '@/components/market/MyCardsSellBottomSheet';
 import {countFilterValues} from '@/utils/countFilterValues';
 import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
+import {useModal} from '@/components/modal/ModalContext';
 
 export default function MarketplacePage() {
   const router = useRouter();
@@ -27,6 +28,8 @@ export default function MarketplacePage() {
   const [isMyCardsSellOpen, setIsMyCardsSellOpen] = useState(false);
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
+
+  const {openModal, closeModal} = useModal();
 
   // 무한스크롤 쿼리
   const {
@@ -105,6 +108,21 @@ export default function MarketplacePage() {
       : {id: null, nickname: null};
 
   const handleCardClick = card => {
+    if (!user.id) {
+      // 비회원일 경우 모달 열기
+      openModal({
+        type: 'alert',
+        title: '로그인이 필요합니다.',
+        description:
+          '로그인 하시겠습니까?\n다양한 서비스를 편리하게 이용하실 수 있습니다.',
+        button: {
+          label: '확인',
+          onClick: () => router.push('/auth/login'),
+        },
+      });
+      return;
+    }
+
     const isMyCard = card?.nickname === user.nickname;
     const path = isMyCard ? `/sale/${card.shopId}` : `/purchase/${card.shopId}`;
     router.push(path);
@@ -296,18 +314,22 @@ export default function MarketplacePage() {
       </div>
 
       {/* 나의 포토카드 판매하기 바텀시트 */}
-      <MyCardsSellBottomSheet
-        isOpen={isMyCardsSellOpen}
-        onClose={() => setIsMyCardsSellOpen(false)}
-        onCardSelectedForSale={handleCardSelectedForSale}
-      />
+      {user && (
+        <MyCardsSellBottomSheet
+          isOpen={isMyCardsSellOpen}
+          onClose={() => setIsMyCardsSellOpen(false)}
+          onCardSelectedForSale={handleCardSelectedForSale}
+        />
+      )}
 
       {/* SellCardRegistrationBottomSheet 컴포넌트 렌더링 추가 */}
-      <SellCardRegistrationBottomSheet
-        isOpen={isSellRegistrationOpen}
-        onClose={handleCloseSellRegistration}
-        cardId={selectedCardId}
-      />
+      {user && (
+        <SellCardRegistrationBottomSheet
+          isOpen={isSellRegistrationOpen}
+          onClose={handleCloseSellRegistration}
+          cardId={selectedCardId}
+        />
+      )}
     </>
   );
 }
