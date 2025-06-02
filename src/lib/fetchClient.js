@@ -1,8 +1,4 @@
-const baseURL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.REACT_APP_API_BASE_URL ||
-  'http://localhost:5005';
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 /**
  * 기본 fetch 클라이언트 - 인증이 필요 없는 일반 요청용
@@ -31,7 +27,12 @@ export const defaultFetch = async (url, options = {}) => {
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch {}
+    throw new Error(message);
   }
 
   return response.json();
@@ -61,9 +62,13 @@ export const cookieFetch = async (url, options = {}) => {
   };
 
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
-
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch {}
+    throw new Error(message);
   }
 
   return response.json();
@@ -129,7 +134,12 @@ export const tokenFetch = async (url, options = {}) => {
       throw new Error('Token refresh failed');
     }
   } else if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch {}
+    throw new Error(message);
   }
 
   return response.json();
@@ -159,7 +169,12 @@ export const dynamicFetch = async (url, options = {}) => {
   const response = await fetch(`${baseURL}${url}`, mergedOptions);
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let message = `API error: ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json.message || message;
+    } catch {}
+    throw new Error(message);
   }
 
   return response.json();
