@@ -81,7 +81,7 @@ export default function MyCardsSellBottomSheet({
     setInputValue('');
     setKeyword('');
     setFilter({type: '', value: ''});
-  }, [isOpen, openModal, router]);
+  }, [isOpen, openModal, router])
 
   const allCards = data?.pages.flatMap(page => page.result) || [];
 
@@ -133,6 +133,7 @@ export default function MyCardsSellBottomSheet({
   };
 
   if (!isOpen || !user) return null;
+
 
   return (
     <ResponsiveModalWrapper onClose={onClose} variant="bottom">
