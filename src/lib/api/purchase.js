@@ -1,4 +1,4 @@
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
 
 // 판매 정보 가져오기
 export async function fetchPurchase(shopId, accessToken) {
@@ -7,7 +7,7 @@ export async function fetchPurchase(shopId, accessToken) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    next: { revalidate: 0 },
+    next: {revalidate: 0},
   });
 
   if (res.status === 410) {
@@ -22,7 +22,8 @@ export async function fetchPurchase(shopId, accessToken) {
     const result = await res.json();
 
     // 판매자인 경우 메시지에 '본인이 등록한 판매 게시글입니다'라는 문구가 포함됨
-    const isSeller = result.message?.includes('본인이 등록한 판매 게시글') ||
+    const isSeller =
+      result.message?.includes('본인이 등록한 판매 게시글') ||
       result.data?.isSeller === true;
 
     return {
@@ -31,18 +32,18 @@ export async function fetchPurchase(shopId, accessToken) {
     };
   }
 
-  throw new Error("포토카드 정보를 불러올 수 없습니다");
+  throw new Error('포토카드 정보를 불러올 수 없습니다');
 }
 
 // 카드 구매 요청 보내기
-export async function postPurchase({ shopId, quantity, accessToken }) {
+export async function postPurchase({shopId, quantity, accessToken}) {
   const response = await fetch(`${BASE_URL}/purchase/${shopId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify({quantity}),
   });
 
   if (!response.ok) {

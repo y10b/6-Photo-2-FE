@@ -1,12 +1,13 @@
 'use client';
 
-import {useParams} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
 import {fetchShopDetail} from '@/lib/api/shop';
 import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
+import {useEffect} from 'react';
 
 function SaleSkeleton() {
   return (
@@ -19,6 +20,7 @@ function SaleSkeleton() {
 
 export default function SalePage() {
   const {id} = useParams();
+  const router = useRouter();
 
   const {
     data: shopData,
@@ -30,6 +32,12 @@ export default function SalePage() {
     queryFn: () => fetchShopDetail(id),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (!isLoading && shopData && !isSeller) {
+      router.push(`/purchase/${id}`);
+    }
+  }, [isLoading, shopData, router]);
 
   if (isLoading) return <SaleSkeleton />;
 
@@ -61,7 +69,7 @@ export default function SalePage() {
     {
       grade: shop.exchangeGrade ?? '',
       genre: shop.exchangeGenre ?? '',
-      description: shop.exchangeDescription ?? '교환 희망 안함',
+      description: shop.exchangeDescription ?? '',
     },
   ];
 
@@ -70,7 +78,7 @@ export default function SalePage() {
   return (
     <div className="mb-30 w-full">
       <CardDetailSection
-        type={isSeller ? 'seller' : 'buyer'}
+        type="seller"
         photoCard={photoCard}
         exchangeCard={exchangeCard}
       />
