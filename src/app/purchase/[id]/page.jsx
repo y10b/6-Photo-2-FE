@@ -1,7 +1,8 @@
 'use client';
 
-import {useEffect} from 'react';
-import {useParams, useRouter} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useParams} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import ExchangeInfoSection from '@/components/exchange/ExchangeInfoSection';
 import CardDetailSection from '@/components/common/TransactionSection';
@@ -10,6 +11,8 @@ import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import {fetchPurchase} from '@/lib/api/purchase';
 import {fetchMyCards} from '@/lib/api/shop';
 import {useAccessToken} from '@/hooks/useAccessToken';
+import MyExchangeList from '@/components/exchange/MyExchangeList';
+import {Router} from 'next/router';
 
 function getErrorMessage(purchaseError, cardError, purchaseData) {
   return (
@@ -32,8 +35,8 @@ function PurchaseSkeleton() {
 
 export default function PurchasePage() {
   const {id} = useParams();
-  const router = useRouter();
   const accessToken = useAccessToken();
+  const [myProposals, setMyProposals] = useState([]);
 
   const {
     data: purchaseData,
@@ -61,11 +64,12 @@ export default function PurchasePage() {
   // 판매자인 경우 판매 상세 페이지로 리다이렉트
   useEffect(() => {
     if (purchaseData && purchaseData.isSeller) {
-      router.replace(`/sale/${id}`);
+      Router.replace(`/sale/${id}`);
     }
-  }, [purchaseData, id, router]);
+  }, [purchaseData, id, Router]);
 
   const isLoading = isLoadingPurchase || isLoadingCards;
+
   const isError = isErrorPurchase || isErrorCards;
   const errorMessage = getErrorMessage(purchaseError, cardError, purchaseData);
 
@@ -84,7 +88,13 @@ export default function PurchasePage() {
     );
   }
 
-  const {grade, genre} = purchaseData;
+  console.log('구매 데이터 전체 구조:', JSON.stringify(purchaseData, null, 2));
+  console.log('교환 관련 정보:', {
+    exchangeGrade: purchaseData.exchangeGrade,
+    exchangeGenre: purchaseData.exchangeGenre,
+    exchangeDescription: purchaseData.exchangeDescription,
+    listingType: purchaseData.listingType,
+  });
 
   return (
     <div>
@@ -93,16 +103,35 @@ export default function PurchasePage() {
         photoCard={purchaseData}
         error={errorMessage}
       />
-      {/*  */}
+
       <ExchangeInfoSection
         info={{
-          description:
-            '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
-          grade: grade || 'COMMON',
-          genre: genre || '장르 없음',
+          cardId: purchaseData.photoCard?.id,
+          shopListingId: purchaseData.id,
           myCards: myCardData?.result || [],
+          targetCardId: id,
+          exchangeGrade: purchaseData.exchangeGrade,
+          exchangeGenre: purchaseData.exchangeGenre,
+          exchangeDescription: purchaseData.exchangeDescription,
+          listingType: purchaseData.listingType,
+        }}
+        onSelect={(requestCardId, description) => {
+          const proposedCard = myCardData?.result.find(
+            card => card.id === requestCardId,
+          );
+          if (proposedCard) {
+            setMyProposals(prev => [...prev, proposedCard]);
+          }
         }}
       />
+
+      {/* 교환 요청 목록이 있을 때만 MyExchangeList 표시 */}
+      {myProposals.length > 0 && (
+        <MyExchangeList
+          cards={myProposals}
+          onCancelExchange={handleCancelExchange}
+        />
+      )}
     </div>
   );
 }

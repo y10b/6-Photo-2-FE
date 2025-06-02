@@ -1,3 +1,4 @@
+// ModalRenderer.jsx
 'use client';
 
 import {useModal} from './ModalContext';
@@ -8,9 +9,9 @@ import PointModal from './layout/PointModal';
 
 export default function ModalRenderer() {
   const {isOpen, modalContent, closeModal} = useModal();
+
   if (!isOpen || !modalContent?.type) return null;
 
-  // 알림형 모달일 때
   if (modalContent.type === 'alert') {
     return (
       <AlertModal
@@ -22,7 +23,6 @@ export default function ModalRenderer() {
     );
   }
 
-  // 데스크탑 = 모달, 태블릿/모바일 = 바텀시트인 경우
   if (modalContent.type === 'responsive') {
     return (
       <ResponsiveModalWrapper
@@ -38,11 +38,15 @@ export default function ModalRenderer() {
     return <CardModal />;
   }
 
-  // 랜덤포인트 모달일 때
   if (modalContent.type === 'point') {
     return (
       <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
     );
+  }
+
+  // ✅ custom 타입 처리 추가
+  if (modalContent.type === 'custom') {
+    return modalContent.children || modalContent.content || null;
   }
 
   return null;

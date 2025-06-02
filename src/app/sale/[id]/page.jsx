@@ -5,6 +5,7 @@ import {useQuery} from '@tanstack/react-query';
 import CardDetailSection from '@/components/common/TransactionSection';
 import ExchangeSuggest from '@/components/exchange/ExchangeSuggest';
 import {fetchShopDetail} from '@/lib/api/shop';
+import {fetchExchangeProposals} from '@/lib/api/exchange';
 import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
 import {useEffect} from 'react';
@@ -24,27 +25,41 @@ export default function SalePage() {
 
   const {
     data: shopData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isLoadingShop,
+    isError: isErrorShop,
+    error: shopError,
   } = useQuery({
     queryKey: ['shopDetail', id],
     queryFn: () => fetchShopDetail(id),
     enabled: !!id,
   });
 
+  const {
+    data: exchangeProposals,
+    isLoading: isLoadingProposals,
+    isError: isErrorProposals,
+    error: proposalsError,
+  } = useQuery({
+    queryKey: ['exchangeProposals', id],
+    queryFn: () => fetchExchangeProposals(id),
+    enabled: !!id && !!shopData?.isSeller,
+  });
+
+  // 교환 제안 목록 데이터 처리
+  const proposals = exchangeProposals?.data || [];
+
   useEffect(() => {
-    if (!isLoading && shopData && !isSeller) {
+    if (!isLoadingShop && shopData && !shopData.isSeller) {
       router.push(`/purchase/${id}`);
     }
-  }, [isLoading, shopData, router]);
+  }, [isLoadingShop, shopData, router, id]);
 
-  if (isLoading) return <SaleSkeleton />;
+  if (isLoadingShop) return <SaleSkeleton />;
 
-  if (isError)
+  if (isErrorShop)
     return (
       <div className="text-center text-red-500 mt-10">
-        에러 발생: {error?.message || '알 수 없는 에러'}
+        에러 발생: {shopError?.message || '알 수 없는 에러'}
       </div>
     );
 
@@ -73,8 +88,6 @@ export default function SalePage() {
     },
   ];
 
-  const suggestedCards = [];
-
   return (
     <div className="mb-30 w-full">
       <CardDetailSection
@@ -82,7 +95,13 @@ export default function SalePage() {
         photoCard={photoCard}
         exchangeCard={exchangeCard}
       />
-      <ExchangeSuggest cards={suggestedCards} />
+      {shopData?.isSeller && (
+        <ExchangeSuggest
+          proposals={proposals}
+          isLoading={isLoadingProposals}
+          error={isErrorProposals ? proposalsError?.message : null}
+        />
+      )}
     </div>
   );
 }
