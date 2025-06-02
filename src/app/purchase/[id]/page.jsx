@@ -93,6 +93,7 @@ export default function PurchasePage() {
         photoCard={purchaseData}
         error={errorMessage}
       />
+      {/*  */}
       <ExchangeInfoSection
         info={{
           description:
