@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {useAuth} from '@/providers/AuthProvider';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import NotificationModal from './NotificationModal';
 import ProfileModal from './ProfileModal';
 import ProfileMobileModal from './ProfileMobileModal';
@@ -31,6 +31,30 @@ const Header = () => {
   const hasUnread = useMemo(() => {
     return data?.some(alarm => !alarm.isRead);
   }, [data]);
+
+  // 외부 클릭 시 모달 닫기
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = e => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target)
+      ) {
+        setIsNotificationActive(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileActive(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="relative pc:px-[20px]">
@@ -69,7 +93,7 @@ const Header = () => {
               <li className="hidden tablet:block text-[14px] font-[700]">
                 {user?.pointBalance?.toLocaleString() || 0} P
               </li>
-              <li className="relative">
+              <li ref={notificationRef} className="relative">
                 <figure
                   className="relative w-[22px] h-[22px] tablet:w-[24px] tablet:h-[24px] cursor-pointer"
                   onClick={() => setIsNotificationActive(prev => !prev)}
@@ -94,7 +118,10 @@ const Header = () => {
                   <NotificationModal isActive={setIsNotificationActive} />
                 )}
               </li>
-              <li className="hidden tablet:block font-baskin text-[18px] font-[400] relative">
+              <li
+                ref={profileRef}
+                className="hidden tablet:block font-baskin text-[18px] font-[400] relative"
+              >
                 <p
                   className="cursor-pointer"
                   onClick={() => setIsProfileActive(prev => !prev)}
