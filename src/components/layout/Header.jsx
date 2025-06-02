@@ -99,7 +99,12 @@ const Header = () => {
                   className="cursor-pointer"
                   onClick={() => setIsProfileActive(prev => !prev)}
                 >
-                  {user?.nickname || ''}
+                  {user?.nickname?.includes('_')
+                    ? `${user.nickname.slice(
+                        0,
+                        user.nickname.lastIndexOf('_'),
+                      )}_google`
+                    : user?.nickname}
                 </p>
                 {isProfileActive && <ProfileModal />}
               </li>

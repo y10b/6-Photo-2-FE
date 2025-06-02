@@ -54,7 +54,11 @@ export default function AuthProvider({children}) {
       await getUser();
       return true;
     } catch (error) {
-      console.error('AuthProvider 로그인 실패:', error);
+      // 백엔드 메시지가 포함된 경우 그대로 전달
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        '로그인에 실패했습니다.';
       throw new Error('로그인에 실패했습니다.');
     }
   };

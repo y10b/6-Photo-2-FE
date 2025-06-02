@@ -55,7 +55,8 @@ export default function SignUpPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:5005/auth/google';
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    window.location.href = `${baseURL}/auth/google`;
   };
 
   return (
