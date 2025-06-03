@@ -35,7 +35,7 @@ export default function MyGalleryPage() {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showToast, setShowToast] = useState(false);
+  const [showToast, setShowToast] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
 
