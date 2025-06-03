@@ -225,7 +225,7 @@ export default function MyGalleryPage() {
                     handleDropdownChange('genre', target.value)
                   }
                   placeholder="장르"
-                  ooptions={GENRE_OPTIONS}
+                  options={GENRE_OPTIONS}
                 />
               </div>
             </div>
