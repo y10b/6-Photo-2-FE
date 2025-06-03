@@ -19,8 +19,8 @@ export default function GradeGenreNickname({
         'tablet:text-base',
       )}
     >
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-[3px]">
+      <div className="flex flex-col">
+        <div className="flex items-center gap-1">
           <p className={clsx(gradeStyles[cardGrade], 'font-light')}>
             {formatCardGrade(cardGrade)}
           </p>

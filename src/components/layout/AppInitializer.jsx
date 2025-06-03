@@ -1,33 +1,33 @@
-// components/layout/AppInitializer.jsx
 'use client';
 
-import {useEffect} from 'react';
-import {useModal} from '@/components/modal/ModalContext';
-import {useAuth} from '@/providers/AuthProvider';
-import {userService} from '../../lib/api/user-service';
+import { useEffect } from 'react';
+import { useModal } from '@/components/modal/ModalContext';
+import { useAuth } from '@/providers/AuthProvider';
+import { userService } from '@/lib/api/user-service';
 import PointDrawModal from '@/components/common/PointDrawModal';
 
 export default function AppInitializer() {
-  const {user} = useAuth();
-  const {openModal} = useModal();
+  const { user } = useAuth();
+  const { openModal } = useModal();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.id) return;
 
-    userService.checkPointCooldown().then(data => {
-      console.log('쿨타임 확인 결과:', data);
-      if (!data.canDraw && data.remainSeconds > 0) {
+    userService.checkPointCooldown().then((data) => {
+      if (data.canDraw) {
+        // 바로 뽑을 수 있으면 즉시 모달 표시
+        openModal({
+          type: 'point',
+          children: <PointDrawModal />,
+        });
+      } else {
+        // 아직 쿨타임 남아있으면 setTimeout으로 예약
         setTimeout(() => {
           openModal({
             type: 'point',
             children: <PointDrawModal />,
           });
-        }, data.remainSeconds * 1000); // 이게 자동 모달 예약
-      } else if (data.canDraw) {
-        openModal({
-          type: 'point',
-          children: <PointDrawModal />,
-        });
+        }, data.remainSeconds * 1000); // 쿨타임이 끝난 후 자동으로 모달 열기
       }
     });
   }, [user]);

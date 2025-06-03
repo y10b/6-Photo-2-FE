@@ -10,34 +10,40 @@ import ProfileMobileModal from './ProfileMobileModal';
 import {useNotificationQuery} from '@/hooks/useNotificationQuery';
 
 const Header = () => {
-  // useAuth 훅을 사용하여 로그인 상태 및 사용자 정보 가져오기
   const {user, logout} = useAuth();
-  // user 객체의 존재 여부로 로그인 상태 확인
   const isLoggedIn = !!user;
-  // 디버깅용 로그
+
   useEffect(() => {}, [isLoggedIn, user]);
-  // 바로 로그아웃
+
   const handleLogout = () => {
-    logout(); // AuthProvider의 logout 함수 호출 (랜딩페이지로 이동)
+    logout();
   };
 
-  // 알림 모달
   const [isNotificationActive, setIsNotificationActive] = useState(false);
-  // 프로필 모달
   const [isProfileActive, setIsProfileActive] = useState(false);
-  // 신규 알림
   const {data} = useNotificationQuery();
 
   const hasUnread = useMemo(() => {
     return data?.some(alarm => !alarm.isRead);
   }, [data]);
 
-  // 외부 클릭 시 모달 닫기
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
   useEffect(() => {
+    // 모바일 모달이 열려있을 때는 body 스크롤 방지
+    if (isProfileActive && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
     const handleClickOutside = e => {
+      // 모바일 모달은 자체적으로 외부 클릭을 처리하므로 여기서는 처리하지 않음
+      if (isProfileActive && window.innerWidth < 768) {
+        return;
+      }
+
       if (
         notificationRef.current &&
         !notificationRef.current.contains(e.target)
@@ -53,8 +59,15 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = '';
     };
-  }, []);
+  }, [isProfileActive]);
+
+  // 모바일 메뉴 토글 핸들러
+  const toggleMobileMenu = e => {
+    e.stopPropagation(); // 이벤트 전파 중지
+    setIsProfileActive(prev => !prev);
+  };
 
   return (
     <header className="relative pc:px-[20px]">
@@ -65,7 +78,7 @@ const Header = () => {
           width={22}
           height={22}
           alt="메뉴 토글"
-          onClick={() => setIsProfileActive(prev => !prev)}
+          onClick={toggleMobileMenu}
         />
         {isProfileActive && (
           <ProfileMobileModal isActive={setIsProfileActive} />
@@ -77,7 +90,6 @@ const Header = () => {
         </Link>
 
         {!isLoggedIn ? (
-          /* 비회원일 경우 */
           <ul className="flex items-center gap-[30px] text-[14px] font-[500] text-gray200">
             <li className="">
               <Link href={'/auth/login'}>로그인</Link>
@@ -87,7 +99,6 @@ const Header = () => {
             </li>
           </ul>
         ) : (
-          /* 회원일 경우 */
           <ul className="flex items-center gap-[30px]">
             <div className="flex items-center gap-[30px]">
               <li className="hidden tablet:block text-[14px] font-[700]">

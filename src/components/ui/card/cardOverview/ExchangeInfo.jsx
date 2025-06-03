@@ -15,8 +15,10 @@ export default function ExchangeInfo({
   description,
   type,
   mobileOrTablet,
-  onClick, // ✅ 추가
-  isLoading, // ✅ 추가
+  onClick,
+  isLoading,
+  onAccept,
+  onReject,
 }) {
   return (
     <>
@@ -35,7 +37,7 @@ export default function ExchangeInfo({
           'tablet:text-base',
         )}
       >
-        {/* ✅ PC (tablet 이상) */}
+        {/* PC (tablet 이상) */}
         <div className="hidden tablet:block font-normal w-full">
           <div className="flex flex-wrap justify-between items-center">
             {/* 왼쪽: 등급 | 장르 | 가격 */}
@@ -58,7 +60,7 @@ export default function ExchangeInfo({
           </div>
         </div>
 
-        {/* ✅ 모바일/태블릿 */}
+        {/* 모바일 */}
         <div className="tablet:hidden">
           <GradeGenreNickname
             cardGrade={cardGrade}
@@ -101,8 +103,10 @@ export default function ExchangeInfo({
       <ExchangeButtons
         type={type}
         mobileOrTablet={mobileOrTablet}
-        onClick={onClick} // ✅ 전달
-        isLoading={isLoading} // ✅ 전달
+        onClick={onClick}
+        isLoading={isLoading}
+        onAccept={onAccept}
+        onReject={onReject}
       />
     </>
   );

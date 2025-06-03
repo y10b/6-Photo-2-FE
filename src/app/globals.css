@@ -47,18 +47,6 @@
   --noto: 'Noto Sans KR';
 }
 
-/* Chrome, Safari, Edge, Opera에서 숫자 입력 필드의 스핀 버튼 제거 */
-input[type='number']::-webkit-outer-spin-button,
-input[type='number']::-webkit-inner-spin-button {
-  -webkit-appearance: none !important;
-  margin: 0 !important;
-}
-
-/* Firefox에서 숫자 입력 필드의 스핀 버튼 제거 */
-input[type='number'] {
-  -moz-appearance: textfield !important;
-}
-
 @theme inline {
   /* 색상 */
   --color-black: var(--black);
@@ -92,6 +80,18 @@ input[type='number'] {
   font-family: var(--font-baskin), cursive;
 }
 
+/* Chrome, Safari, Edge, Opera에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number'] {
+  -moz-appearance: textfield !important;
+}
+
 /* 줄바꿈 처리 설정 */
 .clamp-description {
   display: -webkit-box;
@@ -99,6 +99,16 @@ input[type='number'] {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 스크롤바 숨기기 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* 백그라운드 이미지 설정 */

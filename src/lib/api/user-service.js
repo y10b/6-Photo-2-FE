@@ -1,4 +1,4 @@
-import { tokenFetch } from '@/lib/fetchClient';
+import {tokenFetch} from '@/lib/fetchClient';
 
 export const userService = {
   /**
@@ -17,14 +17,14 @@ export const userService = {
   /**
    * 사용자 정보 업데이트
    */
-  updateUserInfo: async (userData) => {
+  updateUserInfo: async userData => {
     const res = await tokenFetch('/api/users/me', {
       method: 'PATCH',
       body: JSON.stringify(userData),
     });
 
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    const updatedUser = { ...currentUser, ...res };
+    const updatedUser = {...currentUser, ...res};
     localStorage.setItem('user', JSON.stringify(updatedUser));
 
     return res;
@@ -49,9 +49,10 @@ export const userService = {
   /**
    * (개발용) 쿨타임 리셋
    */
-  resetPointCooldown: async () => {
-    return await tokenFetch('/api/users/reset-point-cooldown', {
+  setPointCooldown: async remainSeconds => {
+    return await tokenFetch('/api/users/set-point-cooldown', {
       method: 'PATCH',
+      body: JSON.stringify({remainSeconds}),
     });
   },
 };
