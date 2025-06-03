@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function PointModal({children, onClose}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/80" />
 
       {/* 모달 영역 */}

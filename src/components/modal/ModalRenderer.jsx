@@ -38,11 +38,11 @@ export default function ModalRenderer() {
     return <CardModal />;
   }
 
-  if (modalContent.type === 'point') {
-    return (
-      <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
-    );
-  }
+  // if (modalContent.type === 'point') {
+  //   return (
+  //     <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
+  //   );
+  // }
 
   // ✅ custom 타입 처리 추가
   if (modalContent.type === 'custom') {

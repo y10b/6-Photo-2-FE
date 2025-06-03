@@ -28,10 +28,8 @@ export default function PointDrawModal() {
   } = useMutation({
     mutationFn: userService.drawPoint,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['pointCooldown']});
-      refetchCooldown();
-      setSelectedBox(null);
-      setRemainingTime(3600);
+      queryClient.invalidateQueries({queryKey: ['pointCooldown']}); // 캐시 무효화
+      setSelectedBox(null); //여기서 박스 선택 상태 초기화
     },
   });
 
@@ -41,17 +39,24 @@ export default function PointDrawModal() {
 
     setRemainingTime(cooldownData.remainSeconds); // 서버로부터 초기 남은 시간 설정
 
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       setRemainingTime(prev => {
         if (prev <= 1) {
-          clearInterval(interval); // 0초 되면 타이머 종료
+          clearInterval(intervalId); // 0초 되면 타이머 종료
           return 0;
         }
-        return prev - 1; // 1초씩 감소
+        return Math.max(prev - 1, 0); // 1초씩 감소, 안전하게 음수 방지
       });
     }, 1000);
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 정리
   }, [cooldownData]);
+
+  // [2] 남은 시간 0초 되면 자동 refetch
+  useEffect(() => {
+    if (remainingTime === 0) {
+      refetchCooldown(); // 남은 시간이 0이 되었을 때 cooldownData.canDraw도 즉시 반영
+    }
+  }, [remainingTime]);
 
   if (!cooldownData || remainingTime === null) return null;
 
@@ -125,7 +130,7 @@ export default function PointDrawModal() {
                 <Button
                   role="random"
                   onClick={handleDraw}
-                  disabled={isPending || isDrawn}
+                  disabled={isPending || isDrawn} //중복 클릭 방지
                 >
                   선택완료
                 </Button>
@@ -167,22 +172,39 @@ export default function PointDrawModal() {
 
       {process.env.NODE_ENV === 'development' &&
         user?.email === 'admin@example.com' && (
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
             <Button
               role="dev"
               onClick={async () => {
                 try {
-                  await userService.resetPointCooldown();
+                  await userService.setPointCooldown(10); // 🔧 10초 남기기
                   queryClient.invalidateQueries(['pointCooldown']);
                   refetchCooldown();
-                  alert('쿨타임이 초기화되었습니다!');
+                  alert('쿨타임을 10초 남음으로 설정했습니다!');
                 } catch (err) {
-                  console.error('❌ 초기화 실패:', err);
-                  alert('쿨타임 초기화 실패');
+                  console.error('❌ 설정 실패:', err);
+                  alert('쿨타임 설정 실패');
                 }
               }}
             >
-              🔧 쿨타임 초기화 (개발용)
+              ⏱️ 쿨타임 10초 남기기 (개발용)
+            </Button>
+
+            <Button
+              role="dev"
+              onClick={async () => {
+                try {
+                  await userService.setPointCooldown(0); // 🔧 즉시 가능하게
+                  queryClient.invalidateQueries(['pointCooldown']);
+                  refetchCooldown();
+                  alert('지금 바로 뽑을 수 있도록 설정했습니다!');
+                } catch (err) {
+                  console.error('❌ 설정 실패:', err);
+                  alert('설정 실패');
+                }
+              }}
+            >
+              지금 뽑기 가능하게 설정 (개발용)
             </Button>
           </div>
         )}
