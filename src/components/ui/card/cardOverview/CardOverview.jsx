@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import CardImage from './CardImage';
 import CardInfo from './CardInfo';
 
-export default function CardOverview({card, onCardClick}) {
+export default function CardOverview({card, onCardClick, onAccept, onReject}) {
   const {
     userCardId: id,
     shopId,
@@ -67,6 +67,8 @@ export default function CardOverview({card, onCardClick}) {
         quantityTotal={quantityTotal}
         description={description}
         isExchangeBig={isExchangeBig}
+        onAccept={onAccept}
+        onReject={onReject}
       />
     </div>
   );
