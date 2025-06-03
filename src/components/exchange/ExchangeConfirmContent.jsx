@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useMemo} from 'react';
-import Button from '../common/Button';
 import {useModal} from '@/components/modal/ModalContext';
 import {fetchMyCards} from '@/lib/api/shop';
 import {createExchangeRequest} from '@/lib/api/exchange';
@@ -61,52 +60,64 @@ function ExchangeConfirmContent({shopId}) {
         isDismissible: true,
         isCloseable: true,
         overlayClassName: 'bg-black/50',
-        modalClassName: 'cursor-default',
+        modalClassName: 'cursor-default overflow-hidden',
         className: {
-          mobile: 'h-[95vh] rounded-t-[20px]',
-          tablet: 'h-[95vh]',
-          pc: 'max-w-[1000px] rounded-[20px]',
+          mobile: 'h-[95vh] rounded-t-[20px] flex flex-col',
+          tablet: 'h-[95vh] flex flex-col touch-none',
+          pc: 'max-w-[1000px] h-auto min-h-[600px] max-h-[800px] rounded-[20px] flex flex-col',
         },
+        dragToClose: true,
+        dragHandle: true,
         children: (
-          <ExchangeOfferModal
-            card={card}
-            onExchange={async data => {
-              try {
-                await createExchangeRequest({
-                  shopId,
-                  targetCardId: card.userCardId,
-                  description: data.description,
-                });
+          <div className="h-full flex flex-col">
+            {/* 드래그 핸들 영역 - 모바일/태블릿에서만 표시 */}
+            <div className="flex-none h-1 w-10 mx-auto bg-gray300 rounded-full my-3 pc:hidden" />
 
-                closeModal();
-                openModal({
-                  type: 'alert',
-                  title: '교환 신청 완료',
-                  description: '교환 신청이 완료되었습니다.',
-                  button: {
-                    label: '확인',
-                    onClick: () => {
-                      closeModal();
-                      router.refresh();
+            <ExchangeOfferModal
+              card={card}
+              onExchange={async data => {
+                try {
+                  await createExchangeRequest({
+                    shopId,
+                    targetCardId: card.userCardId,
+                    description: data.description,
+                  });
+
+                  closeModal();
+                  openModal({
+                    type: 'success',
+                    title: '교환 제시',
+                    result: '성공',
+                    description: '포토카드 교환 제시에 성공했습니다!',
+                    button: {
+                      label: '나의 판매 포토카드에서 확인하기',
+                      onClick: () => {
+                        closeModal();
+                        router.push('/my-gallery');
+                      },
                     },
-                  },
-                });
-              } catch (error) {
-                closeModal();
-                openModal({
-                  type: 'alert',
-                  title: '교환 신청 실패',
-                  description:
-                    error.message || '교환 신청 중 오류가 발생했습니다.',
-                  button: {
-                    label: '확인',
-                    onClick: closeModal,
-                  },
-                });
-              }
-            }}
-            onCancel={closeModal}
-          />
+                  });
+                } catch (error) {
+                  closeModal();
+                  openModal({
+                    type: 'fail',
+                    title: '교환 제시',
+                    result: '실패',
+                    description:
+                      error.message || '교환 신청 중 오류가 발생했습니다.',
+                    button: {
+                      label: '마켓플레이스로 돌아가기',
+                      onClick: () => {
+                        closeModal();
+                        router.push('/marketplace');
+                      },
+                    },
+                  });
+                }
+              }}
+              onCancel={closeModal}
+            />
+          </div>
         ),
       });
     }, 100);
@@ -134,8 +145,9 @@ function ExchangeConfirmContent({shopId}) {
   };
 
   return (
-    <div className="px-[15px] tablet:p-5 text-white min-h-[95vh] flex flex-col">
-      <div className="flex-grow mb-[30px] tablet:mb-4">
+    <div className="px-[15px] tablet:p-5 text-white h-full flex flex-col">
+      {/* 고정된 헤더 부분 */}
+      <div className="flex-none">
         <h2 className="mb-[15px] tablet:mb-10 font-baskin font-normal text-sm tablet:text-base pc:text-2xl text-gray300">
           마이갤러리
         </h2>
@@ -232,10 +244,12 @@ function ExchangeConfirmContent({shopId}) {
             placeholder="검색"
           />
         </div>
+      </div>
 
-        {/* 카드 목록 */}
+      {/* 스크롤되는 카드 목록 부분 */}
+      <div className="flex-grow overflow-y-auto">
         {isLoading ? (
-          <div className="flex justify-center h-screen mt-[50px]">
+          <div className="flex justify-center mt-[50px]">
             <div className="animate-spin rounded-full h-8 w-8 border-4 border-b-transparent border-l-gray-400 border-r-gray-400"></div>
           </div>
         ) : cards.length === 0 ? (
@@ -244,8 +258,14 @@ function ExchangeConfirmContent({shopId}) {
           </div>
         ) : (
           <CardList
-            cards={cards}
-            onCardClick={handleCardClick}
+            cards={cards.map(card => ({
+              ...card,
+              type: 'original',
+              cardGenre: card.genre,
+              cardGrade: card.grade,
+              nickname: card.nickname || card.sellerNickname,
+              onClick: () => handleCardClick(card),
+            }))}
             className="grid grid-cols-2 gap-[10px] justify-items-center mx-auto w-full"
           />
         )}
