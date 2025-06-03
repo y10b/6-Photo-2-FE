@@ -22,6 +22,16 @@ function ExchangeConfirmContent({shopId}) {
   const {isMobile, isTablet, isPC} = useBreakpoint();
 
   useEffect(() => {
+    // 바텀시트가 열릴 때 body 스크롤 막기
+    document.body.style.overflow = 'hidden';
+    
+    // 컴포넌트가 언마운트될 때 body 스크롤 복원
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  useEffect(() => {
     const loadCards = async () => {
       try {
         setIsLoading(true);
@@ -32,10 +42,12 @@ function ExchangeConfirmContent({shopId}) {
           filterType: filter.type,
           filterValue: filter.value,
         });
+        console.log('fetchMyCards 응답:', response);
         // soldout이 아닌 카드만 필터링
         const availableCards = response.result.filter(
           card => card.quantityLeft > 0,
         );
+        console.log('필터링된 카드:', availableCards);
         setCards(availableCards);
       } catch (error) {
         console.error('카드 로딩 실패:', error);
@@ -48,11 +60,40 @@ function ExchangeConfirmContent({shopId}) {
   }, [keyword, filter]);
 
   const handleCardClick = card => {
+    console.log('선택된 카드 데이터:', card);
     // 첫 번째 모달 닫기
     closeModal();
 
     // 약간의 지연 후 두 번째 모달 열기
     setTimeout(() => {
+      const mappedCard = {
+        id: card.id,
+        photoCard: {
+          id: card.id,
+          name: card.title,
+          grade: card.cardGrade || card.grade,
+          genre: card.cardGenre || card.genre,
+          imageUrl: card.imageUrl,
+          quantityLeft: card.quantityLeft,
+          quantityTotal: card.quantityTotal,
+        },
+        shopListing: {
+          seller: {
+            nickname: card.nickname || card.sellerNickname,
+          },
+        },
+        cardGrade: card.cardGrade || card.grade,
+        cardGenre: card.cardGenre || card.genre,
+        quantityLeft: card.quantityLeft,
+        quantityTotal: card.quantityTotal,
+        title: card.title,
+        description: card.description,
+        price: card.price,
+        createdAt: card.createdAt,
+        type: 'exchange_big',
+      };
+      console.log('ExchangeOfferModal에 전달할 카드 데이터:', mappedCard);
+
       openModal({
         type: 'responsive',
         variant: isMobile ? 'full' : 'bottom',
@@ -60,21 +101,21 @@ function ExchangeConfirmContent({shopId}) {
         isDismissible: true,
         isCloseable: true,
         overlayClassName: 'bg-black/50',
-        modalClassName: 'cursor-default overflow-hidden',
+        modalClassName: 'cursor-default',
         className: {
-          mobile: 'h-[95vh] rounded-t-[20px] flex flex-col',
-          tablet: 'h-[95vh] flex flex-col touch-none',
-          pc: 'max-w-[1000px] h-auto min-h-[600px] max-h-[800px] rounded-[20px] flex flex-col',
+          mobile: 'h-[95vh] rounded-t-[20px] flex flex-col overflow-hidden',
+          tablet: 'h-[95vh] flex flex-col touch-none overflow-hidden',
+          pc: 'max-w-[1000px] h-auto min-h-[600px] max-h-[800px] rounded-[20px] flex flex-col overflow-hidden',
         },
         dragToClose: true,
         dragHandle: true,
         children: (
-          <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col overflow-hidden">
             {/* 드래그 핸들 영역 - 모바일/태블릿에서만 표시 */}
             <div className="flex-none h-1 w-10 mx-auto bg-gray300 rounded-full my-3 pc:hidden" />
 
             <ExchangeOfferModal
-              card={card}
+              card={mappedCard}
               onExchange={async data => {
                 try {
                   await createExchangeRequest({
@@ -145,7 +186,7 @@ function ExchangeConfirmContent({shopId}) {
   };
 
   return (
-    <div className="px-[15px] tablet:p-5 text-white h-full flex flex-col">
+    <div className="px-[15px] tablet:p-5 text-white h-full flex flex-col overflow-hidden">
       {/* 고정된 헤더 부분 */}
       <div className="flex-none">
         <h2 className="mb-[15px] tablet:mb-10 font-baskin font-normal text-sm tablet:text-base pc:text-2xl text-gray300">
@@ -247,7 +288,7 @@ function ExchangeConfirmContent({shopId}) {
       </div>
 
       {/* 스크롤되는 카드 목록 부분 */}
-      <div className="flex-grow overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         {isLoading ? (
           <div className="flex justify-center mt-[50px]">
             <div className="animate-spin rounded-full h-8 w-8 border-4 border-b-transparent border-l-gray-400 border-r-gray-400"></div>
@@ -261,12 +302,12 @@ function ExchangeConfirmContent({shopId}) {
             cards={cards.map(card => ({
               ...card,
               type: 'original',
-              cardGenre: card.genre,
-              cardGrade: card.grade,
+              cardGenre: card.cardGenre || card.genre,
+              cardGrade: card.cardGrade || card.grade,
               nickname: card.nickname || card.sellerNickname,
-              onClick: () => handleCardClick(card),
             }))}
-            className="grid grid-cols-2 gap-[10px] justify-items-center mx-auto w-full"
+            onCardClick={handleCardClick}
+            className="grid grid-cols-2 gap-[15px] tablet:gap-[20px] pc:gap-[30px] justify-items-center mx-auto w-full pb-5 px-[5px] tablet:px-[10px] pc:px-[15px]"
           />
         )}
       </div>
