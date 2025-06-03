@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState, useCallback} from 'react';
+import {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useRouter} from 'next/navigation';
 import Image from 'next/image';
@@ -21,10 +21,12 @@ import NoHeader from '@/components/layout/NoHeader';
 import ToastMessage from '@/components/common/ToastMessage';
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
+import {GENRE_OPTIONS, GRADE_OPTIONS} from '@/utils/filterOptions';
 
 export default function MyGalleryPage() {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [filterCounts, setFilterCounts] = useState({
@@ -178,9 +180,9 @@ export default function MyGalleryPage() {
             {/* 검색창 */}
             <SearchInput
               name="query"
-              value={keyword}
-              onChange={e => setKeyword(e.target.value)}
-              onSearch={handleSearch}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onSearch={() => handleSearch(inputValue)}
               placeholder="검색"
               className="flex-grow h-[35px]"
             />
@@ -193,9 +195,9 @@ export default function MyGalleryPage() {
               <div>
                 <SearchInput
                   name="query"
-                  value={keyword}
-                  onChange={e => setKeyword(e.target.value)}
-                  onSearch={handleSearch}
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onSearch={() => handleSearch(inputValue)}
                   placeholder="검색"
                   className="!w-[200px] !h-[45px] pc:!w-[320px]"
                 />
@@ -210,12 +212,7 @@ export default function MyGalleryPage() {
                     handleDropdownChange('grade', target.value)
                   }
                   placeholder="등급"
-                  options={[
-                    {label: 'COMMON', value: 'COMMON'},
-                    {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
-                    {label: 'LEGENDARY', value: 'LEGENDARY'},
-                  ]}
+                  options={GRADE_OPTIONS}
                 />
               </div>
 
@@ -228,12 +225,7 @@ export default function MyGalleryPage() {
                     handleDropdownChange('genre', target.value)
                   }
                   placeholder="장르"
-                  options={[
-                    {label: '여행', value: 'TRAVEL'},
-                    {label: '풍경', value: 'LANDSCAPE'},
-                    {label: '인물', value: 'PORTRAIT'},
-                    {label: '사물', value: 'OBJECT'},
-                  ]}
+                  ooptions={GENRE_OPTIONS}
                 />
               </div>
             </div>

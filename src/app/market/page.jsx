@@ -1,7 +1,6 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {useInfiniteQuery} from '@tanstack/react-query';
 import {useInView} from 'react-intersection-observer';
 import {useRouter} from 'next/navigation';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet';
@@ -16,11 +15,19 @@ import {countFilterValues} from '@/utils/countFilterValues';
 import SellCardRegistrationBottomSheet from '@/components/market/SellCardRegistrationBottomSheet';
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
 import {useModal} from '@/components/modal/ModalContext';
+import useMarketInfiniteCards from '@/hooks/useMarketInfiniteCards';
+import useLocalUser from '@/hooks/useLocalUser';
+import {
+  GENRE_OPTIONS,
+  GRADE_OPTIONS,
+  SOLDOUT_OPTIONS,
+  SORT_OPTIONS,
+} from '@/utils/filterOptions';
 
 export default function MarketplacePage() {
   const router = useRouter();
-  const [keyword, setKeyword] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [keyword, setKeyword] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -31,32 +38,15 @@ export default function MarketplacePage() {
 
   const {openModal, closeModal} = useModal();
 
-  // 무한스크롤 쿼리
+  // 무한스크롤 커스텀 훅
   const {
     data: infiniteData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useInfiniteQuery({
-    queryKey: ['marketCards', keyword, sort, filter],
-    queryFn: ({pageParam = 1}) =>
-      fetchMarketCards({
-        pageParam,
-        take: 12,
-        keyword,
-        sort,
-        filterType: filter.type,
-        filterValue: filter.value,
-      }),
-    enabled: true,
-    getNextPageParam: lastPage =>
-      lastPage.currentPage < lastPage.totalPages
-        ? lastPage.currentPage + 1
-        : undefined,
-  });
+  } = useMarketInfiniteCards({keyword, sort, filter});
 
-  // 무한 스크롤 트리거용 ref
   const {ref: loaderRef, inView} = useInView({threshold: 0.8});
 
   useEffect(() => {
@@ -81,13 +71,6 @@ export default function MarketplacePage() {
   // 검색어 핸들러
   const handleSearch = value => setKeyword(value);
 
-  const sortOptions = [
-    {label: '최신순', value: 'latest'},
-    {label: '오래된순', value: 'oldest'},
-    {label: '낮은 가격순', value: 'price-asc'},
-    {label: '높은 가격순', value: 'price-desc'},
-  ];
-
   const cards = infiniteData?.pages.flatMap(p => p.result) ?? [];
 
   const handleCardSelectedForSale = cardId => {
@@ -102,10 +85,7 @@ export default function MarketplacePage() {
   };
 
   // 카드 클릭 실행함수
-  const user =
-    typeof window !== 'undefined' && localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user'))
-      : {id: null, nickname: null};
+  const user = useLocalUser();
 
   const handleCardClick = card => {
     if (!user.id) {
@@ -186,7 +166,7 @@ export default function MarketplacePage() {
                 name="sort"
                 value={sort}
                 onChange={({target}) => setSort(target.value)}
-                options={sortOptions}
+                options={SORT_OPTIONS}
               />
             </div>
           </div>
@@ -215,12 +195,7 @@ export default function MarketplacePage() {
                     handleDropdownChange('grade', target.value)
                   }
                   placeholder="등급"
-                  options={[
-                    {label: 'COMMON', value: 'COMMON'},
-                    {label: 'RARE', value: 'RARE'},
-                    {label: 'SUPER RARE', value: 'SUPER_RARE'},
-                    {label: 'LEGENDARY', value: 'LEGENDARY'},
-                  ]}
+                  options={GRADE_OPTIONS}
                 />
               </div>
 
@@ -233,12 +208,7 @@ export default function MarketplacePage() {
                     handleDropdownChange('genre', target.value)
                   }
                   placeholder="장르"
-                  options={[
-                    {label: '여행', value: 'TRAVEL'},
-                    {label: '풍경', value: 'LANDSCAPE'},
-                    {label: '인물', value: 'PORTRAIT'},
-                    {label: '사물', value: 'OBJECT'},
-                  ]}
+                  options={GENRE_OPTIONS}
                 />
               </div>
 
@@ -251,10 +221,7 @@ export default function MarketplacePage() {
                     handleDropdownChange('soldOut', target.value)
                   }
                   placeholder="매진여부"
-                  options={[
-                    {label: '판매 중', value: 'false'},
-                    {label: '품절', value: 'true'},
-                  ]}
+                  options={SOLDOUT_OPTIONS}
                 />
               </div>
             </div>
@@ -264,7 +231,7 @@ export default function MarketplacePage() {
                 name="sort"
                 value={sort}
                 onChange={({target}) => setSort(target.value)}
-                options={sortOptions}
+                options={SORT_OPTIONS}
               />
             </div>
           </div>
