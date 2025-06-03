@@ -15,10 +15,17 @@ import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
 import NoHeader from '@/components/layout/NoHeader';
 import CardOverviewSkeleton from '@/components/ui/skeleton/CardOverviewSkeleton';
+import {
+  GENRE_OPTIONS,
+  GRADE_OPTIONS,
+  METHOD_OPTIONS,
+  SOLDOUT_OPTIONS,
+} from '@/utils/filterOptions';
 
 export default function MySalesPage() {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [sort, setSort] = useState('latest');
   const [filter, setFilter] = useState({type: '', value: ''});
   const [filterCounts, setFilterCounts] = useState({grade: {}, genre: {}});
@@ -133,9 +140,9 @@ export default function MySalesPage() {
           {/* 검색창 */}
           <SearchInput
             name="query"
-            value={keyword}
-            onChange={e => setKeyword(e.target.value)}
-            onSearch={handleSearch}
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onSearch={() => handleSearch(inputValue)}
             placeholder="검색"
             className="flex-grow h-[35px]"
           />
@@ -148,9 +155,9 @@ export default function MySalesPage() {
             <div>
               <SearchInput
                 name="query"
-                value={keyword}
-                onChange={e => setKeyword(e.target.value)}
-                onSearch={handleSearch}
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onSearch={() => handleSearch(inputValue)}
                 placeholder="검색"
                 className="!w-[200px] !h-[45px] pc:!w-[320px]"
               />
@@ -165,12 +172,7 @@ export default function MySalesPage() {
                   handleDropdownChange('grade', target.value)
                 }
                 placeholder="등급"
-                options={[
-                  {label: 'COMMON', value: 'COMMON'},
-                  {label: 'RARE', value: 'RARE'},
-                  {label: 'SUPER RARE', value: 'SUPER_RARE'},
-                  {label: 'LEGENDARY', value: 'LEGENDARY'},
-                ]}
+                options={GRADE_OPTIONS}
               />
             </div>
 
@@ -183,12 +185,7 @@ export default function MySalesPage() {
                   handleDropdownChange('genre', target.value)
                 }
                 placeholder="장르"
-                options={[
-                  {label: '여행', value: 'TRAVEL'},
-                  {label: '풍경', value: 'LANDSCAPE'},
-                  {label: '인물', value: 'PORTRAIT'},
-                  {label: '사물', value: 'OBJECT'},
-                ]}
+                options={GENRE_OPTIONS}
               />
             </div>
             <div className="tablet:ml-[25px] pc:ml-[45px]">
@@ -200,10 +197,7 @@ export default function MySalesPage() {
                   handleDropdownChange('method', target.value)
                 }
                 placeholder="판매방법"
-                options={[
-                  {label: '판매', value: 'sale'},
-                  {label: '교환', value: 'exchange'},
-                ]}
+                options={METHOD_OPTIONS}
               />
             </div>
 
@@ -216,10 +210,7 @@ export default function MySalesPage() {
                   handleDropdownChange('soldOut', target.value)
                 }
                 placeholder="매진 여부"
-                options={[
-                  {label: '판매중', value: 'false'},
-                  {label: '매진', value: 'true'},
-                ]}
+                options={SOLDOUT_OPTIONS}
               />
             </div>
           </div>
