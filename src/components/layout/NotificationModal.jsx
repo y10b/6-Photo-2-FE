@@ -15,8 +15,6 @@ const NotificationModal = ({isActive}) => {
     mutationFn: patchNotification,
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications']);
-
-      router.push('/');
     },
     onError: err => {
       console.error('알림 읽음 처리 실패', err);
@@ -25,6 +23,8 @@ const NotificationModal = ({isActive}) => {
 
   const handleClick = (notificationId, relatedShopId) => {
     mutate(notificationId);
+    router.push(`/sale/${relatedShopId}`);
+    isActive(prev => !prev);
   };
 
   return (
@@ -57,7 +57,7 @@ const NotificationModal = ({isActive}) => {
         )}
       </div>
       {/* 모바일 */}
-      <div className="fixed inset-0 w-full bg-gray500 z-[20] tablet:hidden">
+      <div className="fixed inset-0 w-full bg-gray500 z-[100] tablet:hidden">
         <div className="flex items-center justify-between h-[60px] px-[20px]">
           <img
             src="/icons/ic_m_close.svg"
