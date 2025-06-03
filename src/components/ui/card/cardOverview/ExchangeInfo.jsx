@@ -15,8 +15,10 @@ export default function ExchangeInfo({
   description,
   type,
   mobileOrTablet,
-  onClick, // ✅ 추가
-  isLoading, // ✅ 추가
+  onClick,
+  isLoading,
+  onAccept,
+  onReject,
 }) {
   return (
     <>
@@ -101,8 +103,10 @@ export default function ExchangeInfo({
       <ExchangeButtons
         type={type}
         mobileOrTablet={mobileOrTablet}
-        onClick={onClick} // ✅ 전달
-        isLoading={isLoading} // ✅ 전달
+        onClick={onClick}
+        isLoading={isLoading}
+        onAccept={onAccept}
+        onReject={onReject}
       />
     </>
   );
