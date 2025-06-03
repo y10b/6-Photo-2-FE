@@ -125,9 +125,9 @@
 ### **임정빈**
 
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
+![랜딩 페이지](public/dev/landing.png)
+![알림 Modal](public/dev/alarm.png)
+![헤더 Modeal](public/dev/header.png)
 
 - **랜딩 페이지**
   - 로그인하지 않은 사용자에게는 서비스를 소개하는 랜딩 페이지가 보여집니다
