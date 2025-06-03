@@ -14,6 +14,9 @@ function SellerCardItem({exchangeCard, gradeStyles, card}) {
   const {openModal, closeModal} = useModal();
   const {id} = useParams();
 
+  const currentCard = card[0];
+  const isDisabled = currentCard?.remainingQuantity === 0;
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleDelete = async () => {
@@ -90,6 +93,7 @@ function SellerCardItem({exchangeCard, gradeStyles, card}) {
         <Button
           role="exchange-confirm"
           onClick={() => setIsEditModalOpen(true)}
+          disabled={isDisabled}
         >
           수정하기
         </Button>
@@ -97,6 +101,7 @@ function SellerCardItem({exchangeCard, gradeStyles, card}) {
           role="exchange-confirm"
           variant="outline"
           onClick={handleDelete}
+          disabled={isDisabled}
         >
           판매 내리기
         </Button>
