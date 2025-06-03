@@ -21,14 +21,17 @@ export default function ExchangeOfferModal({
 
   // 카드 데이터 매핑
   const mappedCard = {
-    id: card?.photoCard?.id || card?.id,
-    title: card?.photoCard?.name || card?.name,
-    grade: card?.photoCard?.grade || card?.grade,
-    genre: card?.photoCard?.genre || card?.genre,
-    imageUrl: card?.photoCard?.imageUrl || card?.imageUrl,
+    id: card?.id,
+    title: card?.title,
+    cardGrade: card?.cardGrade || card?.photoCard?.grade,
+    cardGenre: card?.cardGenre || card?.photoCard?.genre,
+    imageUrl: card?.photoCard?.imageUrl,
     price: card?.price || 0,
-    nickname: card?.shopListing?.seller?.nickname || card?.nickname,
+    nickname: card?.shopListing?.seller?.nickname,
     type: 'exchange_big',
+    quantityLeft: card?.quantityLeft,
+    quantityTotal: card?.quantityTotal,
+    description: card?.description,
   };
 
   useEffect(() => {
