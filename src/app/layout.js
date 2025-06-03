@@ -5,6 +5,7 @@ import AuthProvider from '@/providers/AuthProvider';
 import RouteGuard from '@/providers/RouteGuard';
 import ReactQueryProvider from '@/providers/ReactQueryProvider';
 import ModalRenderer from '@/components/modal/ModalRenderer';
+import PointModalRenderer from '@/components/modal/PointModalRenderer';
 
 export const metadata = {
   title: '최애의 포토',
@@ -23,8 +24,9 @@ export default function RootLayout({ children }) {
             <ModalProvider>
               <RouteGuard>
                 <WrapperLayout>
-                  {children}
+                  <PointModalRenderer /> 
                   <ModalRenderer />
+                  {children}
                 </WrapperLayout>
               </RouteGuard>
             </ModalProvider>

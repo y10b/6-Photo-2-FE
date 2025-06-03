@@ -5,7 +5,6 @@ import {useModal} from './ModalContext';
 import AlertModal from './layout/AlertModal';
 import ResponsiveModalWrapper from './ResponsiveModalWrapper';
 import CardModal from './layout/CardModal';
-import PointModal from './layout/PointModal';
 
 export default function ModalRenderer() {
   const {isOpen, modalContent, closeModal} = useModal();
@@ -36,12 +35,6 @@ export default function ModalRenderer() {
 
   if (modalContent.type === 'success' || modalContent.type === 'fail') {
     return <CardModal />;
-  }
-
-  if (modalContent.type === 'point') {
-    return (
-      <PointModal onClose={closeModal}>{modalContent.children}</PointModal>
-    );
   }
 
   // ✅ custom 타입 처리 추가
