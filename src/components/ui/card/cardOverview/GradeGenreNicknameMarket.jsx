@@ -12,17 +12,19 @@ export default function GradeGenreNicknameMarket({
   return (
     <div
       className={clsx(
-        'font-bold flex justify-between items-start',
+        'font-light flex flex-wrap justify-between items-start gap-y-2',
         mobileOrTablet('text-base mt-[7px]', 'text-[10px] mt-[5px]'),
         'tablet:text-base tablet:mt-[7px]',
       )}
     >
-      <div className="flex tablet:gap-[7px]">
-        <p className={gradeStyles[cardGrade]}>{formatCardGrade(cardGrade)}</p>
-        <p className="text-gray400">|</p>
-        <p className="text-gray300">{cardGenre}</p>
+      <div className="flex gap-[5px] tablet:gap-[7px] flex-shrink-0 max-w-full overflow-hidden">
+        <p className={`${gradeStyles[cardGrade]} truncate`}>
+          {formatCardGrade(cardGrade)}
+        </p>
+        <p className="text-gray400 flex-shrink-0">|</p>
+        <p className="text-gray300 truncate">{cardGenre}</p>
       </div>
-      <p className="underline">{nickname}</p>
+      <p className="underline ml-auto">{nickname}</p>
     </div>
   );
 }

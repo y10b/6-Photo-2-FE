@@ -22,9 +22,9 @@ export default function MarketInfo({
 
   return (
     <>
-      <div className="flex justify-between">
+      <div className="flex flex-wrap justify-between items-start gap-y-2">
         <Title title={title} mobileOrTablet={mobileOrTablet} />
-        <p className="pt-2 text-[8px] tablet:text-sm text-gray300">
+        <p className="text-[8px] tablet:text-sm text-gray300 flex-shrink-0 ml-auto">
           {formatDate(createdAt)}
         </p>
       </div>
@@ -58,7 +58,7 @@ export default function MarketInfo({
           'justify-center mt-[30px] pc:mt-[47px]',
         )}
       >
-        <img src="logo.svg" alt="로고" className="w-[99.25px] h-auto" />
+        <img src="/images/logo.svg" alt="로고" className="w-[99.25px] h-auto" />
       </div>
     </>
   );
