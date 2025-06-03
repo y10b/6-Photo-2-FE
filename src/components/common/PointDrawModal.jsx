@@ -6,8 +6,10 @@ import Button from './Button';
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {userService} from '../../lib/api/user-service';
 import {useAuth} from '@/providers/AuthProvider';
+import {useModal} from '@/components/modal/ModalContext';
 
 export default function PointDrawModal() {
+  const {openModal} = useModal();
   const [selectedBox, setSelectedBox] = useState(null);
   const [remainingTime, setRemainingTime] = useState(null);
   const queryClient = useQueryClient();
@@ -30,6 +32,13 @@ export default function PointDrawModal() {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['pointCooldown']}); // 캐시 무효화
       setSelectedBox(null); //여기서 박스 선택 상태 초기화
+      // 다음 기회 자동 모달 예약
+      setTimeout(() => {
+        openModal({
+          type: 'point',
+          children: <PointDrawModal />,
+        });
+      }, 3600 * 1000); //1시간 후 모달 재오픈
     },
   });
 
@@ -169,45 +178,6 @@ export default function PointDrawModal() {
           </>
         )}
       </div>
-
-      {process.env.NODE_ENV === 'development' &&
-        user?.email === 'admin@example.com' && (
-          <div className="mt-6 space-y-3">
-            <Button
-              role="dev"
-              onClick={async () => {
-                try {
-                  await userService.setPointCooldown(10); // 🔧 10초 남기기
-                  queryClient.invalidateQueries(['pointCooldown']);
-                  refetchCooldown();
-                  alert('쿨타임을 10초 남음으로 설정했습니다!');
-                } catch (err) {
-                  console.error('❌ 설정 실패:', err);
-                  alert('쿨타임 설정 실패');
-                }
-              }}
-            >
-              ⏱️ 쿨타임 10초 남기기 (개발용)
-            </Button>
-
-            <Button
-              role="dev"
-              onClick={async () => {
-                try {
-                  await userService.setPointCooldown(0); // 🔧 즉시 가능하게
-                  queryClient.invalidateQueries(['pointCooldown']);
-                  refetchCooldown();
-                  alert('지금 바로 뽑을 수 있도록 설정했습니다!');
-                } catch (err) {
-                  console.error('❌ 설정 실패:', err);
-                  alert('설정 실패');
-                }
-              }}
-            >
-              지금 뽑기 가능하게 설정 (개발용)
-            </Button>
-          </div>
-        )}
     </>
   );
 }

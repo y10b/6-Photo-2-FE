@@ -27,7 +27,7 @@ export default function AppInitializer() {
             type: 'point',
             children: <PointDrawModal />,
           });
-        }, data.remainSeconds * 1000);
+        }, data.remainSeconds * 1000); // 쿨타임이 끝난 후 자동으로 모달 열기
       }
     });
   }, [user]);
