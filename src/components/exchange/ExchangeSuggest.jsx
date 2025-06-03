@@ -1,7 +1,44 @@
+'use client';
+
 import React from 'react';
 import CardList from '@/components/ui/card/cardOverview/CardList';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { acceptExchangeProposal, rejectExchangeProposal } from '@/lib/api/exchange';
+import { toast } from 'react-hot-toast';
 
 export default function ExchangeSuggest({proposals = [], isLoading, error}) {
+  const queryClient = useQueryClient();
+
+  const acceptMutation = useMutation({
+    mutationFn: acceptExchangeProposal,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['exchangeProposals']);
+      toast.success('교환 제안이 수락되었습니다.');
+    },
+    onError: (error) => {
+      toast.error(error.message || '교환 제안 수락에 실패했습니다.');
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: rejectExchangeProposal,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['exchangeProposals']);
+      toast.success('교환 제안이 거절되었습니다.');
+    },
+    onError: (error) => {
+      toast.error(error.message || '교환 제안 거절에 실패했습니다.');
+    },
+  });
+
+  const handleAccept = (proposalId) => {
+    acceptMutation.mutate(proposalId);
+  };
+
+  const handleReject = (proposalId) => {
+    rejectMutation.mutate(proposalId);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-10">로딩중..</div>
@@ -25,21 +62,31 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
   }
 
   // 백엔드 응답을 CardList/Card 컴포넌트가 이해할 수 있는 형식으로 변환
-  const mappedCards = proposals.map(proposal => ({
-    // Card 컴포넌트에 필요한 속성들
-    userCardId: proposal.id, // 고유 ID
-    type: 'exchange_btn2', // 교환 버튼 타입 지정
-    title: proposal.name || '카드 이름',
-    imageUrl: proposal.imageUrl || '/images/fallback.png',
-    createdAt: proposal.createdAt,
-    price: proposal.price || 0,
-    cardGenre: proposal.genre || '장르',
-    cardGrade: proposal.grade || 'COMMON',
-    nickname: proposal.userNickname || '사용자',
-    description: proposal.description || '교환 제안 메시지가 없습니다.',
-    // 원본 데이터도 보존 (필요시 사용)
-    originalProposal: proposal,
-  }));
+  const mappedCards = proposals.map(proposal => {
+    console.log('교환 제안 데이터:', proposal);
+    return {
+      userCardId: proposal.id,
+      type: 'exchange_btn2',
+      title: proposal.name || '카드 이름',
+      imageUrl: proposal.imageUrl || '/images/fallback.png',
+      createdAt: proposal.createdAt,
+      price: proposal.price || 0,
+      cardGenre: proposal.genre || '장르',
+      cardGrade: proposal.grade || 'COMMON',
+      nickname: proposal.userNickname || '사용자',
+      description: proposal.description || '교환 제안 메시지가 없습니다.',
+      originalProposal: proposal,
+      // 교환 요청 상태 업데이트 핸들러 추가
+      onAccept: () => {
+        console.log('승인 버튼 클릭:', proposal.exchangeId);
+        handleAccept(proposal.exchangeId);
+      },
+      onReject: () => {
+        console.log('거절 버튼 클릭:', proposal.exchangeId);
+        handleReject(proposal.exchangeId);
+      },
+    };
+  });
 
   // 카드 클릭 핸들러
   const handleCardClick = card => {
@@ -57,7 +104,7 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
       {/* CardList 컴포넌트 사용 */}
       <CardList
         cards={mappedCards}
-        className="grid grid-cols-1 tablet:grid-cols-2 pc:grid-cols-3 gap-6"
+        className="grid grid-cols-2 tablet:grid-cols-2 pc:grid-cols-3 gap-4 tablet:gap-6"
         onCardClick={handleCardClick}
       />
     </div>
