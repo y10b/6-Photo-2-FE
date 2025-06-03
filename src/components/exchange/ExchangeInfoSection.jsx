@@ -165,7 +165,7 @@ function ExchangeInfoSection({
           </Button>
         </div>
       </div>
-      <hr className="mb-[46px] tablet:mb-10 pc:mb-12" />
+      <hr className="border-2 border-gray100 mb-[46px] tablet:mb-10 pc:mb-12" />
       <div>
         <p
           className={`mb-5 text-[18px] pc:text-2xl ${
@@ -184,7 +184,7 @@ function ExchangeInfoSection({
           <p className="text-gray300">{exchangeGenre}</p>
         </div>
       </div>
-      <div className="mb-10 block tablet:hidden">
+      <div className="mb-30 block tablet:hidden">
         <Button role="exchange-confirm" onClick={handleExchangeConfirm}>
           포토카드 교환하기
         </Button>
@@ -192,11 +192,14 @@ function ExchangeInfoSection({
 
       {/* 내가 제시한 교환 카드 목록 */}
       {myExchangeCards.length > 0 && (
-        <div className="mt-10">
-          <h4 className="text-xl font-bold mb-5">내가 제시한 교환 카드</h4>
+        <div className="mb-10 tablet:mb-12 pc:mb-45">
+          <h4 className="font-bold text-2xl tablet:text-[32px] pc:text-[40px] mb-5">
+            내가 제시한 교환 목록
+          </h4>
+          <hr className="mb-[46px] tablet:mb-12 pc:mb-[70px] border-2 border-gray100" />
           <CardList
             cards={myExchangeCards}
-            className="grid grid-cols-2 tablet:grid-cols-3 pc:grid-cols-4 gap-4"
+            className="grid grid-cols-2 pc:grid-cols-3 gap-4"
             onCardClick={card => {
               openModal({
                 type: 'alert',

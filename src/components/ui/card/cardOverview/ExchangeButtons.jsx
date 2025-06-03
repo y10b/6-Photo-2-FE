@@ -22,10 +22,7 @@ export default function ExchangeButtons({
         <Button
           role="cancel-exchange"
           variant="outline"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick?.();
-          }}
+          onClick={onClick}
           disabled={isLoading}
         >
           {isLoading ? '취소 중...' : '취소하기'}
@@ -45,23 +42,13 @@ export default function ExchangeButtons({
         <Button
           role="proposal"
           variant="outline"
-          onClick={(e) => {
-            e.stopPropagation();
-            onReject?.();
-          }}
+          onClick={onReject}
           disabled={isLoading}
         >
           <span className="tablet:hidden">거절</span>
           <span className="hidden tablet:inline">거절하기</span>
         </Button>
-        <Button
-          role="proposal"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAccept?.();
-          }}
-          disabled={isLoading}
-        >
+        <Button role="proposal" onClick={onAccept} disabled={isLoading}>
           <span className="tablet:hidden">승인</span>
           <span className="hidden tablet:inline">승인하기</span>
         </Button>
