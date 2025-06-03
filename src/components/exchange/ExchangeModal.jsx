@@ -5,7 +5,7 @@ import {useModal} from '@/components/modal/ModalContext';
 import SearchInput from '@/components/ui/input/SearchInput';
 import CardList from '@/components/ui/card/cardOverview/CardList';
 import FilterBottomSheet from '@/components/market/FilterBottomSheet2';
-import Image from 'next/image';
+
 import ExchangeFullScreen from './ExchangeFullScreen';
 import useFilteredCards from '@/hooks/useFilteredCards';
 
@@ -62,7 +62,7 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
 
         // 요청 상태인 교환만 필터링
         const validRequests = (data.data || []).filter(
-          item => item.status === 'REQUESTED'
+          item => item.status === 'REQUESTED',
         );
 
         setMyExchangeRequests(validRequests);
@@ -100,7 +100,7 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
       }
 
       const cardData = await cardResponse.json();
-      
+
       // 카드 상태 확인
       if (cardData.status && cardData.status !== 'IDLE') {
         throw new Error('이미 거래 중이거나 교환할 수 없는 상태의 카드입니다.');
@@ -116,8 +116,8 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
         content: (
           <ExchangeFullScreen
             card={formattedCard}
-            targetCardId={targetCardId}  // photoCardId 전달
-            shopListingId={shopListingId}  // 판매글 ID 전달
+            targetCardId={targetCardId} // photoCardId 전달
+            shopListingId={shopListingId} // 판매글 ID 전달
             onClose={closeModal}
           />
         ),
@@ -133,43 +133,35 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
   // 이미 교환 요청한 카드 필터링
   const availableCards = filteredCards.filter(card => {
     return !myExchangeRequests.some(
-      request => request.requestCardId === card.userCardId
+      request => request.requestCardId === card.userCardId,
     );
   });
+  {
+    isLoading && <div className="text-white">로딩 중...</div>;
+  }
 
   return (
-    <div className="font-noto text-white w-full max-h-[80vh] overflow-y-auto pb-5 relative">
-      <div className="sticky top-0 z-10 bg-black px-4 pt-4 pb-2">
+    <div className="w-full max-h-[95vh] flex flex-col px-[15px] tablet:px-5 pc:px-30 relative">
+      {/* 헤더 영역: 고정 */}
+      <div className="sticky top-0 z-10 pb-4">
         <div className="mb-[30px] relative">
-          <p className="font-baskin text-gray-300 text-sm mb-[15px]">
+          <p className="font-baskin text-gray300 text-sm tablet:text-base pc:text-2xl mb-[15px] tablet:mb-10">
             마이갤러리
           </p>
           <p className="font-baskin text-[26px]">포토카드 교환하기</p>
-          <button
-            onClick={closeModal}
-            className="absolute top-0 right-0 p-2"
-          >
-            <Image
-              src="/icons/ic_close.svg"
-              width={24}
-              height={24}
-              alt="close"
-            />
-          </button>
         </div>
 
-        <div className="flex items-center gap-2 mb-[30px]">
+        <div className="flex items-center gap-[10px] mb-[30px]">
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center gap-1 px-3 py-2 border border-gray-600 rounded-lg"
+            className="p-[12.5px] h-[45px] border-1"
           >
-            <Image
+            <img
               src="/icons/ic_filter.svg"
-              width={24}
-              height={24}
+              width={20}
+              height={20}
               alt="filter"
             />
-            <span>필터</span>
           </button>
           <div className="flex-1">
             <SearchInput
@@ -181,58 +173,25 @@ export default function ExchangeModal({myCards, targetCardId, shopListingId}) {
         </div>
       </div>
 
-      <div className="px-4">
-        {/* 교환 요청한 카드 목록 */}
-        {myExchangeRequests.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3">교환 요청한 카드</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {myExchangeRequests.map(request => (
-                <div
-                  key={request.id}
-                  className="bg-gray-800 rounded-lg p-4"
-                >
-                  <div className="aspect-w-4 aspect-h-3 mb-2">
-                    <img
-                      src={request.requestCard.imageUrl}
-                      alt={request.requestCard.name}
-                      className="object-cover rounded w-full h-full"
-                    />
-                  </div>
-                  <p className="text-sm font-bold truncate">{request.requestCard.name}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-yellow-300 text-xs">{request.requestCard.grade}</span>
-                    <span className="text-gray-400 text-xs">|</span>
-                    <span className="text-gray-300 text-xs">{request.requestCard.genre}</span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">교환 제안일: {new Date(request.createdAt).toLocaleDateString()}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <CardList
-          cards={availableCards.map(card => ({
-            ...card,
-            type: 'original',
-            onClick: () => handleCardClick(card),
-          }))}
-          onCardClick={(id) => {
-            const card = availableCards.find(c => c.userCardId === id);
-            if (card) {
-              handleCardClick(card);
-            }
-          }}
-          className="grid grid-cols-2 tablet:grid-cols-2 pc:grid-cols-3 gap-4"
-        />
-      </div>
-
-      {isLoading && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="text-white">로딩 중...</div>
+      {/* 카드 리스트 스크롤 영역 */}
+      <div className="flex-1 mb-30 overflow-y-auto min-h-0 hide-scrollbar">
+        <div className="">
+          <CardList
+            cards={availableCards.map(card => ({
+              ...card,
+              type: 'original',
+              onClick: () => handleCardClick(card),
+            }))}
+            onCardClick={id => {
+              const card = availableCards.find(c => c.userCardId === id);
+              if (card) {
+                handleCardClick(card);
+              }
+            }}
+            className="grid grid-cols-2 gap-[5px] w-max-[375px] tablet:w-max-[744px] pc:w-max-[1200px] mx-auto"
+          />
         </div>
-      )}
+      </div>
 
       <FilterBottomSheet
         isOpen={isFilterOpen}

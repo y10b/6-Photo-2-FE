@@ -11,11 +11,11 @@
 
 백지연 ([개인 Github 링크] (https://github.com/jyeon03))
 
-오보람 (개인 Github 링크)
+오보람 ([개인 Github 링크] (https://github.com/elisaohh))
 
 윤세준 (개인 Github 링크)
 
-임정빈 (개인 Github 링크)
+임정빈 ([개인 Github 링크](https://github.com/jbinyim))
 
 ---
 
@@ -86,7 +86,9 @@
 
 ### **백지연**
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
+![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
+![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
 
 - **모델 설계 및 정의**
   - ERD 설계
@@ -99,14 +101,20 @@
 ### **오보람**
 
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+![마켓플레이스](public/dev/marketplace.png)
+![필터 바텀시트](public/dev/filterbottomsheet.png)
+![마이갤러리](public/dev/mygallery.png)
+![페이지네이션](public/dev/pagination.png)
+![로딩스피너](public/dev/loadingspinner.png)
 
-- **관리자 페이지**
-  - path parameter를 사용하여 학생 페이지와 동적 라우팅 기능 구현
-  - 학생별 정보 목록 carousel 슬라이더 구현
-  - fetch(PATCH, DELETE)를 사용하여 개인정보 수정 및 탈퇴 기능 구현
-  - fetch(POST, PATCH, DELETE)를 사용하여 학생 정보 CRUD 기능 구현
-- **공용 Button 컴포넌트**
-  - 공용으로 사용할 Button 컴포넌트 구현
+- **공용 Modal 컴포넌트, 로딩스피너**
+  - 공용으로 사용할 반응형 Modal 컴포넌트 구현
+  - 로딩 스피너 구현
+- **조회 기능 -BE+FE**
+  - 마켓 플레이스/마이갤러리/나의 판매카드 조회
+  - 포토카드 생성
+  - 페이지 메인 레이아웃 및 필터 바텀시트
+  - 검색, 필터, 정렬, 무한스크롤, 페이지네이션 구현
 
 ### **윤세준**
 
@@ -123,14 +131,18 @@
 ### **임정빈**
 
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+![랜딩 페이지](public/dev/landing.png)
+![알림 Modal](public/dev/alarm.png)
+![헤더 Modeal](public/dev/header.png)
 
-- **관리자 페이지**
-  - fetch(GET)를 사용하여 학생별 시간 정보 표시 및 수강생 접속 현황 정보 표시
-  - 반응형 레이아웃 구현
-- **마이 페이지**
-  - fetch(PATCH, DELETE)를 사용하여 수강생의 개인정보 수정 및 탈퇴 기능 구현
-- **공용 Modal 컴포넌트**
-  - 공용으로 사용할 Modal 컴포넌트 구현
+- **랜딩 페이지**
+  - 로그인하지 않은 사용자에게는 서비스를 소개하는 랜딩 페이지가 보여집니다
+- **알림 Modal 컴포넌트**
+  - 주요 이벤트가 발생했을 때 알림이 갑니다. (교환 제안 도착, 교환 제안 승인/거절, 카드가 구매됨)
+- **공용 Header 컴포넌트**
+  - 공용으로 사용할 Header 컴포넌트 구현
+- **초기 세팅**
+  - 공통 스타일을 위한 환경을 설정 했습니다.
 
 ---
 

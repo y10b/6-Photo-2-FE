@@ -5,41 +5,7 @@ import {useEffect, useState} from 'react';
 import Button from '../common/Button';
 import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
-
-const fullTabConfig = {
-  grade: {
-    label: '등급',
-    options: ['COMMON', 'RARE', 'SUPER_RARE', 'LEGENDARY'],
-  },
-  genre: {
-    label: '장르',
-    options: ['TRAVEL', 'LANDSCAPE', 'PORTRAIT', 'OBJECT'],
-  },
-  method: {
-    label: '판매 방법',
-    options: ['for_sale', 'exchange_only'],
-  },
-  soldOut: {
-    label: '매진 여부',
-    options: ['false', 'true'],
-  },
-};
-
-// filter value 매핑
-const labelMap = {
-  COMMON: 'COMMON',
-  RARE: 'RARE',
-  SUPER_RARE: 'SUPER RARE',
-  LEGENDARY: 'LEGENDARY',
-  TRAVEL: '여행',
-  LANDSCAPE: '풍경',
-  PORTRAIT: '인물',
-  OBJECT: '사물',
-  for_sale: '판매',
-  exchange_only: '교환',
-  true: '판매 완료',
-  false: '판매 중',
-};
+import {FILTER_TAB_CONFIG, FILTER_LABEL_MAP} from '@/utils/filterOptions';
 
 export default function FilterBottomSheet({
   isOpen,
@@ -49,14 +15,15 @@ export default function FilterBottomSheet({
   tabs = ['grade', 'genre', 'method', 'soldOut'],
   selectedFilter = {type: '', value: ''},
 }) {
-  const resolvedTabs = tabs.map(type => ({
+  const availableTabs = tabs.map(type => ({
     type,
-    ...fullTabConfig[type],
+    ...FILTER_TAB_CONFIG[type],
   }));
 
-  const [selectedTab, setSelectedTab] = useState(resolvedTabs[0]?.type || '');
+  const [selectedTab, setSelectedTab] = useState(availableTabs[0]?.type || '');
   const [selectedValues, setSelectedValues] = useState([]);
-  const currentTab = resolvedTabs.find(tab => tab.type === selectedTab);
+
+  const currentTab = availableTabs.find(tab => tab.type === selectedTab);
 
   // 현재 필터링 중인 탭 보여주기
   useEffect(() => {
@@ -67,7 +34,7 @@ export default function FilterBottomSheet({
       const values = selectedFilter.value?.split(',') ?? [];
       setSelectedValues(values);
     } else {
-      setSelectedTab(resolvedTabs[0]?.type || '');
+      setSelectedTab(availableTabs[0]?.type || '');
       setSelectedValues([]);
     }
   }, [isOpen, selectedFilter, tabs]);
@@ -94,6 +61,16 @@ export default function FilterBottomSheet({
 
   if (!isOpen) return null;
 
+  const totalCount = selectedValues.length
+    ? selectedValues.reduce(
+        (sum, v) => sum + (filterCounts?.[selectedTab]?.[v] || 0),
+        0,
+      )
+    : Object.values(filterCounts?.[selectedTab] || {}).reduce(
+        (sum, count) => sum + count,
+        0,
+      );
+
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-end">
       <div className="absolute inset-0 bg-black opacity-70" onClick={onClose} />
@@ -119,13 +96,11 @@ export default function FilterBottomSheet({
         {/* 탭 */}
         <div
           className={`flex h-[52px] text-sm mx-6 ${
-            resolvedTabs.length === 4 ? 'justify-between' : 'gap-6'
+            availableTabs.length === 4 ? 'justify-between' : 'gap-6'
           }`}
         >
-          {resolvedTabs.map(tab => {
+          {availableTabs.map(tab => {
             const isActive = selectedTab === tab.type;
-            const selectedCount = isActive ? selectedValues.length : 0;
-
             return (
               <button
                 key={tab.type}
@@ -133,15 +108,15 @@ export default function FilterBottomSheet({
                   isActive
                     ? 'text-white border-b-1 border-white'
                     : 'text-gray400'
-                }${resolvedTabs.length === 4 ? 'px-2' : 'px-4'}`}
+                }${availableTabs.length === 4 ? 'px-2' : 'px-4'}`}
                 onClick={() => {
                   setSelectedTab(tab.type);
                   setSelectedValues([]);
                 }}
               >
                 {tab.label}
-                {selectedCount > 0 && (
-                  <span className="ml-[4px]">{selectedCount}</span>
+                {isActive && selectedValues.length > 0 && (
+                  <span className="ml-[4px]">{selectedValues.length}</span>
                 )}
               </button>
             );
@@ -151,36 +126,32 @@ export default function FilterBottomSheet({
         {/* 옵션 */}
         <div className="flex-1 overflow-y-auto">
           <ul className="flex flex-col">
-            {currentTab?.options.map(opt => {
-              const selected = isSelected(opt);
-              const count = filterCounts?.[currentTab.type]?.[opt] || 0;
+            {currentTab?.options.map(option => {
+              const selected = isSelected(option);
+              const count = filterCounts?.[currentTab.type]?.[option] || 0;
+
+              const label =
+                currentTab.type === 'grade'
+                  ? formatCardGrade(option)
+                  : FILTER_LABEL_MAP[option] || option;
+
+              const labelClass =
+                currentTab.type === 'grade'
+                  ? gradeStyles[option] || 'text-white'
+                  : selected
+                  ? 'text-white'
+                  : 'text-gray300';
+
               return (
                 <li
-                  key={opt}
-                  onClick={() => toggleValue(opt)}
+                  key={option}
+                  onClick={() => toggleValue(option)}
                   className={`w-full px-8 py-4 flex justify-between items-center text-sm cursor-pointer ${
                     selected ? 'bg-gray500' : ''
                   }`}
                 >
-                  <span
-                    className={
-                      currentTab.type === 'grade'
-                        ? gradeStyles[opt] || 'text-white'
-                        : selected
-                        ? 'text-white'
-                        : 'text-gray300'
-                    }
-                  >
-                    {currentTab.type === 'grade'
-                      ? formatCardGrade(opt)
-                      : labelMap[opt] || opt}
-                  </span>
-
-                  <span
-                    className={`text-sm ${
-                      selected ? 'text-gray100' : 'text-gray300'
-                    }`}
-                  >
+                  <span className={labelClass}>{label}</span>
+                  <span className={selected ? 'text-gray100' : 'text-gray300'}>
                     {count}개
                   </span>
                 </li>
@@ -194,7 +165,6 @@ export default function FilterBottomSheet({
           <button
             onClick={() => setSelectedValues([])}
             className="flex items-center justify-center w-[54px] h-[55px]"
-            aria-label="초기화"
           >
             <Image
               src="/icons/ic_reset.svg"
@@ -206,20 +176,10 @@ export default function FilterBottomSheet({
           <Button
             onClick={handleApply}
             fullWidth
-            role="filter"
             variant="primary"
+            role="filter"
           >
-            {(selectedValues.length > 0
-              ? selectedValues.reduce(
-                  (acc, value) =>
-                    acc + (filterCounts?.[selectedTab]?.[value] || 0),
-                  0,
-                )
-              : Object.values(filterCounts?.[selectedTab] || {}).reduce(
-                  (acc, count) => acc + count,
-                  0,
-                )) || 0}
-            개 포토보기
+            {totalCount}개 포토보기
           </Button>
         </div>
       </div>
