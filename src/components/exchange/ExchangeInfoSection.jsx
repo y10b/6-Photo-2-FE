@@ -254,7 +254,7 @@ export default function ExchangeInfoSection({
       </div>
 
       {/* 모바일에서만 보이는 버튼 */}
-      <div className="block tablet:hidden mt-5">
+      <div className="block tablet:hidden mt-5 mb-10">
         <Button
           role="exchange-confirm"
           onClick={handleOpenModal}
