@@ -49,7 +49,7 @@ export default function MySalesPage() {
     queryKey: ['mySalesPage', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMySalesCards({
-        pageParam: currentPage,
+        page: currentPage,
         take: 6,
         keyword,
         sort,
