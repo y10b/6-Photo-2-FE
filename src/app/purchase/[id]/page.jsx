@@ -106,6 +106,7 @@ export default function PurchasePage() {
         exchangeGenre={shopDetail?.shop?.exchangeGenre}
         exchangeDescription={shopDetail?.shop?.exchangeDescription}
         onExchangeClick={() => handleExchangeClick(id)}
+        shopId={id}
       />
     </div>
   );

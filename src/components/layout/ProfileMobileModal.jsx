@@ -2,18 +2,29 @@
 
 import {useAuth} from '@/providers/AuthProvider';
 import Link from 'next/link';
+import {useRef} from 'react';
 
 const ProfileMobileModal = ({isActive}) => {
   const {user, logout} = useAuth();
+  const contentRef = useRef(null);
+
+  // 모달 내부 클릭 시 이벤트 전파 중지
+  const handleContentClick = e => {
+    e.stopPropagation();
+  };
 
   return (
     <section className="fixed inset-0 w-full tablet:hidden z-100">
       <div
         className="absolute inset-0 bg-black opacity-50"
-        onClick={() => isActive(prev => !prev)}
+        onClick={() => isActive(false)}
       ></div>
 
-      <div className="relative w-[260px] h-full bg-gray500">
+      <div
+        ref={contentRef}
+        className="relative w-[260px] h-full bg-gray500"
+        onClick={handleContentClick}
+      >
         <div className="h-full flex flex-col justify-between">
           <div>
             <div className="pt-[40px] px-[20px] pb-[20px] border-b border-b-gray400">
@@ -44,7 +55,10 @@ const ProfileMobileModal = ({isActive}) => {
           <div className="pl-[20px] pb-[43px]">
             <p
               className="text-[14px] text-gray400 cursor-pointer"
-              onClick={() => logout()}
+              onClick={e => {
+                e.stopPropagation();
+                logout();
+              }}
             >
               로그아웃
             </p>
