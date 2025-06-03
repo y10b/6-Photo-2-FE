@@ -165,39 +165,36 @@ export const fetchMyExchangeRequests = async (accessToken) => {
   }
 };
 
-/**
- * 교환 요청을 생성합니다.
- * @param {Object} exchangeData - 교환 요청 데이터
- * @param {string} exchangeData.targetCardId - 교환 대상 카드 ID
- * @param {string} exchangeData.requestCardId - 교환 요청 카드 ID
- * @param {string} exchangeData.description - 교환 설명
- * @param {string} accessToken - 액세스 토큰
- * @returns {Promise<Object>} - 생성된 교환 요청 데이터
- */
-export async function createExchangeRequest(exchangeData, accessToken) {
+export const createExchangeRequest = async ({
+  shopId,
+  targetCardId,
+  description,
+}) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(exchangeData),
+    const response = await fetch(`${BASE_URL}/api/exchange/${shopId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
       },
-    );
+      body: JSON.stringify({
+        requestCardId: targetCardId,
+        description,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error('교환 요청 생성에 실패했습니다.');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || '교환 요청 생성에 실패했습니다.');
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('교환 요청 생성 오류:', error);
     throw error;
   }
-}
+};
 
 /**
  * 교환 요청을 취소합니다.
@@ -212,9 +209,9 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
     console.log(`🔄 교환 취소 API 호출: exchangeId=${numericExchangeId}`);
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${numericExchangeId}/cancel`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange/${numericExchangeId}`,
       {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
@@ -284,7 +281,7 @@ export const fetchMyExchangeRequestsForShop = async (shopListingId, accessToken)
 
   try {
     const response = await fetch(
-      `${BASE_URL}/api/exchange/shop/${shopListingId}/my-requests`,
+      `${BASE_URL}/api/exchange/my?shopListingId=${shopListingId}&status=REQUESTED`,
       {
         method: 'GET',
         headers: {
@@ -311,16 +308,16 @@ export const fetchMyExchangeRequestsForShop = async (shopListingId, accessToken)
 
 /**
  * 특정 판매글에 대해 내가 제시한 교환 카드 목록을 조회합니다.
- * @param {number} shopListingId - 판매글 ID
+ * @param {number} shopId - 판매글 ID
  * @param {string} accessToken - 액세스 토큰
  * @returns {Promise<Object>} - 교환 제시 카드 목록 데이터
  */
-export const fetchMyOfferedCardsForShop = async (shopListingId, accessToken) => {
-  console.log('🔍 판매글에 대한 내가 제시한 카드 목록 조회 시작:', { shopListingId });
+export const fetchMyOfferedCardsForShop = async (shopId, accessToken) => {
+  console.log('🔍 판매글에 대한 내가 제시한 카드 목록 조회 시작:', { shopId });
 
   try {
     const response = await fetch(
-      `${BASE_URL}/api/exchange/shop/${shopListingId}/my-cards`,
+      `${BASE_URL}/api/exchange/my?shopListingId=${shopId}&status=REQUESTED`,
       {
         method: 'GET',
         headers: {
@@ -338,22 +335,9 @@ export const fetchMyOfferedCardsForShop = async (shopListingId, accessToken) => 
 
     const data = await response.json();
     console.log('✅ 제시 카드 목록 조회 성공:', data);
-    return {
-      success: true,
-      data: data.data.map(card => ({
-        id: card.id,
-        photoCard: {
-          imageUrl: card.photoCard.imageUrl,
-          name: card.photoCard.name,
-          grade: card.photoCard.grade,
-          genre: card.photoCard.genre
-        },
-        status: card.status,
-        createdAt: card.createdAt
-      }))
-    };
+    return data;
   } catch (error) {
     console.error('❌ 제시 카드 목록 조회 실패:', error);
-    return { success: false, data: [] };
+    throw error;
   }
 };
