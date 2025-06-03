@@ -68,7 +68,7 @@ export default function MyGalleryPage() {
     queryKey: ['myGalleryPage', keyword, sort, filter, currentPage],
     queryFn: () =>
       fetchMyGalleryCards({
-        pageParam: currentPage,
+        page: currentPage,
         take: 6,
         keyword,
         sort,

@@ -31,6 +31,17 @@ export default function CreatePhotoCardPage() {
     formState: {errors, isValid},
   } = useForm({mode: 'onChange'});
 
+  const selectedGrade = watch('grade');
+
+  const gradePriceRange = {
+    COMMON: {min: 100, max: 1000},
+    RARE: {min: 1000, max: 3000},
+    SUPER_RARE: {min: 3000, max: 5000},
+    LEGENDARY: {min: 5000, max: 10000},
+  };
+
+  const priceRange = gradePriceRange[selectedGrade] || {min: 0, max: 100000};
+
   const onSubmit = async data => {
     try {
       const result = await createPhotoCard({
@@ -155,7 +166,14 @@ export default function CreatePhotoCardPage() {
             placeholder="가격을 입력해 주세요"
             {...register('price', {
               required: '필수 입력 항목입니다.',
-              max: {value: 100000, message: '10만 원 이하로 입력해 주세요.'},
+              min: {
+                value: priceRange.min,
+                message: `${selectedGrade} 등급의 최소 가격은 ${priceRange.min}P 입니다.`,
+              },
+              max: {
+                value: priceRange.max,
+                message: `${selectedGrade} 등급의 최대 가격은 ${priceRange.max}P 입니다.`,
+              },
             })}
             error={errors.price?.message}
           />
