@@ -28,3 +28,37 @@ export const SORT_OPTIONS = [
   {label: '낮은 가격순', value: 'price-asc'},
   {label: '높은 가격순', value: 'price-desc'},
 ];
+
+export const FILTER_TAB_CONFIG = {
+  grade: {
+    label: '등급',
+    options: ['COMMON', 'RARE', 'SUPER_RARE', 'LEGENDARY'],
+  },
+  genre: {
+    label: '장르',
+    options: ['TRAVEL', 'LANDSCAPE', 'PORTRAIT', 'OBJECT'],
+  },
+  method: {
+    label: '판매 방법',
+    options: ['sale', 'exchange'],
+  },
+  soldOut: {
+    label: '매진 여부',
+    options: ['false', 'true'],
+  },
+};
+
+export const FILTER_LABEL_MAP = {
+  COMMON: 'COMMON',
+  RARE: 'RARE',
+  SUPER_RARE: 'SUPER RARE',
+  LEGENDARY: 'LEGENDARY',
+  TRAVEL: '여행',
+  LANDSCAPE: '풍경',
+  PORTRAIT: '인물',
+  OBJECT: '사물',
+  sale: '판매',
+  exchange: '교환',
+  true: '판매 완료',
+  false: '판매 중',
+};

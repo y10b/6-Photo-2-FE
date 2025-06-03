@@ -101,9 +101,15 @@
 ### **오보람**
 
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+![마켓플레이스](public/dev/marketplace.png)
+![필터 바텀시트](public/dev/filterbottomsheet.png)
+![마이갤러리](public/dev/mygallery.png)
+![페이지네이션](public/dev/pagination.png)
+![로딩스피너](public/dev/loadingspinner.png)
 
-- **공용 Modal 컴포넌트**
+- **공용 Modal 컴포넌트, 로딩스피너**
   - 공용으로 사용할 반응형 Modal 컴포넌트 구현
+  - 로딩 스피너 구현
 - **조회 기능 -BE+FE**
   - 마켓 플레이스/마이갤러리/나의 판매카드 조회
   - 포토카드 생성
