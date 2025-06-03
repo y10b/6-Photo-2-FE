@@ -74,7 +74,7 @@ export const rejectExchangeProposal = async (proposalId) => {
     throw new Error(error.message || '교환 제안을 거절할 수 없습니다.');
   }
 };
-};
+
 
 /**
  * 교환 제안 취소
