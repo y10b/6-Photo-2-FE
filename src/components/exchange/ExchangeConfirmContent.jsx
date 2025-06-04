@@ -24,7 +24,7 @@ function ExchangeConfirmContent({shopId}) {
   useEffect(() => {
     // 바텀시트가 열릴 때 body 스크롤 막기
     document.body.style.overflow = 'hidden';
-    
+
     // 컴포넌트가 언마운트될 때 body 스크롤 복원
     return () => {
       document.body.style.overflow = 'unset';
@@ -134,7 +134,6 @@ function ExchangeConfirmContent({shopId}) {
                       label: '나의 판매 포토카드에서 확인하기',
                       onClick: () => {
                         closeModal();
-                        router.push('/my-gallery');
                       },
                     },
                   });
@@ -150,13 +149,12 @@ function ExchangeConfirmContent({shopId}) {
                       label: '마켓플레이스로 돌아가기',
                       onClick: () => {
                         closeModal();
-                        router.push('/marketplace');
                       },
                     },
                   });
                 }
               }}
-              onCancel={closeModal}
+              onCancel={closeModal()}
             />
           </div>
         ),
