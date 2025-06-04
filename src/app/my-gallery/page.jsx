@@ -35,7 +35,7 @@ export default function MyGalleryPage() {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showToast, setShowToast] = useState(true);
+  const [showToast, setShowToast] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
 
@@ -100,6 +100,12 @@ export default function MyGalleryPage() {
     setSelectedCardId(card.userCardId);
     setIsSellRegistrationOpen(true);
   };
+
+  useEffect(() => {
+    if (quotaData && quotaData.remainingQuota === 0) {
+      setShowToast(true);
+    }
+  }, [quotaData]);
 
   return (
     <>
