@@ -35,7 +35,7 @@ export default function MyGalleryPage() {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showToast, setShowToast] = useState(true);
+  const [showToast, setShowToast] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [isSellRegistrationOpen, setIsSellRegistrationOpen] = useState(false);
 
@@ -100,6 +100,13 @@ export default function MyGalleryPage() {
     setSelectedCardId(card.userCardId);
     setIsSellRegistrationOpen(true);
   };
+
+  // 자동 토스트 알림
+  useEffect(() => {
+    if (remainingQuota === 0) {
+      setShowToast(true);
+    }
+  }, [remainingQuota]);
 
   return (
     <>
