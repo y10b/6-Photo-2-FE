@@ -162,9 +162,35 @@
 <details>
   <summary>교환 요청</summary>
   
+![교환요청](https://github.com/user-attachments/assets/d05c72f2-ac72-41b6-aaba-0fd98228b2b7)
+
+</details>
+
+<details>
+  <summary>교환 요청 취소</summary>
+  
+![교환 요청 취소](https://github.com/user-attachments/assets/92692dbc-fdc0-4209-9c16-a1bd0dfa5f8b)
 
 
 </details>
+
+<details>
+  <summary>교환 요청 승인</summary>
+  
+![교환 요청 승인](https://github.com/user-attachments/assets/f1aad29a-f574-4640-b42d-1606fd37fa65)
+
+
+</details>
+
+<details>
+  <summary>교환 요청 거절</summary>
+  
+![교환 요청 거절](https://github.com/user-attachments/assets/5816ec60-24fb-47d5-97e1-20de0da9b240)
+
+
+</details>
+
+
 
 - **공통 버튼 컴포넌트 구현**
   - 반응형 Button 컴포넌트 구현
