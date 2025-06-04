@@ -46,13 +46,26 @@ export const createExchangeProposal = async (proposalData) => {
  */
 export const acceptExchangeProposal = async (proposalId) => {
   try {
-    const data = await tokenFetch(`/api/exchange/${proposalId}/status`, {
+    console.log(`🔄 교환 제안 수락 API 호출: proposalId=${proposalId}`);
+
+    // proposalId가 undefined인 경우 에러 발생
+    if (!proposalId) {
+      throw new Error('교환 제안 ID가 필요합니다.');
+    }
+
+    const numericProposalId = Number(proposalId);
+    if (isNaN(numericProposalId)) {
+      throw new Error('유효하지 않은 교환 제안 ID입니다.');
+    }
+
+    const data = await tokenFetch(`/api/exchange/${numericProposalId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status: 'ACCEPTED' }),
     });
+    console.log('✅ 교환 제안 수락 응답:', data);
     return data;
   } catch (error) {
-    console.error('교환 제안 수락 실패:', error);
+    console.error('❌ 교환 제안 수락 실패:', error);
     throw new Error(error.message || '교환 제안을 수락할 수 없습니다.');
   }
 };
@@ -89,7 +102,7 @@ export async function cancelExchangeRequest(exchangeId, accessToken) {
     const data = await tokenFetch(`/api/exchange/${numericExchangeId}`, {
       method: 'DELETE'
     });
-    
+
     console.log('✅ 교환 취소 성공:', data);
     return data;
   } catch (error) {
