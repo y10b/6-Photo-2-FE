@@ -64,6 +64,34 @@
 
 ### **김단이**
 
+<details>
+  <summary>회원가입</summary>
+
+![회원가입](public/dev/signup.gif)
+
+</details>
+
+<details>
+  <summary>로그인</summary>
+
+![로그인](public/dev/login.gif)
+
+</details>
+
+<details>
+  <summary>랜덤 포인트 뽑기</summary>
+
+![랜덤 포인트](public/dev/randompoint.gif)
+
+</details>
+
+<details>
+  <summary>구글 로그인</summary>
+
+![구글 로그인](public/dev/googlelogin.gif)
+
+</details>
+
 - **로그인 / 회원가입**
   - JWT + Refresh Token 기반 로그인/회원가입 구현
   - OAuth(Google) 로그인 연동
@@ -71,8 +99,6 @@
 - **포인트 뽑기**
   - 1시간 쿨타임 랜덤 포인트 지급 기능 구현
   - 쿨타임 체크 및 초기화 API 연동
-- **사용자 정보 API**
-  - 로그인 후 유저 정보 요청 및 전역 상태 관리
 - **입력 컴포넌트**
   - `Input`, `TokenInput`, `CounterInput` 등 입력 UI 컴포넌트 구현
 
