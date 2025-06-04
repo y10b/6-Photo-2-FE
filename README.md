@@ -101,7 +101,9 @@
 
 <details>
   <summary>판매 기능</summary>
-![나의 동영상](public/dev/sale.gif)
+
+![판매](public/dev/sale.gif)
+
 </details>
 
 - **판매 기능(Desktop: 모달, Tablet: 바텀시트, Mobile: 페이지)**
