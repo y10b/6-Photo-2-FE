@@ -47,7 +47,7 @@ export default function SellCardRegistrationBottomSheet({
     LEGENDARY: {min: 5000, max: 10000},
   };
 
-  const showResultModal = (isSuccess, titleText) => {
+  const showResultModal = isSuccess => {
     const modalType = isSuccess ? 'success' : 'fail';
     openModal({
       type: modalType,
@@ -82,9 +82,11 @@ export default function SellCardRegistrationBottomSheet({
         setExchangeGenre('');
         setExchangeDescription('');
       } else {
+        onClose();
         showResultModal(false);
       }
     } catch (error) {
+      onClose();
       showResultModal(false);
     } finally {
       setIsLoading(false);
@@ -111,12 +113,20 @@ export default function SellCardRegistrationBottomSheet({
       !sellingPrice ||
       sellingPrice <= 0
     ) {
-      showResultModal(false);
+      openModal({
+        type: 'alert',
+        title: '가격 오류',
+        description: '판매 수량과 가격을 올바르게 입력해주세요.',
+        button: {
+          label: '확인',
+          onClick: () => closeModal(),
+        },
+      });
       return;
     }
 
     const price = Number(sellingPrice);
-    const grade = cardDetails.cardGrade?.toUpperCase(); 
+    const grade = cardDetails.cardGrade?.toUpperCase();
     const limits = gradePriceLimits[grade];
 
     if (!limits || price < limits.min || price > limits.max) {
@@ -151,9 +161,11 @@ export default function SellCardRegistrationBottomSheet({
 
     try {
       await registerSale(saleData);
+      onClose();
       showResultModal(true);
     } catch (error) {
       console.error('판매 등록 실패:', error);
+      onClose();
       showResultModal(false);
     }
   };

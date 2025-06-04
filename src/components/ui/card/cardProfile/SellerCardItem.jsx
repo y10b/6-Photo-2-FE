@@ -19,6 +19,8 @@ function SellerCardItem({exchangeCard, gradeStyles, card}) {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const isExchange = exchangeCard.grade || exchangeCard.genre;
+
   const handleDelete = async () => {
     openModal({
       type: 'alert',
@@ -74,19 +76,27 @@ function SellerCardItem({exchangeCard, gradeStyles, card}) {
       <hr className="mb-[30px] border-2 border-gray200" />
 
       {/* 카드 정보 */}
-      <div className="flex items-center gap-[11px] pc:gap-[15px] text-[18px] pc:text-2xl font-bold">
-        <p className={gradeStyles[exchangeCard.grade]}>
-          {formatCardGrade(exchangeCard.grade)}
+      {isExchange ? (
+        <>
+          <div className="flex items-center gap-[11px] pc:gap-[15px] text-[18px] pc:text-2xl font-bold">
+            <p className={gradeStyles[exchangeCard.grade]}>
+              {formatCardGrade(exchangeCard.grade)}
+            </p>
+            <span className="text-gray400">|</span>
+            <p className="text-gray300">{exchangeCard.genre}</p>
+          </div>
+
+          <hr className="my-[30px] border-t text-gray400" />
+
+          <p className="mb-[54px] text-base pc:text-[18px] font-normal">
+            {exchangeCard.description}
+          </p>
+        </>
+      ) : (
+        <p className="text-[18px] font-bold mb-[130px]">
+          교환 희망을 하지 않습니다.
         </p>
-        <span className="text-gray400">|</span>
-        <p className="text-gray300">{exchangeCard.genre}</p>
-      </div>
-
-      <hr className="my-[30px] border-t text-gray400" />
-
-      <p className="mb-[54px] text-base pc:text-[18px] font-normal">
-        {exchangeCard.description}
-      </p>
+      )}
 
       {/* 버튼 */}
       <div className="space-y-5">
