@@ -104,10 +104,7 @@
 ![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
 ![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
 
-- **모델 설계 및 정의**
-  - ERD 설계
-  - 스키마 정의
-- **판매 기능(Desktop: 모달, Tablet: 바텀시트, Mobile: 페이지) - BE+FE**
+- **판매 기능(Desktop: 모달, Tablet: 바텀시트, Mobile: 페이지)**
   - 판매 등록
   - 판매 조회
   - 판매 상세 페이지(조회, 수정, 삭제)

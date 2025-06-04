@@ -164,12 +164,20 @@ export default function EditCardModal({isOpen, onClose}) {
       }
     }
 
-    if (!sellingQuantity || !sellingPrice || sellingPrice === '0') {
+    if (
+      sellingQuantity <= 0 ||
+      sellingQuantity > shopDetails.quantityLeft ||
+      !sellingPrice ||
+      sellingPrice <= 0
+    ) {
       openModal({
         type: 'alert',
-        title: '입력 오류',
-        description: '판매 수량과 가격을 입력해주세요.',
-        button: {label: '확인', onClick: closeModal},
+        title: '가격 오류',
+        description: '판매 수량과 가격을 올바르게 입력해주세요.',
+        button: {
+          label: '확인',
+          onClick: () => closeModal(),
+        },
       });
       return;
     }
@@ -188,6 +196,7 @@ export default function EditCardModal({isOpen, onClose}) {
 
     try {
       await updateShop(Number(id), updatedData);
+      onClose();
       openModal({
         type: 'success',
         title: '수정 완료',
@@ -196,7 +205,7 @@ export default function EditCardModal({isOpen, onClose}) {
           label: '확인',
           onClick: () => {
             closeModal();
-            onClose();
+
             window.location.reload();
           },
         },
