@@ -101,12 +101,11 @@ export default function MyGalleryPage() {
     setIsSellRegistrationOpen(true);
   };
 
-  // 자동 토스트 알림
   useEffect(() => {
-    if (remainingQuota === 0) {
+    if (quotaData && quotaData.remainingQuota === 0) {
       setShowToast(true);
     }
-  }, [remainingQuota]);
+  }, [quotaData]);
 
   return (
     <>
