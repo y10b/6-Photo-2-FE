@@ -13,7 +13,7 @@
 
 오보람 ([개인 Github 링크](https://github.com/elisaohh))
 
-윤세준 (개인 Github 링크)
+윤세준 ([개인 Github 링크](https://github.com/YSJ0228))
 
 임정빈 ([개인 Github 링크](https://github.com/jbinyim))
 
