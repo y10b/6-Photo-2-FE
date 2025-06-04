@@ -83,8 +83,11 @@ export default function MySalesPage() {
 
   // 카드 클릭 실행 함수
   const handleCardClick = card => {
-    const path = `/sale/${card.shopIds[0]}`;
-    router.push(path);
+    if (card.saleStatus === 'exchange' && card.targetShopId) {
+      router.push(`/purchase/${card.targetShopId}`);
+    } else if (card.shopIds?.length > 0) {
+      router.push(`/sale/${card.shopIds[0]}`);
+    }
   };
 
   return (
