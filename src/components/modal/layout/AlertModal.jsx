@@ -5,7 +5,7 @@ import Button from '@/components/common/Button';
 
 export default function AlertModal({title, description, button, onClose}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-999 flex items-center justify-center">
       {/* 배경 */}
       <div className="absolute inset-0 bg-black/80" />
       <div className="relative z-10 flex items-center justify-center h-full">
