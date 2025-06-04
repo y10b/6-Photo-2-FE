@@ -1,26 +1,184 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('/fonts/NotoSansKR-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Baskin Robbins';
+  src: url('/fonts/BRB.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --black: #0f0f0f;
+  --gray500: #161616;
+  --gray400: #5a5a5a;
+  --gray300: #a4a4a4;
+  --gray200: #dddddd;
+  --gray100: #eeeeee;
+  --white: #fff;
+  --red: #ff483d;
+  --blue: #29c9f9;
+  --purple: #a77eff;
+  --pink: #ff2a6a;
+  --main: #efff04;
+  --baskin: 'Baskin Robbins';
+  --noto: 'Noto Sans KR';
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* 색상 */
+  --color-black: var(--black);
+  --color-gray500: var(--gray500);
+  --color-gray400: var(--gray400);
+  --color-gray300: var(--gray300);
+  --color-gray200: var(--gray200);
+  --color-gray100: var(--gray100);
+  --color-white: var(--white);
+  --color-red: var(--red);
+  --color-blue: var(--blue);
+  --color-purple: var(--purple);
+  --color-pink: var(--pink);
+  --color-main: var(--main);
+
+  /* 폰트 */
+  --font-baskin: var(--baskin);
+  --font-noto: var(--noto);
+
+  /* 반응형 */
+  --breakpoint-mobile: 375px;
+  --breakpoint-tablet: 744px;
+  --breakpoint-pc: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.font-noto {
+  font-family: var(--font-noto), sans-serif;
+}
+
+.font-baskin {
+  font-family: var(--font-baskin), cursive;
+}
+
+/* Chrome, Safari, Edge, Opera에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox에서 숫자 입력 필드의 스핀 버튼 제거 */
+input[type='number'] {
+  -moz-appearance: textfield !important;
+}
+
+/* 줄바꿈 처리 설정 */
+.clamp-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 2줄까지만 보이도록 설정 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 스크롤바 숨기기 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* 백그라운드 이미지 설정 */
+.bg-custom-landing1bg {
+  background-image: url('/images/landing/landing1bg.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing2 {
+  background-image: url('/images/landing/landing2s.svg');
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing3 {
+  background-image: url('/images/landing/landing3_sm.png');
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bg-landing4 {
+  background-image: url('/images/landing/landing4_sm.png');
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+@media (min-width: 744px) {
+  .bg-landing2 {
+    background-image: url('/images/landing/landing2md.svg');
+  }
+  .bg-landing3 {
+    background-image: url('/images/landing/landing3_md.png');
+  }
+  .bg-landing4 {
+    background-image: url('/images/landing/landing4_md.png');
+  }
+}
+@media (min-width: 1200px) {
+  .bg-landing2 {
+    background-image: url('/images/landing/landing2.svg');
+  }
+  .bg-landing3 {
+    background-image: url('/images/landing/landing3_lg.png');
+  }
+  .bg-landing4 {
+    background-image: url('/images/landing/landing4_lg.png');
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--noto) sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--gray400);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--gray300);
 }
