@@ -99,9 +99,7 @@
 
 ### **백지연**
 
-![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
-![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
-![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
+![나의 동영상](public/dev/sale.gif)
 
 - **모델 설계 및 정의**
   - ERD 설계
