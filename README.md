@@ -113,11 +113,40 @@
 
 ### **오보람**
 
-![마켓플레이스](public/dev/marketplace.png)
-![필터 바텀시트](public/dev/filterbottomsheet.png)
-![마이갤러리](public/dev/mygallery.png)
+<details>
+  <summary>마켓플레이스</summary>
+
+![마켓플레이스](public/dev/marketplace.gif)
+
+</details>
+
+<details>
+  <summary>필터 바텀시트</summary>
+
+![필터 바텀시트](public/dev/filterbottomsheet.gif)
+
+</details>
+
+<details>
+  <summary>마이갤러리</summary>
+
+![마이갤러리](public/dev/mygallery.gif)
+
+</details>
+
+<details>
+  <summary>페이지네이션</summary>
+
 ![페이지네이션](public/dev/pagination.png)
-![로딩스피너](public/dev/loadingspinner.png)
+
+</details>
+
+<details>
+  <summary>로딩 스피너</summary>
+
+![로딩스피너](public/dev/loadingspinner.gif)
+
+</details>
 
 - **공용 Modal 컴포넌트, 로딩스피너**
   - 공용으로 사용할 반응형 Modal 컴포넌트 구현
@@ -156,6 +185,7 @@
 ---
 
 ## **파일 구조**
+
 ```
 6-Photo-2-FE
 ├─ public
