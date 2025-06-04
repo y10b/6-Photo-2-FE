@@ -7,7 +7,6 @@ export default function useFilteredCards(myCards, search, filter) {
   useEffect(() => {
     const counts = {grade: {}, genre: {}};
     const mapped = myCards.map(card => {
-      console.log('매핑할 카드 데이터:', card);
       
       const grade = card.grade ?? card.cardGrade;
       const genre = card.genre ?? card.cardGenre;
@@ -18,11 +17,6 @@ export default function useFilteredCards(myCards, search, filter) {
       counts.grade[grade] = (counts.grade[grade] || 0) + 1;
       counts.genre[genre] = (counts.genre[genre] || 0) + 1;
 
-      console.log('매핑된 ID 정보:', {
-        userCardId,
-        photoCardId,
-        final: userCardId
-      });
 
       return {
         id: userCardId, // userCardId를 id로 사용

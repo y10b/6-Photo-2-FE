@@ -30,7 +30,6 @@ function ExchangeInfoSection({
         if (!accessToken || !shopId) return;
 
         const response = await fetchMyOfferedCardsForShop(shopId, accessToken);
-        console.log('받은 응답:', JSON.stringify(response, null, 2));
 
         if (response?.success && response?.data?.requests) {
           const requests = response.data.requests;
