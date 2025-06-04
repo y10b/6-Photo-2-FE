@@ -159,3 +159,167 @@
 ---
 
 ## **파일 구조**
+```
+6-Photo-2-FE
+├─ public
+│  ├─ dev
+│  ├─ fonts
+│  │  ├─ BRB.woff2
+│  │  ├─ NotoSansKR-Bold.woff2
+│  │  ├─ NotoSansKR-Light.woff2
+│  │  └─ NotoSansKR-Regular.woff2
+│  ├─ icons
+│  ├─ images
+└─ src
+   ├─ app
+   │  ├─ auth
+   │  │  ├─ callback
+   │  │  │  └─ page.jsx
+   │  │  ├─ login
+   │  │  │  └─ page.jsx
+   │  │  └─ signup
+   │  │     └─ page.jsx
+   │  ├─ globals.css
+   │  ├─ layout.js
+   │  ├─ market
+   │  │  └─ page.jsx
+   │  ├─ my-gallery
+   │  │  ├─ create
+   │  │  │  └─ page.jsx
+   │  │  └─ page.jsx
+   │  ├─ not-found.jsx
+   │  ├─ page.jsx
+   │  ├─ providers.jsx
+   │  ├─ purchase
+   │  │  └─ [id]
+   │  │     └─ page.jsx
+   │  └─ sale
+   │     ├─ [id]
+   │     │  └─ page.jsx
+   │     └─ page.jsx
+   ├─ components
+   │  ├─ card
+   │  │  └─ ExchangeInfo.jsx
+   │  ├─ common
+   │  │  ├─ BottomSheet.jsx
+   │  │  ├─ Button.jsx
+   │  │  ├─ GoogleButton.jsx
+   │  │  ├─ Modal.jsx
+   │  │  ├─ PointDrawModal.jsx
+   │  │  ├─ ToastMessage.jsx
+   │  │  └─ TransactionSection.jsx
+   │  ├─ exchange
+   │  │  ├─ ExchangeCard.jsx
+   │  │  ├─ ExchangeConfirmContent.jsx
+   │  │  ├─ ExchangeInfoSection.jsx
+   │  │  ├─ ExchangeModal.jsx
+   │  │  ├─ ExchangeOfferModal.jsx
+   │  │  ├─ ExchangeSuggest.jsx
+   │  │  └─ MyExchangeList.jsx
+   │  ├─ layout
+   │  │  ├─ AppInitializer.jsx
+   │  │  ├─ Header.jsx
+   │  │  ├─ NoHeader.jsx
+   │  │  ├─ NotificationModal.jsx
+   │  │  ├─ ProfileMobileModal.jsx
+   │  │  ├─ ProfileModal.jsx
+   │  │  └─ WrapperLayout.jsx
+   │  ├─ market
+   │  │  ├─ EditCardModal.jsx
+   │  │  ├─ FilterBottomSheet.jsx
+   │  │  ├─ FilterBottomSheet2.jsx
+   │  │  ├─ MyCardsSellBottomSheet.jsx
+   │  │  ├─ Pagination.jsx
+   │  │  └─ SellCardRegistrationBottomSheet.jsx
+   │  ├─ modal
+   │  │  ├─ ModalContext.jsx
+   │  │  ├─ ModalRenderer.jsx
+   │  │  ├─ PointModalRenderer.jsx
+   │  │  ├─ ResponsiveModalWrapper.jsx
+   │  │  └─ layout
+   │  │     ├─ AlertModal.jsx
+   │  │     ├─ BottomSheetModal.jsx
+   │  │     ├─ CardModal.jsx
+   │  │     ├─ DesktopModal.jsx
+   │  │     ├─ FullScreenModal.jsx
+   │  │     └─ PointModal.jsx
+   │  └─ ui
+   │     ├─ LoadingSpinner.jsx
+   │     ├─ card
+   │     │  ├─ cardOverview
+   │     │  │  ├─ CardImage.jsx
+   │     │  │  ├─ CardInfo.jsx
+   │     │  │  ├─ CardList.jsx
+   │     │  │  ├─ CardOverview.jsx
+   │     │  │  ├─ ExchangeButtons.jsx
+   │     │  │  ├─ ExchangeInfo.jsx
+   │     │  │  ├─ GradeGenreNickname.jsx
+   │     │  │  ├─ GradeGenreNicknameMarket.jsx
+   │     │  │  ├─ MarketInfo.jsx
+   │     │  │  ├─ PriceQuantity.jsx
+   │     │  │  └─ Title.jsx
+   │     │  └─ cardProfile
+   │     │     ├─ BuyerCardItem.jsx
+   │     │     ├─ CardBasicItem.jsx
+   │     │     ├─ CardDetailItem.jsx
+   │     │     ├─ CardProfile.jsx
+   │     │     └─ SellerCardItem.jsx
+   │     ├─ input
+   │     │  ├─ AuthInput.jsx
+   │     │  ├─ CounterInput.jsx
+   │     │  ├─ DropdownInput.jsx
+   │     │  ├─ Input.jsx
+   │     │  ├─ SearchInput.jsx
+   │     │  ├─ TextboxInput.jsx
+   │     │  ├─ TokenInput.jsx
+   │     │  ├─ UploadInput.jsx
+   │     │  └─ index.js
+   │     └─ skeleton
+   │        ├─ BuyerCardItemSkeleton.jsx
+   │        ├─ CardBasicItemSkeleton.jsx
+   │        ├─ CardDetailItemSkeleton.jsx
+   │        ├─ CardImageSkeleton.jsx
+   │        ├─ CardInfoSkeleton.jsx
+   │        ├─ CardOverviewSkeleton.jsx
+   │        ├─ CardProfileSkeleton.jsx
+   │        ├─ ExchangeInfoSkeleton.jsx
+   │        ├─ ExchangeSuggestSkeleton.jsx
+   │        ├─ SellerCardItemSkeleton.jsx
+   │        ├─ SkeletonBox.jsx
+   │        └─ TransactionSkeleton.jsx
+   ├─ hooks
+   │  ├─ useAccessToken.js
+   │  ├─ useBreakpoint.js
+   │  ├─ useBuyerCardHandlers.js
+   │  ├─ useDebounce.js
+   │  ├─ useFilteredCards.js
+   │  ├─ useLocalUser.js
+   │  ├─ useMarketInfiniteCards.js
+   │  ├─ useMediaQuery.js
+   │  └─ useNotificationQuery.js
+   ├─ lib
+   │  ├─ api
+   │  │  ├─ auth-service.js
+   │  │  ├─ exchange.js
+   │  │  ├─ galleryApi.js
+   │  │  ├─ marketApi.js
+   │  │  ├─ notificationApi.js
+   │  │  ├─ purchase.js
+   │  │  ├─ shop.js
+   │  │  └─ user-service.js
+   │  └─ fetchClient.js
+   ├─ providers
+   │  ├─ AuthProvider.jsx
+   │  ├─ ReactQueryProvider.jsx
+   │  └─ RouteGuard.jsx
+   ├─ schemas
+   │  ├─ login.schema.js
+   │  └─ signup.schema.js
+   └─ utils
+      ├─ countFilterValues.js
+      ├─ filterOptions.js
+      ├─ formatCardGrade.js
+      ├─ formatRelativeTime.js
+      └─ gradeStyles.js
+
+```
