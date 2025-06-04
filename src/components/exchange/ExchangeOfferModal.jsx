@@ -14,9 +14,7 @@ export default function ExchangeOfferModal({
   const [description, setDescription] = useState('');
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 카드 데이터 로깅
-    console.log('=== ExchangeOfferModal 마운트 ===');
-    console.log('원본 카드 데이터:', card);
+
   }, [card]);
 
   // 카드 데이터 매핑
@@ -36,7 +34,7 @@ export default function ExchangeOfferModal({
 
   useEffect(() => {
     // 매핑된 카드 데이터 로깅
-    console.log('매핑된 카드 데이터:', mappedCard);
+
   }, [mappedCard]);
 
   const handleExchange = () => {
@@ -44,19 +42,18 @@ export default function ExchangeOfferModal({
       cardId: mappedCard.id,
       description,
     };
-    console.log('교환 요청 데이터:', exchangeData);
+
     onExchange(exchangeData);
   };
 
   const handleCardClick = () => {
-    console.log('카드 클릭 이벤트 발생');
-    console.log('클릭된 카드 데이터:', mappedCard);
+
 
     if (onCardClick) {
-      console.log('사용자 정의 onCardClick 실행');
+
       onCardClick(mappedCard);
     } else {
-      console.log('기본 상세 모달 열기');
+
       openModal({
         type: 'exchange_detail',
         props: {

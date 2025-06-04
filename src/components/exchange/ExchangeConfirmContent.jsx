@@ -42,12 +42,12 @@ function ExchangeConfirmContent({shopId}) {
           filterType: filter.type,
           filterValue: filter.value,
         });
-        console.log('fetchMyCards 응답:', response);
+
         // soldout이 아닌 카드만 필터링
         const availableCards = response.result.filter(
           card => card.quantityLeft > 0,
         );
-        console.log('필터링된 카드:', availableCards);
+
         setCards(availableCards);
       } catch (error) {
         console.error('카드 로딩 실패:', error);
@@ -60,7 +60,6 @@ function ExchangeConfirmContent({shopId}) {
   }, [keyword, filter]);
 
   const handleCardClick = card => {
-    console.log('선택된 카드 데이터:', card);
     // 첫 번째 모달 닫기
     closeModal();
 
@@ -92,7 +91,6 @@ function ExchangeConfirmContent({shopId}) {
         createdAt: card.createdAt,
         type: 'exchange_big',
       };
-      console.log('ExchangeOfferModal에 전달할 카드 데이터:', mappedCard);
 
       openModal({
         type: 'responsive',

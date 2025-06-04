@@ -111,9 +111,3 @@ export default function PurchasePage() {
     </div>
   );
 }
-
-// 이 함수는 상단에서 정의되지 않았으므로 필요 시 다음과 같이 추가해주세요:
-function handleExchangeClick(id) {
-  // 예: 교환 요청 모달 오픈 혹은 라우팅
-  console.log(`교환 요청 버튼 클릭 - shopId: ${id}`);
-}

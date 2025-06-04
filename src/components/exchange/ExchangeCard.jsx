@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import {useState} from 'react';
 import Image from 'next/image';
-import { useModal } from '@/components/modal/ModalContext';
-import { acceptExchangeProposal, rejectExchangeProposal } from '@/lib/api/exchange';
-import { formatCardGrade } from '@/utils/formatCardGrade';
+import {useModal} from '@/components/modal/ModalContext';
+import {
+  acceptExchangeProposal,
+  rejectExchangeProposal,
+} from '@/lib/api/exchange';
+import {formatCardGrade} from '@/utils/formatCardGrade';
 import gradeStyles from '@/utils/gradeStyles';
 
-export default function ExchangeCard({ proposal, onStatusChange }) {
+export default function ExchangeCard({proposal, onStatusChange}) {
   const [isLoading, setIsLoading] = useState(false);
-  const { openModal } = useModal();
+  const {openModal} = useModal();
 
   const handleAccept = async () => {
     openModal({
@@ -21,20 +24,16 @@ export default function ExchangeCard({ proposal, onStatusChange }) {
         onClick: async () => {
           try {
             setIsLoading(true);
-            console.log('[교환 승인 시작] 교환 ID:', proposal.id);
-            
+
             await acceptExchangeProposal(proposal.id);
-            console.log('[교환 승인 API 호출 완료]');
-            
+
             onStatusChange?.(proposal.id, 'ACCEPTED');
-            console.log('[교환 상태 변경 완료]');
-            
+
             openModal({
               type: 'success',
               title: '교환 수락 완료',
               description: '교환이 성공적으로 완료되었습니다.',
             });
-            console.log('[교환 승인 프로세스 완료]');
           } catch (error) {
             console.error('[교환 승인 실패]', error);
             openModal({
@@ -96,7 +95,11 @@ export default function ExchangeCard({ proposal, onStatusChange }) {
           <h3 className="text-lg font-semibold">{proposal.name}</h3>
           <p className="text-sm text-gray-600">{proposal.userNickname}</p>
           <div className="flex items-center gap-2 mt-1">
-            <span className={`px-2 py-1 text-xs rounded ${gradeStyles[proposal.grade]}`}>
+            <span
+              className={`px-2 py-1 text-xs rounded ${
+                gradeStyles[proposal.grade]
+              }`}
+            >
               {formatCardGrade(proposal.grade)}
             </span>
             <span className="text-sm text-gray-500">{proposal.genre}</span>
@@ -140,4 +143,4 @@ export default function ExchangeCard({ proposal, onStatusChange }) {
       )}
     </div>
   );
-} 
+}

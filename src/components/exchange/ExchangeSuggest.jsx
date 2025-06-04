@@ -45,12 +45,12 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
   });
 
   const handleAccept = proposalId => {
-    console.log('교환 제안 수락:', proposalId);
+
     acceptMutation.mutate(proposalId);
   };
 
   const handleReject = proposalId => {
-    console.log('교환 제안 거절:', proposalId);
+
     rejectMutation.mutate(proposalId);
   };
 
@@ -60,7 +60,7 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
 
   // 백엔드 응답을 CardList/Card 컴포넌트가 이해할 수 있는 형식으로 변환
   const mappedCards = proposals.map(proposal => {
-    console.log('교환 제안 데이터:', proposal);
+
     return {
       userCardId: proposal.requestCard.id,
       type: 'exchange_btn2',
@@ -75,11 +75,11 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
       originalProposal: proposal,
       // 교환 요청 상태 업데이트 핸들러 추가
       onAccept: () => {
-        console.log('승인 버튼 클릭:', proposal.id);
+
         handleAccept(proposal.id);
       },
       onReject: () => {
-        console.log('거절 버튼 클릭:', proposal.id);
+
         handleReject(proposal.id);
       },
     };
@@ -87,9 +87,7 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
 
   // 카드 클릭 핸들러
   const handleCardClick = card => {
-    // 카드 클릭 시 수행할 작업
-    console.log('교환 제안 카드 클릭:', card);
-    // 여기에 교환 수락/거절 로직 추가 가능
+
   };
 
   return (
