@@ -90,19 +90,16 @@
 - **유틸함수**
   - 자주 사용하는 grade 스타일을 매핑하는 함수 구현
 - **스켈레톤 UI**
-  -  공통 컴포넌트 `SkeletonBox`를 제작해 일관된 스타일 적용
-  -  주요 사용되는 컴포넌트에 대한 스켈레톤 UI 제작
+  - 공통 컴포넌트 `SkeletonBox`를 제작해 일관된 스타일 적용
+  - 주요 사용되는 컴포넌트에 대한 스켈레톤 UI 제작
 - **구매 기능**
   - 구매 가능 여부를 판단하여 버튼 UI를 다르게 보이게 처리
   - 구매할 포토카드 정보 조회
   - 판매자일 경우 sale 페이지로 이동 기능 구현
- 
 
 ### **백지연**
 
-![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
-![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
-![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
+![나의 동영상](public/dev/sale.gif)
 
 - **판매 기능(Desktop: 모달, Tablet: 바텀시트, Mobile: 페이지)**
   - 판매 등록
