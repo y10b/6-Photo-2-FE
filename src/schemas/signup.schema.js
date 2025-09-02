@@ -1,4 +1,4 @@
-import {z} from 'zod';
+import { z } from 'zod';
 
 export const SignUpSchema = z
   .object({
@@ -7,7 +7,7 @@ export const SignUpSchema = z
       .min(1, '이메일을 입력해주세요.')
       .email('올바른 이메일 형식이 아닙니다.'),
     nickname: z.string().min(1, '닉네임을 입력해주세요.'),
-    password: z.string().min(4, '비밀번호는 최소 4자 이상이어야 합니다.'),
+    password: z.string().min(8, '비밀번호는 최소 8자 이상이어야 합니다.'),
     confirmPassword: z.string().min(1, '비밀번호 확인을 입력해주세요.'),
   })
   .refine(data => data.password === data.confirmPassword, {
