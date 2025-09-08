@@ -45,22 +45,27 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
   });
 
   const handleAccept = proposalId => {
-
     acceptMutation.mutate(proposalId);
   };
 
   const handleReject = proposalId => {
-
     rejectMutation.mutate(proposalId);
   };
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했습니다: {error.message}</div>;
-  if (!proposals.length) return <div>교환 제안이 없습니다.</div>;
+  if (!proposals.length)
+    return (
+      <div className="text-center py-8">
+        <div className="text-gray-500 mb-2">교환 제안이 없습니다.</div>
+        <div className="text-sm text-gray-400">
+          다른 사용자들이 아직 이 상품에 대해 교환 제안을 보내지 않았습니다.
+        </div>
+      </div>
+    );
 
   // 백엔드 응답을 CardList/Card 컴포넌트가 이해할 수 있는 형식으로 변환
   const mappedCards = proposals.map(proposal => {
-
     return {
       userCardId: proposal.requestCard.id,
       type: 'exchange_btn2',
@@ -75,20 +80,16 @@ export default function ExchangeSuggest({proposals = [], isLoading, error}) {
       originalProposal: proposal,
       // 교환 요청 상태 업데이트 핸들러 추가
       onAccept: () => {
-
         handleAccept(proposal.id);
       },
       onReject: () => {
-
         handleReject(proposal.id);
       },
     };
   });
 
   // 카드 클릭 핸들러
-  const handleCardClick = card => {
-
-  };
+  const handleCardClick = card => {};
 
   return (
     <div className="mx-auto w-[345px] tablet:w-[704px] pc:w-[1480px]">

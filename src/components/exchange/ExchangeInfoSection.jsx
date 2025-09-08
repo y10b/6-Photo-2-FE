@@ -149,7 +149,14 @@ function ExchangeInfoSection({
   };
 
   if (!exchangeGrade && !exchangeGenre && !exchangeDescription) {
-    return <div>교환 희망 정보를 불러오지 못했습니다.</div>;
+    return (
+      <div className="text-center py-8">
+        <div className="text-gray-500 mb-2">교환 희망 정보가 없습니다</div>
+        <div className="text-sm text-gray-400">
+          이 상품은 교환을 원하지 않는 상품입니다.
+        </div>
+      </div>
+    );
   }
 
   return (

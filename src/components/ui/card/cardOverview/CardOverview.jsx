@@ -1,9 +1,9 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import clsx from 'clsx';
 import CardImage from './CardImage';
 import CardInfo from './CardInfo';
 
-export default function CardOverview({card, onCardClick, onAccept, onReject}) {
+function CardOverview({card, onCardClick, onAccept, onReject}) {
   const {
     userCardId: id,
     shopId,
@@ -21,16 +21,15 @@ export default function CardOverview({card, onCardClick, onAccept, onReject}) {
     saleStatus,
   } = card;
 
-  // 조건들은 useMemo로 메모이제이션
-  const isExchangeBig = useMemo(() => type === 'exchange_big', [type]);
+  // 단순한 계산은 useMemo 제거
+  const isExchangeBig = type === 'exchange_big';
+  const isExchangeType = [
+    'exchange_btn1',
+    'exchange_btn2',
+    'exchange_big',
+  ].includes(type);
 
-  // exchange 관련 타입인지 확인
-  const isExchangeType = useMemo(
-    () => ['exchange_btn1', 'exchange_btn2', 'exchange_big'].includes(type),
-    [type],
-  );
-
-  // containerClass도 useMemo로 계산
+  // 복잡한 클래스 계산만 useMemo 유지
   const containerClass = useMemo(() => {
     const baseClass =
       'cursor-pointer text-white rounded-[2px] border-1 border-white/10 bg-gray500';
@@ -41,10 +40,10 @@ export default function CardOverview({card, onCardClick, onAccept, onReject}) {
     return clsx(baseClass, sizeClass);
   }, [isExchangeBig]);
 
-  // 클릭 핸들러는 useCallback으로 메모이제이션
-  const handleClick = useCallback(() => {
+  // 단순한 클릭 핸들러
+  const handleClick = () => {
     if (onCardClick) onCardClick(card);
-  }, [onCardClick, card]);
+  };
 
   return (
     <div onClick={handleClick} className={containerClass}>
@@ -73,3 +72,6 @@ export default function CardOverview({card, onCardClick, onAccept, onReject}) {
     </div>
   );
 }
+
+// React.memo로 컴포넌트 메모이제이션
+export default React.memo(CardOverview);

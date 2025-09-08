@@ -55,7 +55,7 @@ export default function PurchasePage() {
   } = useQuery({
     queryKey: ['shopDetail', id],
     queryFn: () => fetchShopDetail(id),
-    enabled: !!id,
+    enabled: !!id && !!accessToken,
   });
 
   // 판매자인 경우 판매 상세 페이지로 리다이렉트
@@ -105,7 +105,10 @@ export default function PurchasePage() {
         exchangeGrade={shopDetail?.shop?.exchangeGrade}
         exchangeGenre={shopDetail?.shop?.exchangeGenre}
         exchangeDescription={shopDetail?.shop?.exchangeDescription}
-        onExchangeClick={() => handleExchangeClick(id)}
+        onExchangeRequest={() => {
+          // 교환 요청 처리 로직
+          console.log('교환 요청:', id);
+        }}
         shopId={id}
       />
     </div>

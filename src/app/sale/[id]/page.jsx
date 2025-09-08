@@ -9,6 +9,7 @@ import {fetchExchangeProposals} from '@/lib/api/exchange';
 import TransactionSkeleton from '@/components/ui/skeleton/TransactionSkeleton';
 import ExchangeInfoSkeleton from '@/components/ui/skeleton/ExchangeInfoSkeleton';
 import {useEffect} from 'react';
+import {useAccessToken} from '@/hooks/useAccessToken';
 
 function SaleSkeleton() {
   return (
@@ -22,6 +23,7 @@ function SaleSkeleton() {
 export default function SalePage() {
   const {id} = useParams();
   const router = useRouter();
+  const accessToken = useAccessToken();
 
   const {
     data: shopData,
@@ -31,7 +33,7 @@ export default function SalePage() {
   } = useQuery({
     queryKey: ['shopDetail', id],
     queryFn: () => fetchShopDetail(id),
-    enabled: !!id,
+    enabled: !!id && !!accessToken,
   });
 
   const {

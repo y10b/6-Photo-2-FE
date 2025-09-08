@@ -43,33 +43,26 @@ const SaleStatusBadge = ({status}) => {
 };
 
 /**  메인 컴포넌트 */
-export default function CardImage({
+function CardImage({
   imageUrl,
   title,
   saleStatus, // 'sale' | 'exchange' | 'soldout'
   isExchangeBig = false,
   type, // 카드 타입
 }) {
-  // exchange 관련 타입인지 확인
-  const isExchangeType = useMemo(
-    () => ['exchange_btn1', 'exchange_btn2', 'exchange_big'].includes(type),
-    [type],
-  );
+  // 단순한 계산은 useMemo 제거
+  const isExchangeType = [
+    'exchange_btn1',
+    'exchange_btn2',
+    'exchange_big',
+  ].includes(type);
+  const isSoldOut = !isExchangeType && saleStatus === 'soldout';
+  const isForSale =
+    !isExchangeType &&
+    type !== 'market' &&
+    (saleStatus === 'sale' || saleStatus === 'exchange');
 
-  // exchange 타입이 아닐 경우에만 saleStatus 사용
-  const isSoldOut = useMemo(
-    () => !isExchangeType && saleStatus === 'soldout',
-    [isExchangeType, saleStatus],
-  );
-
-  const isForSale = useMemo(
-    () =>
-      !isExchangeType &&
-      type !== 'market' && // 마켓 플레이스에서는 뱃지 안 뜨도록
-      (saleStatus === 'sale' || saleStatus === 'exchange'),
-    [isExchangeType, saleStatus],
-  );
-
+  // 복잡한 계산만 useMemo 유지
   const saleStatusText = useMemo(() => {
     if (isExchangeType) return '';
 
@@ -101,3 +94,6 @@ export default function CardImage({
     </div>
   );
 }
+
+// React.memo로 컴포넌트 메모이제이션
+export default React.memo(CardImage);
