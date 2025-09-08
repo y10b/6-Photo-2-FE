@@ -15,7 +15,7 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_BASE_URL: process.env.NODE_ENV === 'development'
             ? 'http://localhost:5005'
-            : 'https://six-photo-2-be-ysa8.onrender.com',
+            : 'https://six-photo-2-be-ns2a.onrender.com',
     }
 };
 
